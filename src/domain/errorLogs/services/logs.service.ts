@@ -13,7 +13,7 @@ import { AppError } from 'src/core/errors/app.error';
 
 @Injectable()
 export class LogsService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async logsListWithPagination(
     actualPage: number,
@@ -26,9 +26,16 @@ export class LogsService {
     currentPage: number;
   }> {
     try {
-      const page = Math.max(actualPage, 1);
-      const take = Math.max(dataPerPage, 1);
+      const page =
+        Number.isNaN(Number(actualPage)) || Number(actualPage) < 1
+          ? 1
+          : Number(actualPage);
+      const take =
+        Number.isNaN(Number(dataPerPage)) || Number(dataPerPage) < 1
+          ? 10
+          : Number(dataPerPage);
       const skip = (page - 1) * take;
+      const query = this.prisma.logs;
 
       const where: Prisma.LogsWhereInput = {};
 
@@ -36,22 +43,25 @@ export class LogsService {
         where.OR = [{ error: { contains: search, mode: 'insensitive' } }];
       }
 
-      const [logs, totalLogs] = await Promise.all([
-        this.prismaService.logs.findMany({
-          where,
-          skip,
-          take,
-          orderBy: { createdAt: 'desc' },
-        }),
-        this.prismaService.logs.count({ where }),
-      ]);
+      const data = await query.findMany({
+        where,
+        skip,
+        take,
+        orderBy: [
+          {
+            createdAt: 'desc',
+          },
+        ],
+      });
 
-      const totalPages = Math.ceil(totalLogs / take);
+      const totalLogs = await query.count({ where });
+
+      const totalPages = Math.max(Math.ceil(totalLogs / take), 1);
 
       return {
-        logs,
+        logs: data,
         total: totalLogs,
-        totalPages,
+        totalPages: totalPages,
         currentPage: page,
       };
     } catch (error) {

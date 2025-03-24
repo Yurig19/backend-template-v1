@@ -22,38 +22,48 @@ export class AuditsService {
     currentPage: number;
   }> {
     try {
-      const page = Math.max(actualPage, 1);
-      const take = Math.max(dataPerPage, 1);
+      const page =
+        Number.isNaN(Number(actualPage)) || Number(actualPage) < 1
+          ? 1
+          : Number(actualPage);
+      const take =
+        Number.isNaN(Number(dataPerPage)) || Number(dataPerPage) < 1
+          ? 10
+          : Number(dataPerPage);
       const skip = (page - 1) * take;
 
-      const where: Prisma.AuditsWhereInput = {};
+      const query = this.prisma.audits;
 
-      if (search) {
-        where.OR = [{ entity: { contains: search, mode: 'insensitive' } }];
-      }
+      const where: Prisma.AuditsWhereInput = search
+        ? { entity: { contains: search, mode: 'insensitive' } }
+        : {};
 
-      const [audits, totalAudits] = await Promise.all([
-        this.prisma.audits.findMany({
-          where,
-          skip,
-          take,
-        }),
-        this.prisma.audits.count({ where }),
-      ]);
+      const data = await query.findMany({
+        where,
+        skip,
+        take,
+        orderBy: [
+          {
+            createdAt: 'desc',
+          },
+        ],
+      });
 
-      const totalPages = Math.ceil(totalAudits / take);
+      const totalAudits = await query.count({ where });
+
+      const totalPages = Math.max(Math.ceil(totalAudits / take), 1);
 
       return {
-        audits,
+        audits: data,
         total: totalAudits,
-        totalPages,
+        totalPages: totalPages,
         currentPage: page,
       };
     } catch (error) {
       throw new AppError(
         HttpStatusCodeEnum.BAD_REQUEST,
         HttpStatusTextEnum.BAD_REQUEST,
-        `${error}`
+        `Error fetching audits: ${error.message}`
       );
     }
   }

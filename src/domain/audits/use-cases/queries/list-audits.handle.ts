@@ -1,8 +1,8 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { ListAuditsQuery } from './list-audits-query';
-import { AuditsService } from '../../services/audits.service';
 import { ListAuditsDto, ReadAuditsListDto } from '../../dtos/list-audits.dto';
+import { AuditsService } from '../../services/audits.service';
+import { ListAuditsQuery } from './list-audits-query';
 
 @QueryHandler(ListAuditsQuery)
 export class AuditsListHandler implements IQueryHandler<ListAuditsQuery> {
@@ -12,8 +12,8 @@ export class AuditsListHandler implements IQueryHandler<ListAuditsQuery> {
     const { dataPerPage, page, search } = query;
 
     const data = await this.auditsService.auditsListWithPagination(
-      dataPerPage,
       page,
+      dataPerPage,
       search
     );
 

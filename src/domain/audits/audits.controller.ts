@@ -29,9 +29,9 @@ export class AuditsController {
     required: false,
   })
   async listAudits(
-    @Query() page: number,
-    @Query() dataPerPage: number,
-    @Query() search?: string
+    @Query('page') page: number,
+    @Query('dataPerPage') dataPerPage: number,
+    @Query('search') search?: string
   ): Promise<ListAuditsDto> {
     return await this.queryBus.execute(
       new ListAuditsQuery(page, dataPerPage, search)

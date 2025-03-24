@@ -11,8 +11,8 @@ export class LogsListHandler implements IQueryHandler<LogsListQuery> {
     const { dataPerPage, page, search } = query;
 
     const data = await this.logsService.logsListWithPagination(
-      dataPerPage,
       page,
+      dataPerPage,
       search
     );
 

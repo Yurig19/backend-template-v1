@@ -29,9 +29,9 @@ export class LogsController {
     required: false,
   })
   async listLogs(
-    @Query() page: number,
-    @Query() dataPerPage: number,
-    @Query() search?: string
+    @Query('page') page: number,
+    @Query('dataPerPage') dataPerPage: number,
+    @Query('search') search?: string
   ): Promise<ListLogsDto> {
     return await this.queryBus.execute(
       new LogsListQuery(page, dataPerPage, search)
