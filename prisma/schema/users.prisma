@@ -1,0 +1,18 @@
+model Users {
+    uuid String @id @unique @default(uuid())
+
+    name     String? @db.Text()
+    password String? @db.Text()
+    email    String? @unique @db.Text()
+
+    roleUuid String?
+    roles    Roles?  @relation(fields: [roleUuid], references: [uuid])
+
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    deletedAt DateTime?
+
+    audits Audits[]
+
+    @@map("users")
+}

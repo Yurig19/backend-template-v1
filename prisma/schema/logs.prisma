@@ -1,0 +1,17 @@
+model Logs {
+    uuid String @id @unique @default(uuid())
+
+    error      String? @db.Text()
+    statusCode Int?    @db.Integer()
+    statusText String? @db.Text()
+
+    method String? @db.Text()
+    path   String? @db.Text()
+
+    ip        String? @db.Text()
+    userAgent String? @db.Text()
+
+    createdAt DateTime @default(now())
+
+    @@map("logs")
+}
