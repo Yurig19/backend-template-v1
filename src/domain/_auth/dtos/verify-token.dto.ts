@@ -4,7 +4,7 @@ export class VerifyTokenDto {
   @ApiParamDecorator({
     type: String,
     required: true,
-    description: 'UUID do usuário associado ao token',
+    description: 'UUID of the user associated with the token',
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
   userUuid: string;
@@ -12,7 +12,7 @@ export class VerifyTokenDto {
   @ApiParamDecorator({
     type: String,
     required: true,
-    description: 'Nome do usuário associado ao token',
+    description: 'Full name of the user associated with the token',
     example: 'John Doe',
   })
   name: string;
@@ -20,7 +20,7 @@ export class VerifyTokenDto {
   @ApiParamDecorator({
     type: String,
     required: true,
-    description: 'E-mail do usuário associado ao token',
+    description: 'Email address of the user associated with the token',
     example: 'johndoe@example.com',
   })
   email: string;
@@ -28,7 +28,7 @@ export class VerifyTokenDto {
   @ApiParamDecorator({
     type: Date,
     required: true,
-    description: 'Data de criação do token',
+    description: 'Issued at timestamp (token creation date)',
     example: '2025-03-08T12:34:56Z',
   })
   iat: Date;
@@ -36,7 +36,7 @@ export class VerifyTokenDto {
   @ApiParamDecorator({
     type: Date,
     required: true,
-    description: 'Data de expiração do token',
+    description: 'Expiration timestamp of the token',
     example: '2025-03-15T12:34:56Z',
   })
   exp: Date;

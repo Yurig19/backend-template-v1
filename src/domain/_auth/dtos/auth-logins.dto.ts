@@ -5,7 +5,7 @@ export class AuthLoginDto {
   @ApiParamDecorator({
     type: String,
     required: true,
-    description: 'E-mail do usuário',
+    description: 'User email address',
     example: 'example@example.com',
   })
   @IsEmail()
@@ -15,7 +15,8 @@ export class AuthLoginDto {
   @ApiParamDecorator({
     type: String,
     required: true,
-    description: 'user password',
+    description:
+      'User password (must contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character)',
     example: 'Teste@123',
   })
   @IsString()

@@ -1,0 +1,650 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1/users/create": {
+      "post": {
+        "operationId": "UsersController_createUser",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuário criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadUserDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Criar um novo usuário",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/v1/users/find-by-uuid": {
+      "get": {
+        "operationId": "UsersController_getByUuid",
+        "parameters": [
+          {
+            "name": "uuid",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuário encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadUserDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Usuário não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Busca um novo usuário",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthLoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User logged in successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthLoginResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "User not logged in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Login",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/register": {
+      "post": {
+        "operationId": "AuthController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthRegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered in successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthLoginResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "User not registered in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Register",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/verify-token": {
+      "get": {
+        "operationId": "AuthController_verifyToken",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Token is valid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadUserDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Token is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Verify token",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/audits/list": {
+      "get": {
+        "operationId": "AuditsController_listAudits",
+        "parameters": [
+          {
+            "name": "page",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "dataPerPage",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "search",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "list error Audits successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListAuditsDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "list error Audits",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List Audits",
+        "tags": [
+          "Audits"
+        ]
+      }
+    },
+    "/api/v1/logs/list": {
+      "get": {
+        "operationId": "LogsController_listLogs",
+        "parameters": [
+          {
+            "name": "page",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "dataPerPage",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "search",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "list error logs successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListLogsDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "list error logs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List logs",
+        "tags": [
+          "Logs"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Template Api",
+    "description": "The Template API description",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "Template",
+      "description": ""
+    }
+  ],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "access-token": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "RoleEnum": {
+        "type": "string",
+        "enum": [
+          "ADMIN",
+          "EMPLOYEE",
+          "MANAGER"
+        ]
+      },
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "number",
+            "enum": [],
+            "description": "user name",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "number",
+            "enum": [],
+            "description": "user email",
+            "example": "name@email.com"
+          },
+          "password": {
+            "type": "number",
+            "enum": [],
+            "description": "user password",
+            "example": "Teste@123"
+          },
+          "role": {
+            "description": "user email",
+            "example": "name@email.com",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RoleEnum"
+              }
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "password",
+          "role"
+        ]
+      },
+      "ReadUserDto": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "number",
+            "enum": [],
+            "description": "UUID do usuário",
+            "example": "John Doe"
+          },
+          "name": {
+            "type": "number",
+            "enum": [],
+            "description": "Nome completo do usuário"
+          },
+          "email": {
+            "type": "number",
+            "enum": [],
+            "description": "email do usuário",
+            "example": "example@example.com"
+          },
+          "password": {
+            "type": "number",
+            "enum": [],
+            "description": "Senha do usuário",
+            "example": "Teste@123"
+          },
+          "role": {
+            "type": "number",
+            "enum": [],
+            "description": "role do usuário",
+            "example": "admin"
+          },
+          "createdAt": {
+            "type": "number",
+            "enum": [],
+            "description": "Data de criação do usuário"
+          },
+          "updatedAt": {
+            "type": "number",
+            "enum": [],
+            "description": "Data de atualização do usuário"
+          },
+          "deletedAt": {
+            "type": "number",
+            "enum": [],
+            "description": "Data de exclusão do usuário"
+          }
+        },
+        "required": [
+          "uuid",
+          "name",
+          "email",
+          "password",
+          "role",
+          "createdAt",
+          "updatedAt",
+          "deletedAt"
+        ]
+      },
+      "ErrorResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "number",
+            "enum": [],
+            "description": "error message",
+            "example": "error message"
+          },
+          "statusCode": {
+            "type": "number",
+            "enum": [],
+            "description": "error message",
+            "example": 200
+          },
+          "statusMessage": {
+            "type": "number",
+            "enum": [],
+            "description": "error message",
+            "example": 200
+          }
+        },
+        "required": [
+          "message",
+          "statusCode",
+          "statusMessage"
+        ]
+      },
+      "AuthLoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "number",
+            "enum": [],
+            "description": "E-mail do usuário",
+            "example": "example@example.com"
+          },
+          "password": {
+            "type": "number",
+            "enum": [],
+            "description": "user password",
+            "example": "Teste@123"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "AuthLoginResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "number",
+            "enum": [],
+            "description": "JWT token",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyVXVpZCI6IjEyM2U0NTY3LWU4OWItMTJkMy1hNDU2LTQyNjYxNDE3NDAwMCIsImlhdCI6MTYxNjIzOTAyMn0.1"
+          },
+          "user": {
+            "type": "number",
+            "enum": [],
+            "description": "User ID"
+          }
+        },
+        "required": [
+          "accessToken",
+          "user"
+        ]
+      },
+      "AuthRegisterDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "number",
+            "enum": [],
+            "description": "user name",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "number",
+            "enum": [],
+            "description": "user email",
+            "example": "name@email.com"
+          },
+          "password": {
+            "type": "number",
+            "enum": [],
+            "description": "user password",
+            "example": "Teste@123"
+          },
+          "role": {
+            "description": "user email",
+            "example": "name@email.com",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RoleEnum"
+              }
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "password",
+          "role"
+        ]
+      },
+      "ListAuditsDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "description": "Entity name",
+            "items": {
+              "type": "number",
+              "enum": []
+            }
+          },
+          "total": {
+            "type": "number",
+            "enum": [],
+            "description": "",
+            "example": "1"
+          },
+          "actualPage": {
+            "type": "number",
+            "enum": [],
+            "description": "",
+            "example": "1"
+          },
+          "totalPages": {
+            "type": "number",
+            "enum": [],
+            "description": "",
+            "example": "1"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "ListLogsDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "description": "",
+            "items": {
+              "type": "number",
+              "enum": []
+            }
+          },
+          "total": {
+            "type": "number",
+            "enum": [],
+            "description": "",
+            "example": "1"
+          },
+          "actualPage": {
+            "type": "number",
+            "enum": [],
+            "description": "",
+            "example": "1"
+          },
+          "totalPages": {
+            "type": "number",
+            "enum": [],
+            "description": "",
+            "example": "1"
+          }
+        }
+      }
+    }
+  }
+}

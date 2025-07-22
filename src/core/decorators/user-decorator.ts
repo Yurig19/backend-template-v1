@@ -1,4 +1,4 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { ExecutionContext, createParamDecorator } from '@nestjs/common';
 import { ReadUserAuthDto } from 'src/domain/users/dtos/read/read-user-auth.dto';
 
 export const GetUser = createParamDecorator(

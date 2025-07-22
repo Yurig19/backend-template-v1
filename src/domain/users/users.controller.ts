@@ -1,20 +1,14 @@
 import { Body, Controller, ParseUUIDPipe, Query } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
-
-// DTOs
+import { ApiController } from 'src/core/decorators/api-controller.decorator';
+import { ApiEndpoint } from '../../core/decorators/methods.decorator';
 import { CreateUserDto } from './dtos/create/create-user.dto';
 import { ReadUserDto } from './dtos/read/read-user.dto';
-
-// Commands & Queries
 import { CreateUserCommand } from './use-cases/commands/create-user.command';
 import { UserByUuidQuery } from './use-cases/queries/user-by-uuid.query';
 
-// Decorators
-import { ApiEndpoint } from '../../core/decorators/methods.decorator';
-
-@ApiTags('Users')
-@Controller({ path: 'users', version: process.env.API_VERSION })
+@ApiController('Users')
 export class UsersController {
   constructor(
     private readonly commandBus: CommandBus,
@@ -26,9 +20,9 @@ export class UsersController {
     bodyType: CreateUserDto,
     responseType: ReadUserDto,
     path: '/create',
-    summary: 'Criar um novo usuário',
-    successDescription: 'Usuário criado com sucesso',
-    errorDescription: 'Dados inválidos',
+    summary: 'Create a new user',
+    successDescription: 'User successfully created',
+    errorDescription: 'Invalid data',
     isAuth: true,
   })
   async createUser(@Body() createUserDto: CreateUserDto) {
@@ -39,9 +33,9 @@ export class UsersController {
     method: 'GET',
     responseType: ReadUserDto,
     path: '/find-by-uuid',
-    summary: 'Busca um novo usuário',
-    successDescription: 'Usuário encontrado',
-    errorDescription: 'Usuário não encontrado',
+    summary: 'Find a user by UUID',
+    successDescription: 'User successfully found',
+    errorDescription: 'User not found',
     isAuth: true,
   })
   @ApiQuery({ name: 'uuid', type: String, required: true })

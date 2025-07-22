@@ -1,8 +1,7 @@
 import * as CryptoJS from 'crypto-js';
-
-import { AppError } from '../errors/app.error';
 import { HttpStatusCodeEnum } from '../enums/errors/statusCodeErrors.enum';
 import { HttpStatusTextEnum } from '../enums/errors/statusTextError.enum';
+import { AppError } from '../errors/app.error';
 
 export const generateHashPassword = (password: string): string => {
   try {

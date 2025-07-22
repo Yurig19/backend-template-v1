@@ -4,24 +4,24 @@ export class ErrorResponseDto {
   @ApiParamDecorator({
     type: String,
     required: true,
-    description: 'error message',
-    example: 'error message',
+    description: 'Detailed description of the error',
+    example: 'Invalid credentials provided',
   })
   message: string;
 
   @ApiParamDecorator({
     type: Number,
     required: true,
-    description: 'error message',
-    example: 200,
+    description: 'HTTP status code of the error',
+    example: 401,
   })
   statusCode: number;
 
   @ApiParamDecorator({
     type: String,
     required: true,
-    description: 'error message',
-    example: 200,
+    description: 'HTTP status message associated with the error',
+    example: 'UNAUTHORIZED',
   })
   statusMessage: string;
 }

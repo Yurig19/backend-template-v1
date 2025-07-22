@@ -1,0 +1,37 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ReDoc - Template API</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      body { margin: 0; padding: 0; }
+    </style>
+  </head>
+  <body>
+    <img src="/logo.png" alt="Logo" style="height: 50px; margin: 20px;" />
+    <redoc 
+      spec-url="/swagger.json"
+      scroll-y-offset="60"
+      hide-download-button="false"
+      expand-responses="200,201"
+      lazy-rendering
+      theme='{
+        "colors": {
+          "primary": { "main": "#0066ff" },
+          "success": { "main": "#00c851" },
+          "error": { "main": "#ff4444" }
+        },
+        "typography": {
+          "fontFamily": "Arial, sans-serif",
+          "headings": { "fontFamily": "Georgia, serif" }
+        },
+        "sidebar": {
+          "backgroundColor": "#f8f9fa"
+        }
+      }'>
+    </redoc>
+    <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
+  </body>
+</html>

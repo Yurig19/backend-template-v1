@@ -1,11 +1,11 @@
 export enum HttpStatusCodeEnum {
-  // Respostas de sucesso
+  // Success responses
   OK = 200,
   CREATED = 201,
   ACCEPTED = 202,
   NO_CONTENT = 204,
 
-  // Redirecionamentos
+  // Redirection messages
   MOVED_PERMANENTLY = 301,
   FOUND = 302,
   SEE_OTHER = 303,
@@ -13,7 +13,7 @@ export enum HttpStatusCodeEnum {
   TEMPORARY_REDIRECT = 307,
   PERMANENT_REDIRECT = 308,
 
-  // Erros do cliente
+  // Client error responses
   BAD_REQUEST = 400,
   UNAUTHORIZED = 401,
   FORBIDDEN = 403,
@@ -26,7 +26,7 @@ export enum HttpStatusCodeEnum {
   UNPROCESSABLE_ENTITY = 422,
   TOO_MANY_REQUESTS = 429,
 
-  // Erros do servidor
+  // Server error responses
   INTERNAL_SERVER_ERROR = 500,
   NOT_IMPLEMENTED = 501,
   BAD_GATEWAY = 502,

@@ -1,5 +1,7 @@
+import { readFileSync, writeFileSync } from 'fs';
+import { join } from 'path';
 import { NestFactory } from '@nestjs/core';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -11,16 +13,16 @@ async function bootstrap() {
 
   app.enableCors({
     origin: process.env.FRONTEND_URL ?? 'http://localhost:3000',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    methods: ['GET', 'POST', 'Patch', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
   });
 
   const config = new DocumentBuilder()
-    .setTitle('Impermais Api')
-    .setDescription('The Impermais API description')
+    .setTitle('Template Api')
+    .setDescription('The Template API description')
     .setVersion('1.0')
-    .addTag('Impermais')
+    .addTag('Template')
     .addBearerAuth(
       {
         type: 'http',
@@ -32,6 +34,22 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
+
+  app.getHttpAdapter().get('/swagger.json', (_, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(document);
+  });
+
+  writeFileSync(
+    join(process.cwd(), 'swagger.json'),
+    JSON.stringify(document, null, 2)
+  );
+
+  app.getHttpAdapter().get(`/api/${apiVersion}/redoc`, (_, res) => {
+    const html = readFileSync(join(__dirname, '..', 'index.html'), 'utf8');
+    res.setHeader('Content-Type', 'text/html');
+    res.send(html);
+  });
 
   SwaggerModule.setup(`api/${apiVersion}/docs`, app, document);
 

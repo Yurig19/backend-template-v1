@@ -1,13 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { AppError } from 'src/core/errors/app.error';
+import { Users } from '@prisma/client';
+import { PrismaService } from 'prisma/prisma.service';
 import { HttpStatusCodeEnum } from 'src/core/enums/errors/statusCodeErrors.enum';
 import { HttpStatusTextEnum } from 'src/core/enums/errors/statusTextError.enum';
-import { Users } from '@prisma/client';
-import { VerifyTokenDto } from '../dtos/verify-token.dto';
-
-import { PrismaService } from 'prisma/prisma.service';
+import { AppError } from 'src/core/errors/app.error';
 import { checkPassword } from 'src/core/utils/generatePassword';
+import { VerifyTokenDto } from '../dtos/verify-token.dto';
 
 @Injectable()
 export class AuthService {
@@ -38,7 +37,7 @@ export class AuthService {
       throw new AppError(
         HttpStatusCodeEnum.UNAUTHORIZED,
         HttpStatusTextEnum.UNAUTHORIZED,
-        `${error}`
+        `Token generation failed: ${error}`
       );
     }
   }
@@ -53,7 +52,7 @@ export class AuthService {
       throw new AppError(
         HttpStatusCodeEnum.UNAUTHORIZED,
         HttpStatusTextEnum.UNAUTHORIZED,
-        `${error}`
+        `Invalid token: ${error}`
       );
     }
   }
@@ -62,7 +61,7 @@ export class AuthService {
     try {
       this.checkToken(token);
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -76,7 +75,7 @@ export class AuthService {
       throw new AppError(
         HttpStatusCodeEnum.UNAUTHORIZED,
         HttpStatusTextEnum.UNAUTHORIZED,
-        'Usuário não encontrado'
+        'User not found'
       );
     }
 
@@ -86,7 +85,7 @@ export class AuthService {
       throw new AppError(
         HttpStatusCodeEnum.UNAUTHORIZED,
         HttpStatusTextEnum.UNAUTHORIZED,
-        'Senha inválida'
+        'Invalid password'
       );
     }
 

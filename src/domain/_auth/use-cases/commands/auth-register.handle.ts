@@ -1,16 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-
-import { UserService } from 'src/domain/users/services/user.service';
-import { AuthService } from '../../service/auth.service';
-
 import { HttpStatusCodeEnum } from 'src/core/enums/errors/statusCodeErrors.enum';
 import { HttpStatusTextEnum } from 'src/core/enums/errors/statusTextError.enum';
 import { AppError } from 'src/core/errors/app.error';
-
 import { ReadUserDto } from 'src/domain/users/dtos/read/read-user.dto';
+import { UserService } from 'src/domain/users/services/user.service';
 import { AuthLoginResponseDto } from '../../dtos/auth-login-response.dto';
-
+import { AuthService } from '../../service/auth.service';
 import { AuthRegisterCommand } from './auth-register.command';
 
 @Injectable()

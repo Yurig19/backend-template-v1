@@ -5,16 +5,14 @@ import {
   IsStrongPassword,
   MinLength,
 } from 'class-validator';
-
 import { ApiParamDecorator } from 'src/core/decorators/api-param.decorator';
-
 import { RoleEnum } from 'src/core/enums/role.enum';
 
 export class CreateUserDto {
   @ApiParamDecorator({
     type: String,
     required: true,
-    description: 'user name',
+    description: 'Full name of the user',
     example: 'John Doe',
   })
   @IsString()
@@ -24,7 +22,7 @@ export class CreateUserDto {
   @ApiParamDecorator({
     type: String,
     required: true,
-    description: 'user email',
+    description: 'Email address of the user',
     example: 'name@email.com',
   })
   @IsString()
@@ -35,7 +33,8 @@ export class CreateUserDto {
   @ApiParamDecorator({
     type: String,
     required: true,
-    description: 'user password',
+    description:
+      'User password (must contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character)',
     example: 'Teste@123',
   })
   @IsString()
@@ -51,8 +50,8 @@ export class CreateUserDto {
   @ApiParamDecorator({
     type: RoleEnum,
     required: true,
-    description: 'user email',
-    example: 'name@email.com',
+    description: 'User role (e.g., ADMIN, USER, etc.)',
+    example: 'ADMIN',
     enumName: 'RoleEnum',
   })
   @IsEnum(RoleEnum)

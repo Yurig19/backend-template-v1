@@ -1,14 +1,14 @@
 import {
-  Injectable,
+  ArgumentsHost,
   Catch,
   ExceptionFilter,
-  ArgumentsHost,
   HttpException,
+  Injectable,
 } from '@nestjs/common';
+import { Request, Response } from 'express';
 import { PrismaService } from 'prisma/prisma.service';
 import { ErrorResponseDto } from '../enums/errors/dtos/error.dto';
 import { AppError } from '../errors/app.error';
-import { Request, Response } from 'express';
 
 @Injectable()
 @Catch()

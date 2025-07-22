@@ -1,10 +1,10 @@
 import { type IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { UserService } from '../../services/user.service';
-import { UserByUuidQuery } from './user-by-uuid.query';
-import type { ReadUserDto } from '../../dtos/read/read-user.dto';
 import { HttpStatusCodeEnum } from 'src/core/enums/errors/statusCodeErrors.enum';
 import { HttpStatusTextEnum } from 'src/core/enums/errors/statusTextError.enum';
 import { AppError } from 'src/core/errors/app.error';
+import type { ReadUserDto } from '../../dtos/read/read-user.dto';
+import { UserService } from '../../services/user.service';
+import { UserByUuidQuery } from './user-by-uuid.query';
 
 @QueryHandler(UserByUuidQuery)
 export class UserByUuidHandle implements IQueryHandler<UserByUuidQuery> {
@@ -19,9 +19,10 @@ export class UserByUuidHandle implements IQueryHandler<UserByUuidQuery> {
       throw new AppError(
         HttpStatusCodeEnum.NOT_FOUND,
         HttpStatusTextEnum.NOT_FOUND,
-        'Usuário não encontrado!'
+        'User not found.'
       );
     }
+
     return {
       uuid: user.uuid,
       name: user.name,

@@ -2,18 +2,14 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_INTERCEPTOR, BaseExceptionFilter } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
-
-// Módulos da aplicação
-import { UserModule } from './domain/users/users.module';
+import { PrismaService } from 'prisma/prisma.service';
+import { AuditInterceptor } from './core/interceptors/audits.interceptor';
+import { validateEnv } from './core/validations/env.validation';
 import { AuthModule } from './domain/_auth/auth.module';
 import { InitModule } from './domain/_init/init.module';
-
-// Validações
-import { validateEnv } from './core/validations/env.validation';
-import { AuditInterceptor } from './core/interceptors/audits.interceptor';
-import { PrismaService } from 'prisma/prisma.service';
 import { AuditsModule } from './domain/audits/audits.module';
 import { LogsModule } from './domain/errorLogs/logs.module';
+import { UserModule } from './domain/users/users.module';
 
 @Module({
   imports: [

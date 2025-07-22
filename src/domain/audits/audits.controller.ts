@@ -1,13 +1,12 @@
 import { Controller, Query } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
-
+import { ApiController } from 'src/core/decorators/api-controller.decorator';
 import { ApiEndpoint } from 'src/core/decorators/methods.decorator';
 import { ListAuditsDto } from './dtos/list-audits.dto';
 import { ListAuditsQuery } from './use-cases/queries/list-audits-query';
 
-@ApiTags('Audits')
-@Controller('audits')
+@ApiController('audits')
 export class AuditsController {
   constructor(private readonly queryBus: QueryBus) {}
 

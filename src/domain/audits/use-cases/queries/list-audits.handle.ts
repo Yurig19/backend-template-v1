@@ -1,5 +1,4 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-
 import { ListAuditsDto, ReadAuditsListDto } from '../../dtos/list-audits.dto';
 import { AuditsService } from '../../services/audits.service';
 import { ListAuditsQuery } from './list-audits-query';

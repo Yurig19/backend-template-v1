@@ -1,18 +1,12 @@
 import { Injectable } from '@nestjs/common';
-
 import type { Users } from '@prisma/client';
-
 import { PrismaService } from 'prisma/prisma.service';
-
 import { HttpStatusCodeEnum } from 'src/core/enums/errors/statusCodeErrors.enum';
 import { HttpStatusTextEnum } from 'src/core/enums/errors/statusTextError.enum';
-import { AppError } from 'src/core/errors/app.error';
-
-import { CreateUserDto } from '../dtos/create/create-user.dto';
-
-import { generateHashPassword } from 'src/core/utils/generatePassword';
-
 import { RoleEnum } from 'src/core/enums/role.enum';
+import { AppError } from 'src/core/errors/app.error';
+import { generateHashPassword } from 'src/core/utils/generatePassword';
+import { CreateUserDto } from '../dtos/create/create-user.dto';
 
 @Injectable()
 export class UserService {

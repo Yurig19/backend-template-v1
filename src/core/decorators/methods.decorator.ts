@@ -1,19 +1,16 @@
-import { applyDecorators, UseGuards } from '@nestjs/common';
-import { Post, Get, Put, Delete } from '@nestjs/common';
-
+import { UseGuards, applyDecorators } from '@nestjs/common';
+import { Delete, Get, Post, Put } from '@nestjs/common';
 import {
-  ApiOperation,
-  ApiResponse,
   ApiBearerAuth,
   ApiBody,
+  ApiOperation,
+  ApiResponse,
 } from '@nestjs/swagger';
-
-import { AppError } from '../errors/app.error';
+import { ErrorResponseDto } from '../enums/errors/dtos/error.dto';
 import { HttpStatusCodeEnum } from '../enums/errors/statusCodeErrors.enum';
 import { HttpStatusTextEnum } from '../enums/errors/statusTextError.enum';
-
+import { AppError } from '../errors/app.error';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
-import { ErrorResponseDto } from '../enums/errors/dtos/error.dto';
 
 interface ApiEndpointOptions {
   method: 'GET' | 'POST' | 'PUT' | 'DELETE';

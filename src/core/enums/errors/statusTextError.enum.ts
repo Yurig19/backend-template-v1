@@ -1,11 +1,11 @@
 export enum HttpStatusTextEnum {
-  // Respostas de sucesso
+  // Success responses
   OK = 'OK',
   CREATED = 'Created',
   ACCEPTED = 'Accepted',
   NO_CONTENT = 'No Content',
 
-  // Redirecionamentos
+  // Redirection messages
   MOVED_PERMANENTLY = 'Moved Permanently',
   FOUND = 'Found',
   SEE_OTHER = 'See Other',
@@ -13,7 +13,7 @@ export enum HttpStatusTextEnum {
   TEMPORARY_REDIRECT = 'Temporary Redirect',
   PERMANENT_REDIRECT = 'Permanent Redirect',
 
-  // Erros do cliente
+  // Client error responses
   BAD_REQUEST = 'Bad Request',
   UNAUTHORIZED = 'Unauthorized',
   FORBIDDEN = 'Forbidden',
@@ -26,7 +26,7 @@ export enum HttpStatusTextEnum {
   UNPROCESSABLE_ENTITY = 'Unprocessable Entity',
   TOO_MANY_REQUESTS = 'Too Many Requests',
 
-  // Erros do servidor
+  // Server error responses
   INTERNAL_SERVER_ERROR = 'Internal Server Error',
   NOT_IMPLEMENTED = 'Not Implemented',
   BAD_GATEWAY = 'Bad Gateway',

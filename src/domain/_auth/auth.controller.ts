@@ -1,23 +1,17 @@
 import { Body, Controller } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-
-// DTOs
-import { AuthLoginDto } from './dtos/auth-logins.dto';
-import { AuthLoginResponseDto } from './dtos/auth-login-response.dto';
-import { AuthRegisterDto } from './dtos/auth-register.dto';
+import { ApiController } from 'src/core/decorators/api-controller.decorator';
+import { ApiEndpoint } from 'src/core/decorators/methods.decorator';
+import { GetUser } from 'src/core/decorators/user-decorator';
 import { ReadUserDto } from '../users/dtos/read/read-user.dto';
-
-// Commands & Queries
+import { AuthLoginResponseDto } from './dtos/auth-login-response.dto';
+import { AuthLoginDto } from './dtos/auth-logins.dto';
+import { AuthRegisterDto } from './dtos/auth-register.dto';
 import { CreateUserCommand } from './use-cases/commands/auth-login.command';
 import { AuthRegisterCommand } from './use-cases/commands/auth-register.command';
 
-// Decorators
-import { ApiEndpoint } from 'src/core/decorators/methods.decorator';
-import { GetUser } from 'src/core/decorators/user-decorator';
-
-@ApiTags('Auth')
-@Controller({ path: 'auth', version: process.env.API_VERSION })
+@ApiController('auth')
 export class AuthController {
   constructor(
     private readonly commandBus: CommandBus,

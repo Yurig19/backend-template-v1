@@ -1,14 +1,11 @@
-import { Roles } from '@prisma/client';
-import { Injectable } from '@nestjs/common';
 import { existsSync, readFileSync } from 'node:fs';
 import * as path from 'node:path';
-
+import { Injectable } from '@nestjs/common';
+import { Roles } from '@prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
-
-import { AppError } from 'src/core/errors/app.error';
 import { HttpStatusCodeEnum } from 'src/core/enums/errors/statusCodeErrors.enum';
 import { HttpStatusTextEnum } from 'src/core/enums/errors/statusTextError.enum';
-
+import { AppError } from 'src/core/errors/app.error';
 import { CreateRoleDto } from '../dtos/create-role.dto';
 
 @Injectable()
@@ -23,7 +20,7 @@ export class RolesService {
         throw new AppError(
           HttpStatusCodeEnum.BAD_REQUEST,
           HttpStatusTextEnum.BAD_REQUEST,
-          `Arquivo não encontrado: ${filePath}`
+          `File not found: ${filePath}`
         );
       }
 
@@ -48,14 +45,14 @@ export class RolesService {
         throw new AppError(
           HttpStatusCodeEnum.BAD_REQUEST,
           HttpStatusTextEnum.BAD_REQUEST,
-          'O arquivo roles.json não contém dados válidos.'
+          'The roles.json file does not contain valid data.'
         );
       }
     } catch (error) {
       throw new AppError(
         HttpStatusCodeEnum.BAD_REQUEST,
         HttpStatusTextEnum.BAD_REQUEST,
-        `Erro ao inicializar roles: ${error.message || error}`
+        `Failed to initialize roles: ${error.message || error}`
       );
     }
   }
@@ -69,7 +66,7 @@ export class RolesService {
       throw new AppError(
         HttpStatusCodeEnum.BAD_REQUEST,
         HttpStatusTextEnum.BAD_REQUEST,
-        `Erro ao criar role: ${error.message || error}`
+        `Failed to create role: ${error.message || error}`
       );
     }
   }

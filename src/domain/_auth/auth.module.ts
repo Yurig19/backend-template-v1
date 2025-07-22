@@ -3,18 +3,13 @@ import { ConfigModule } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-
+import { PrismaService } from 'prisma/prisma.service';
+import { JwtStrategy } from 'src/core/strategies/jwt.strategy';
+import { UserModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
-
 import { AuthService } from './service/auth.service';
-
 import { AuthLoginHandler } from './use-cases/commands/auth-login.query';
 import { AuthRegisterHandler } from './use-cases/commands/auth-register.handle';
-
-import { UserModule } from '../users/users.module';
-import { JwtStrategy } from 'src/core/strategies/jwt.strategy';
-
-import { PrismaService } from 'prisma/prisma.service';
 
 const handlers = [AuthLoginHandler, AuthRegisterHandler];
 

@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { LogsListQuery } from './logs-list.query';
-import { LogsService } from '../../services/logs.service';
 import { ListLogsDto, ReadListLogsDto } from '../../dtos/list-logs.dto';
+import { LogsService } from '../../services/logs.service';
+import { LogsListQuery } from './logs-list.query';
 
 @QueryHandler(LogsListQuery)
 export class LogsListHandler implements IQueryHandler<LogsListQuery> {

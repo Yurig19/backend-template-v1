@@ -8,7 +8,7 @@ services:
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
-      POSTGRES_DB: impermais
+      POSTGRES_DB: template
     ports:
       - "5433:5432" 
     volumes:
@@ -16,14 +16,14 @@ services:
 
   app:
     image: node:22
-    container_name: impermais-backend
+    container_name: template-backend
     restart: always
     environment:
       DB_USER: admin
       DB_PASSWORD: admin
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: impermais
+      DB_NAME: template
       PORT: 8080 
     volumes:
       - .:/usr/src/app

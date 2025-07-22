@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { ConfigService } from '@nestjs/config';
 import { UserService } from 'src/domain/users/services/user.service';
-import { AppError } from '../errors/app.error';
 import { HttpStatusCodeEnum } from '../enums/errors/statusCodeErrors.enum';
 import { HttpStatusTextEnum } from '../enums/errors/statusTextError.enum';
+import { AppError } from '../errors/app.error';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -27,7 +27,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       throw new AppError(
         HttpStatusCodeEnum.UNAUTHORIZED,
         HttpStatusTextEnum.UNAUTHORIZED,
-        'Não autorizado'
+        'Unauthorized'
       );
     }
     return user;

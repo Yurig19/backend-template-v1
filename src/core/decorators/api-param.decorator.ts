@@ -1,6 +1,16 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiProperty, ApiPropertyOptions } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsObject,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 type AllowedTypes =
   | 'string'
@@ -23,14 +33,39 @@ interface ParamOptions {
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   example?: any;
   enumName?: string;
+  isUuid?: boolean;
 }
 
 type EnumType = Record<string, string | number>;
 
+function normalizeType(type: AllowedTypes | EnumType): AllowedTypes | EnumType {
+  if (typeof type === 'function') {
+    switch (type) {
+      case String:
+        return 'string';
+      case Number:
+        return 'number';
+      case Boolean:
+        return 'boolean';
+      case Array:
+        return 'array';
+      case Object:
+        return 'object';
+      default:
+        return type;
+    }
+  }
+  return type;
+}
+
 export function ApiParamDecorator(options: ParamOptions) {
-  const { type, required, description, example } = options;
+  let { type, required, description, example, isUuid } = options;
 
   const isEnumType = isEnum(type);
+
+  if (!isEnumType) {
+    type = normalizeType(type) as AllowedTypes;
+  }
   const apiPropertyOptions: ApiPropertyOptions = {
     type: isEnumType ? 'string' : type,
     enum: isEnumType ? Object.values(type) : undefined,
@@ -48,10 +83,39 @@ export function ApiParamDecorator(options: ParamOptions) {
     decorators.push(IsNotEmpty());
   }
 
+  if (isEnumType && typeof type === 'object') {
+    decorators.push(IsEnum(type));
+  } else if (isUuid) {
+    decorators.push(IsUUID());
+  } else {
+    const validationDecorator = getValidationDecorator(type as AllowedTypes);
+    if (validationDecorator) {
+      decorators.push(validationDecorator);
+    }
+  }
+
   return applyDecorators(...decorators);
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 function isEnum(value: any): value is EnumType {
   return typeof value === 'object' && !Array.isArray(value);
+}
+
+function getValidationDecorator(type: AllowedTypes) {
+  switch (type) {
+    case 'string':
+      return IsString();
+    case 'number':
+    case 'integer':
+      return IsNumber();
+    case 'boolean':
+      return IsBoolean();
+    case 'array':
+      return IsArray();
+    case 'object':
+      return IsObject();
+    default:
+      return null;
+  }
 }

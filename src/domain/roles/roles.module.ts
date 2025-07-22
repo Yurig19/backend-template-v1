@@ -1,8 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-
-import { RolesService } from './services/roles.service';
 import { PrismaService } from 'prisma/prisma.service';
+import { RolesService } from './services/roles.service';
 
 const handlers = [];
 

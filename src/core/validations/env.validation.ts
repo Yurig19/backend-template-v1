@@ -1,12 +1,11 @@
+import { plainToInstance } from 'class-transformer';
 import {
-  IsString,
   IsEnum,
   IsNotEmpty,
   IsOptional,
+  IsString,
   validateSync,
 } from 'class-validator';
-import { plainToInstance } from 'class-transformer';
-
 import { config } from 'dotenv';
 import { EnvironmentEnum } from '../enums/environment.enum';
 

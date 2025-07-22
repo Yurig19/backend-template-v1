@@ -1,6 +1,6 @@
-import { Module, OnModuleInit, Logger } from '@nestjs/common';
-import { RolesService } from '../roles/services/roles.service';
+import { Logger, Module, OnModuleInit } from '@nestjs/common';
 import { RolesModule } from '../roles/roles.module';
+import { RolesService } from '../roles/services/roles.service';
 import { UserService } from '../users/services/user.service';
 import { UserModule } from '../users/users.module';
 
@@ -16,9 +16,9 @@ export class InitModule implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    this.logger.log('Executando inits da aplicação...');
-    this.init();
-    this.logger.log('Inicialização concluída.');
+    this.logger.log('Running application initializations...');
+    await this.init();
+    this.logger.log('Initialization completed.');
   }
 
   async init() {
