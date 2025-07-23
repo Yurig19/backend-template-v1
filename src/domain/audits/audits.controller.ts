@@ -15,6 +15,7 @@ export class AuditsController {
     path: '/list',
     responseType: ListAuditsDto,
     summary: 'List Audits',
+    operationId: 'listAudits',
     isAuth: true,
     errorDescription: 'list error Audits',
     successDescription: 'list error Audits successfully',

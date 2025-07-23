@@ -1,11 +1,15 @@
 import { ApiController } from '@/core/decorators/api-controller.decorator';
+import { DeleteDto } from '@/core/dtos/delete.dto';
 import { Body, ParseUUIDPipe, Query } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiQuery } from '@nestjs/swagger';
 import { ApiEndpoint } from '../../core/decorators/methods.decorator';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { ReadUserDto } from './dtos/read-user.dto';
+import { UpdateUserDto } from './dtos/update-user.dto';
 import { CreateUserCommand } from './use-cases/commands/create-user.command';
+import { DeleteUserCommand } from './use-cases/commands/delete-user.command';
+import { UpdateUserCommand } from './use-cases/commands/update-user.command';
 import { UserByUuidQuery } from './use-cases/queries/user-by-uuid.query';
 
 @ApiController('Users')
@@ -21,11 +25,12 @@ export class UsersController {
     responseType: ReadUserDto,
     path: '/create',
     summary: 'Create a new user',
+    operationId: 'createUser',
     successDescription: 'User successfully created',
     errorDescription: 'Invalid data',
     isAuth: true,
   })
-  async createUser(@Body() createUserDto: CreateUserDto) {
+  async create(@Body() createUserDto: CreateUserDto) {
     return this.commandBus.execute(new CreateUserCommand(createUserDto));
   }
 
@@ -34,14 +39,51 @@ export class UsersController {
     responseType: ReadUserDto,
     path: '/find-by-uuid',
     summary: 'Find a user by UUID',
+    operationId: 'getByUserUuid',
     successDescription: 'User successfully found',
     errorDescription: 'User not found',
     isAuth: true,
   })
   @ApiQuery({ name: 'uuid', type: String, required: true })
-  async getByUuid(@Query('uuid', ParseUUIDPipe) uuid: string) {
+  async getByUuid(
+    @Query('uuid', ParseUUIDPipe) uuid: string
+  ): Promise<ReadUserDto> {
     return this.queryBus.execute<UserByUuidQuery, ReadUserDto>(
       new UserByUuidQuery(uuid)
     );
+  }
+
+  @ApiEndpoint({
+    method: 'PUT',
+    path: '/update',
+    summary: 'Update a user by UUID',
+    operationId: 'updateUser',
+    bodyType: UpdateUserDto,
+    responseType: ReadUserDto,
+    successDescription: 'User successfully updated',
+    errorDescription: 'User not found or invalid data',
+    isAuth: true,
+  })
+  @ApiQuery({ name: 'uuid', type: String, required: true })
+  async update(
+    @Query('uuid', ParseUUIDPipe) uuid: string,
+    @Body() updateUserDto: UpdateUserDto
+  ): Promise<ReadUserDto> {
+    return this.queryBus.execute(new UpdateUserCommand(uuid, updateUserDto));
+  }
+
+  @ApiEndpoint({
+    method: 'DELETE',
+    path: '/delete',
+    summary: 'Delete a user by UUID',
+    operationId: 'deleteUser',
+    responseType: DeleteDto,
+    isAuth: true,
+    successDescription: 'User successfully deleted',
+    errorDescription: 'User not found or could not be deleted',
+  })
+  @ApiQuery({ name: 'uuid', type: String, required: true })
+  async delete(@Query('uuid', ParseUUIDPipe) uuid: string): Promise<DeleteDto> {
+    return await this.queryBus.execute(new DeleteUserCommand(uuid));
   }
 }

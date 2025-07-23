@@ -1,9 +1,8 @@
 import { ApiController } from '@/core/decorators/api-controller.decorator';
 import { ApiEndpoint } from '@/core/decorators/methods.decorator';
 import { GetUser } from '@/core/decorators/user-decorator';
-import { Body, Controller } from '@nestjs/common';
+import { Body } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiTags } from '@nestjs/swagger';
 import { ReadUserDto } from '../users/dtos/read-user.dto';
 import { AuthLoginResponseDto } from './dtos/auth-login-response.dto';
 import { AuthLoginDto } from './dtos/auth-logins.dto';
@@ -24,6 +23,7 @@ export class AuthController {
     responseType: AuthLoginResponseDto,
     path: '/login',
     summary: 'Login',
+    operationId: 'login',
     successDescription: 'User logged in successfully',
     errorDescription: 'User not logged in',
     isAuth: false,
@@ -40,6 +40,7 @@ export class AuthController {
     responseType: AuthLoginResponseDto,
     path: '/register',
     summary: 'Register',
+    operationId: 'register',
     successDescription: 'User registered in successfully',
     errorDescription: 'User not registered in',
     isAuth: false,
@@ -57,6 +58,7 @@ export class AuthController {
     responseType: ReadUserDto,
     path: '/verify-token',
     summary: 'Verify token',
+    operationId: 'checkToker',
     successDescription: 'Token is valid',
     errorDescription: 'Token is invalid',
     isAuth: true,

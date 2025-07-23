@@ -31,7 +31,7 @@ export class AuthLoginHandler implements ICommandHandler<CreateUserCommand> {
       });
     }
 
-    const user = await this.userService.findUserByEmail(email);
+    const user = await this.userService.findByEmail(email);
 
     if (!user) {
       throw new AppError({

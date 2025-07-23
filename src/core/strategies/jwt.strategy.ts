@@ -22,7 +22,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   async validate(payload: any) {
-    const user = await this.userService.findUserAuthByUuid(payload.userUuid);
+    const user = await this.userService.findAuthByUuid(payload.userUuid);
     if (!user) {
       throw new AppError({
         message: 'unauthorized',

@@ -25,6 +25,7 @@ interface ApiEndpointOptions {
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   responseType: any;
   summary: string;
+  operationId: string;
   successDescription?: string;
   errorDescription?: string;
   isAuth?: boolean;
@@ -43,7 +44,9 @@ export function ApiEndpoint(options: ApiEndpointOptions) {
     options.successDescription ?? 'Operation completed successfully';
   const errorDesc = options.errorDescription ?? 'An error occurred';
 
-  decorators.push(ApiOperation({ summary: options.summary }));
+  decorators.push(
+    ApiOperation({ summary: options.summary, operationId: options.operationId })
+  );
 
   decorators.push(
     ApiResponse({

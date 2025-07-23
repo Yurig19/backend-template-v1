@@ -22,25 +22,23 @@ export class AuthRegisterHandler
   async execute(command: AuthRegisterCommand): Promise<AuthLoginResponseDto> {
     const { authRegisterDto } = command;
 
-    const checkEmail = await this.userService.checkEmailUser(
-      authRegisterDto.email
-    );
+    const checkEmail = await this.userService.checkEmail(authRegisterDto.email);
 
     if (checkEmail) {
       throw new AppError({
         statusCode: HttpStatusCodeEnum.BAD_REQUEST,
         statusText: HttpStatusTextEnum.BAD_REQUEST,
-        message: 'Email já cadastrado!',
+        message: 'Email already registered!',
       });
     }
 
-    const userData = await this.userService.createUser(authRegisterDto);
+    const userData = await this.userService.create(authRegisterDto);
 
     if (!userData) {
       throw new AppError({
         statusCode: HttpStatusCodeEnum.UNAUTHORIZED,
         statusText: HttpStatusTextEnum.UNAUTHORIZED,
-        message: 'Usuário não encontrado!',
+        message: 'User not found!',
       });
     }
 
@@ -50,7 +48,7 @@ export class AuthRegisterHandler
       throw new AppError({
         statusCode: HttpStatusCodeEnum.UNAUTHORIZED,
         statusText: HttpStatusTextEnum.UNAUTHORIZED,
-        message: 'Não autorizado. Verifique suas credenciais!',
+        message: 'Not authorized. Check your credentials!',
       });
     }
 

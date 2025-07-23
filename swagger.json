@@ -3,7 +3,7 @@
   "paths": {
     "/api/v1/Users/create": {
       "post": {
-        "operationId": "UsersController_createUser",
+        "operationId": "createUser",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -50,7 +50,7 @@
     },
     "/api/v1/Users/find-by-uuid": {
       "get": {
-        "operationId": "UsersController_getByUuid",
+        "operationId": "getByUserUuid",
         "parameters": [
           {
             "name": "uuid",
@@ -94,9 +94,111 @@
         ]
       }
     },
+    "/api/v1/Users/update": {
+      "put": {
+        "operationId": "updateUser",
+        "parameters": [
+          {
+            "name": "uuid",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User successfully updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadUserDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "User not found or invalid data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a user by UUID",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/v1/Users/delete": {
+      "delete": {
+        "operationId": "deleteUser",
+        "parameters": [
+          {
+            "name": "uuid",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User successfully deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "User not found or could not be deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a user by UUID",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
     "/api/v1/auth/login": {
       "post": {
-        "operationId": "AuthController_login",
+        "operationId": "login",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -138,7 +240,7 @@
     },
     "/api/v1/auth/register": {
       "post": {
-        "operationId": "AuthController_register",
+        "operationId": "register",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -180,7 +282,7 @@
     },
     "/api/v1/auth/verify-token": {
       "get": {
-        "operationId": "AuthController_verifyToken",
+        "operationId": "checkToker",
         "parameters": [],
         "responses": {
           "200": {
@@ -215,9 +317,56 @@
         ]
       }
     },
+    "/api/v1/files/create": {
+      "post": {
+        "operationId": "createFile",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFileDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "File successfully created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadFileDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a file",
+        "tags": [
+          "Files"
+        ]
+      }
+    },
     "/api/v1/audits/list": {
       "get": {
-        "operationId": "AuditsController_listAudits",
+        "operationId": "listAudits",
         "parameters": [
           {
             "name": "page",
@@ -282,7 +431,7 @@
     },
     "/api/v1/logs/list": {
       "get": {
-        "operationId": "LogsController_listLogs",
+        "operationId": "listLogs",
         "parameters": [
           {
             "name": "page",
@@ -505,6 +654,69 @@
           "statusMessage"
         ]
       },
+      "UpdateUserDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "number",
+            "enum": [],
+            "description": "Full name of the user",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "number",
+            "enum": [],
+            "description": "Email address of the user",
+            "example": "name@email.com"
+          },
+          "password": {
+            "type": "number",
+            "enum": [],
+            "description": "User password (must contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character)",
+            "example": "Teste@123"
+          },
+          "role": {
+            "description": "User role (e.g., ADMIN, USER, etc.)",
+            "example": "ADMIN",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RoleEnum"
+              }
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "password",
+          "role"
+        ]
+      },
+      "DeleteDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "number",
+            "enum": [],
+            "description": "Indicates if the operation was successful"
+          },
+          "statusCode": {
+            "type": "number",
+            "enum": [],
+            "description": "HTTP status code of the response"
+          },
+          "message": {
+            "type": "number",
+            "enum": [],
+            "description": "Detailed response message"
+          }
+        },
+        "required": [
+          "success",
+          "statusCode",
+          "message"
+        ]
+      },
       "AuthLoginDto": {
         "type": "object",
         "properties": {
@@ -532,13 +744,13 @@
           "accessToken": {
             "type": "number",
             "enum": [],
-            "description": "JWT token",
+            "description": "JWT access token used for authenticated requests",
             "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyVXVpZCI6IjEyM2U0NTY3LWU4OWItMTJkMy1hNDU2LTQyNjYxNDE3NDAwMCIsImlhdCI6MTYxNjIzOTAyMn0.1"
           },
           "user": {
             "type": "number",
             "enum": [],
-            "description": "User ID"
+            "description": "Authenticated user details"
           }
         },
         "required": [
@@ -582,6 +794,93 @@
           "email",
           "password",
           "role"
+        ]
+      },
+      "CreateFileDto": {
+        "type": "object",
+        "properties": {
+          "filename": {
+            "type": "number",
+            "enum": [],
+            "description": "Original name of the uploaded file",
+            "example": "document.pdf"
+          },
+          "mimetype": {
+            "type": "number",
+            "enum": [],
+            "description": "MIME type of the file",
+            "example": "application/pdf"
+          },
+          "path": {
+            "type": "number",
+            "enum": [],
+            "description": "Path where the file is stored",
+            "example": "/uploads/document.pdf"
+          },
+          "size": {
+            "type": "number",
+            "enum": [],
+            "description": "Size of the file in bytes",
+            "example": 204800
+          }
+        }
+      },
+      "ReadFileDto": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "number",
+            "enum": [],
+            "description": "Unique identifier of the file",
+            "example": "c57b8c8f-1e84-4b92-8b0f-96ad76361e89"
+          },
+          "filename": {
+            "type": "number",
+            "enum": [],
+            "description": "Original name of the uploaded file",
+            "example": "document.pdf"
+          },
+          "mimetype": {
+            "type": "number",
+            "enum": [],
+            "description": "MIME type of the file",
+            "example": "application/pdf"
+          },
+          "path": {
+            "type": "number",
+            "enum": [],
+            "description": "Path where the file is stored",
+            "example": "/uploads/document.pdf"
+          },
+          "size": {
+            "type": "number",
+            "enum": [],
+            "description": "Size of the file in bytes",
+            "example": 204800
+          },
+          "createdAt": {
+            "type": "number",
+            "enum": [],
+            "description": "Date and time when the file was created",
+            "example": "2025-07-22T10:15:30Z"
+          },
+          "updatedAt": {
+            "type": "number",
+            "enum": [],
+            "description": "Date and time when the file was last updated",
+            "example": "2025-07-22T10:15:30Z"
+          },
+          "deletedAt": {
+            "type": "number",
+            "enum": [],
+            "description": "Date and time when the file was deleted (if applicable)",
+            "example": "2025-07-23T14:20:00Z"
+          }
+        },
+        "required": [
+          "uuid",
+          "createdAt",
+          "updatedAt"
         ]
       },
       "ListAuditsDto": {

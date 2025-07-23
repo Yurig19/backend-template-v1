@@ -9,7 +9,7 @@ import { PrismaService } from 'prisma/prisma.service';
 export class LogsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async logsListWithPagination(
+  async listWithPagination(
     actualPage: number,
     dataPerPage: number,
     search?: string

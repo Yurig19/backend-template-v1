@@ -26,6 +26,8 @@ type AllowedTypes =
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   | Record<string, any>;
 
+type EnumType = Record<string, string | number>;
+
 interface ParamOptions {
   type: AllowedTypes | EnumType;
   required?: boolean;
@@ -35,8 +37,6 @@ interface ParamOptions {
   enumName?: string;
   isUuid?: boolean;
 }
-
-type EnumType = Record<string, string | number>;
 
 function normalizeType(type: AllowedTypes | EnumType): AllowedTypes | EnumType {
   if (typeof type === 'function') {

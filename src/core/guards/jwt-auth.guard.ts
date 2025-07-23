@@ -32,7 +32,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       });
     }
 
-    const userData = await this.userService.findUserAuthByUuid(user.uuid);
+    const userData = await this.userService.findAuthByUuid(user.uuid);
 
     if (!userData) {
       throw new AppError({

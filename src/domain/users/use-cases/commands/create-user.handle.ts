@@ -13,7 +13,7 @@ export class CreateUserHandle implements ICommandHandler<CreateUserCommand> {
   async execute(command: CreateUserCommand): Promise<ReadUserDto> {
     const { createUserDto } = command;
 
-    const user = await this.userService.createUser(createUserDto);
+    const user = await this.userService.create(createUserDto);
 
     if (!user) {
       throw new AppError({

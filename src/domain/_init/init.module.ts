@@ -23,6 +23,6 @@ export class InitModule implements OnModuleInit {
 
   async init() {
     await this.rolesService.initRoles();
-    await this.userService.initAdminUser();
+    await this.userService.initAdmin();
   }
 }

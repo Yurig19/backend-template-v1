@@ -10,7 +10,7 @@ export class AuditsListHandler implements IQueryHandler<ListAuditsQuery> {
   async execute(query: ListAuditsQuery): Promise<ListAuditsDto> {
     const { dataPerPage, page, search } = query;
 
-    const data = await this.auditsService.auditsListWithPagination(
+    const data = await this.auditsService.listWithPagination(
       page,
       dataPerPage,
       search

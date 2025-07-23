@@ -13,7 +13,7 @@ export class UserByUuidHandle implements IQueryHandler<UserByUuidQuery> {
   async execute(query: UserByUuidQuery): Promise<ReadUserDto> {
     const { uuid } = query;
 
-    const user = await this.userService.findUserByUuid(uuid);
+    const user = await this.userService.findByUuid(uuid);
 
     if (!user) {
       throw new AppError({

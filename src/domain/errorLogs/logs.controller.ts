@@ -15,6 +15,7 @@ export class LogsController {
     path: '/list',
     responseType: ListLogsDto,
     summary: 'List logs',
+    operationId: 'listLogs',
     isAuth: true,
     errorDescription: 'list error logs',
     successDescription: 'list error logs successfully',
@@ -27,7 +28,7 @@ export class LogsController {
     example: 'search',
     required: false,
   })
-  async listLogs(
+  async list(
     @Query('page') page: number,
     @Query('dataPerPage') dataPerPage: number,
     @Query('search') search?: string

@@ -9,11 +9,11 @@ import { ReadFileDto } from '../dtos/read-file.dto';
 export class FilesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private fileEntity = this.prisma.file;
+  // private fileEntity = this.prisma.file;
 
   async create(file: CreateFileDto): Promise<ReadFileDto> {
     try {
-      return await this.fileEntity.create({
+      return await this.prisma.file.create({
         data: file,
       });
     } catch (error) {
@@ -27,7 +27,7 @@ export class FilesService {
 
   async getByUuid(uuid: string): Promise<ReadFileDto> {
     try {
-      return await this.fileEntity.findUnique({
+      return await this.prisma.file.findUnique({
         where: {
           uuid: uuid,
         },
@@ -43,7 +43,7 @@ export class FilesService {
 
   async softDelete(uuid: string): Promise<ReadFileDto> {
     try {
-      return await this.fileEntity.update({
+      return await this.prisma.file.update({
         where: {
           uuid: uuid,
         },
@@ -62,7 +62,7 @@ export class FilesService {
 
   async delete(uuid: string): Promise<DeleteDto> {
     try {
-      await this.fileEntity.delete({
+      await this.prisma.file.delete({
         where: { uuid },
       });
       return {
