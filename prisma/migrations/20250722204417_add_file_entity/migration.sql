@@ -1,13 +1,13 @@
 -- CreateTable
-CREATE TABLE "users" (
+CREATE TABLE "file" (
     "uuid" TEXT NOT NULL,
-    "name" TEXT,
+    "filename" TEXT,
+    "mimetype" TEXT,
+    "path" TEXT,
+    "size" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "deletedAt" TIMESTAMP(3),
 
-    CONSTRAINT "users_pkey" PRIMARY KEY ("uuid")
+    CONSTRAINT "file_pkey" PRIMARY KEY ("uuid")
 );
-
--- CreateIndex
-CREATE UNIQUE INDEX "users_uuid_key" ON "users"("uuid");

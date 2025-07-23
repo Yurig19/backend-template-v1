@@ -10,11 +10,11 @@ export const generateHashPassword = (password: string): string => {
       process.env.CRYPTO_SECRET_KEY
     ).toString();
   } catch (error) {
-    throw new AppError(
-      HttpStatusCodeEnum.UNAUTHORIZED,
-      HttpStatusTextEnum.UNAUTHORIZED,
-      `${error}`
-    );
+    throw new AppError({
+      message: 'unauthorized',
+      statusCode: HttpStatusCodeEnum.UNAUTHORIZED,
+      statusText: HttpStatusTextEnum.UNAUTHORIZED,
+    });
   }
 };
 
@@ -35,11 +35,11 @@ export const checkPassword = async (
     }
     return false;
   } catch (error) {
-    throw new AppError(
-      HttpStatusCodeEnum.UNAUTHORIZED,
-      HttpStatusTextEnum.UNAUTHORIZED,
-      `${error}`
-    );
+    throw new AppError({
+      message: 'unauthorized',
+      statusCode: HttpStatusCodeEnum.UNAUTHORIZED,
+      statusText: HttpStatusTextEnum.UNAUTHORIZED,
+    });
   }
 };
 
@@ -50,10 +50,10 @@ export const decryptHashPassword = (password: string): string => {
       process.env.CRYPTO_SECRET_KEY
     ).toString();
   } catch (error) {
-    throw new AppError(
-      HttpStatusCodeEnum.UNAUTHORIZED,
-      HttpStatusTextEnum.UNAUTHORIZED,
-      `${error}`
-    );
+    throw new AppError({
+      message: 'unauthorized',
+      statusCode: HttpStatusCodeEnum.UNAUTHORIZED,
+      statusText: HttpStatusTextEnum.UNAUTHORIZED,
+    });
   }
 };

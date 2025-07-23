@@ -1,4 +1,4 @@
-import { ApiParamDecorator } from 'src/core/decorators/api-param.decorator';
+import { ApiParamDecorator } from '@/core/decorators/api-param.decorator';
 
 export class ReadAuditsListDto {
   @ApiParamDecorator({

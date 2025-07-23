@@ -2,7 +2,7 @@ import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
 import { HttpStatusCodeEnum } from 'src/core/enums/errors/statusCodeErrors.enum';
 import { HttpStatusTextEnum } from 'src/core/enums/errors/statusTextError.enum';
 import { AppError } from 'src/core/errors/app.error';
-import type { ReadUserDto } from '../../dtos/read/read-user.dto';
+import type { ReadUserDto } from '../../dtos/read-user.dto';
 import { UserService } from '../../services/user.service';
 import { CreateUserCommand } from './create-user.command';
 
@@ -16,11 +16,11 @@ export class CreateUserHandle implements ICommandHandler<CreateUserCommand> {
     const user = await this.userService.createUser(createUserDto);
 
     if (!user) {
-      throw new AppError(
-        HttpStatusCodeEnum.BAD_REQUEST,
-        HttpStatusTextEnum.BAD_REQUEST,
-        'User could not be created. Please verify the provided data.'
-      );
+      throw new AppError({
+        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
+        statusText: HttpStatusTextEnum.BAD_REQUEST,
+        message: 'User could not be created. Please verify the provided data.',
+      });
     }
 
     return {

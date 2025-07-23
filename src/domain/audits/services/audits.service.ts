@@ -1,9 +1,9 @@
+import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
+import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
+import { AppError } from '@/core/errors/app.error';
 import { Injectable } from '@nestjs/common';
 import { Audits, Prisma } from '@prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
-import { HttpStatusCodeEnum } from 'src/core/enums/errors/statusCodeErrors.enum';
-import { HttpStatusTextEnum } from 'src/core/enums/errors/statusTextError.enum';
-import { AppError } from 'src/core/errors/app.error';
 
 @Injectable()
 export class AuditsService {
@@ -58,11 +58,11 @@ export class AuditsService {
         currentPage: page,
       };
     } catch (error) {
-      throw new AppError(
-        HttpStatusCodeEnum.BAD_REQUEST,
-        HttpStatusTextEnum.BAD_REQUEST,
-        `Error fetching audits: ${error.message}`
-      );
+      throw new AppError({
+        message: `${error}`,
+        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
+        statusText: HttpStatusTextEnum.BAD_REQUEST,
+      });
     }
   }
 }

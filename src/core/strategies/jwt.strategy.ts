@@ -1,8 +1,8 @@
+import { UserService } from '@/domain/users/services/user.service';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { UserService } from 'src/domain/users/services/user.service';
 import { HttpStatusCodeEnum } from '../enums/errors/statusCodeErrors.enum';
 import { HttpStatusTextEnum } from '../enums/errors/statusTextError.enum';
 import { AppError } from '../errors/app.error';
@@ -24,11 +24,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   async validate(payload: any) {
     const user = await this.userService.findUserAuthByUuid(payload.userUuid);
     if (!user) {
-      throw new AppError(
-        HttpStatusCodeEnum.UNAUTHORIZED,
-        HttpStatusTextEnum.UNAUTHORIZED,
-        'Unauthorized'
-      );
+      throw new AppError({
+        message: 'unauthorized',
+        statusCode: HttpStatusCodeEnum.UNAUTHORIZED,
+        statusText: HttpStatusTextEnum.UNAUTHORIZED,
+      });
     }
     return user;
   }

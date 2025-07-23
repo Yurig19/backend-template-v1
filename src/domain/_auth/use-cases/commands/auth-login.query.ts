@@ -1,10 +1,10 @@
+import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
+import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
+import { AppError } from '@/core/errors/app.error';
+import { ReadUserDto } from '@/domain/users/dtos/read-user.dto';
+import { UserService } from '@/domain/users/services/user.service';
 import { Injectable } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { HttpStatusCodeEnum } from 'src/core/enums/errors/statusCodeErrors.enum';
-import { HttpStatusTextEnum } from 'src/core/enums/errors/statusTextError.enum';
-import { AppError } from 'src/core/errors/app.error';
-import { ReadUserDto } from 'src/domain/users/dtos/read/read-user.dto';
-import { UserService } from 'src/domain/users/services/user.service';
 import { AuthLoginResponseDto } from '../../dtos/auth-login-response.dto';
 import { AuthService } from '../../service/auth.service';
 import { CreateUserCommand } from './auth-login.command';
@@ -24,21 +24,21 @@ export class AuthLoginHandler implements ICommandHandler<CreateUserCommand> {
     const login = await this.authService.login(email, password);
 
     if (!login) {
-      throw new AppError(
-        HttpStatusCodeEnum.UNAUTHORIZED,
-        HttpStatusTextEnum.UNAUTHORIZED,
-        'Não autorizado. Verifique suas credenciais!'
-      );
+      throw new AppError({
+        message: 'Invalid email or password',
+        statusCode: HttpStatusCodeEnum.UNAUTHORIZED,
+        statusText: HttpStatusTextEnum.UNAUTHORIZED,
+      });
     }
 
     const user = await this.userService.findUserByEmail(email);
 
     if (!user) {
-      throw new AppError(
-        HttpStatusCodeEnum.UNAUTHORIZED,
-        HttpStatusTextEnum.UNAUTHORIZED,
-        'Usuário não encontrado!'
-      );
+      throw new AppError({
+        message: 'Invalid email or password',
+        statusCode: HttpStatusCodeEnum.UNAUTHORIZED,
+        statusText: HttpStatusTextEnum.UNAUTHORIZED,
+      });
     }
 
     return {

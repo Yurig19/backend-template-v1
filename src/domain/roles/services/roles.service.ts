@@ -1,11 +1,11 @@
 import { existsSync, readFileSync } from 'node:fs';
 import * as path from 'node:path';
+import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
+import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
+import { AppError } from '@/core/errors/app.error';
 import { Injectable } from '@nestjs/common';
 import { Roles } from '@prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
-import { HttpStatusCodeEnum } from 'src/core/enums/errors/statusCodeErrors.enum';
-import { HttpStatusTextEnum } from 'src/core/enums/errors/statusTextError.enum';
-import { AppError } from 'src/core/errors/app.error';
 import { CreateRoleDto } from '../dtos/create-role.dto';
 
 @Injectable()
@@ -17,11 +17,11 @@ export class RolesService {
       const filePath = path.resolve(__dirname, 'init.json');
 
       if (!existsSync(filePath)) {
-        throw new AppError(
-          HttpStatusCodeEnum.BAD_REQUEST,
-          HttpStatusTextEnum.BAD_REQUEST,
-          `File not found: ${filePath}`
-        );
+        throw new AppError({
+          statusCode: HttpStatusCodeEnum.BAD_REQUEST,
+          statusText: HttpStatusTextEnum.BAD_REQUEST,
+          message: `File not found: ${filePath}`,
+        });
       }
 
       const rolesData = JSON.parse(readFileSync(filePath, 'utf-8'));
@@ -42,18 +42,18 @@ export class RolesService {
           }
         }
       } else {
-        throw new AppError(
-          HttpStatusCodeEnum.BAD_REQUEST,
-          HttpStatusTextEnum.BAD_REQUEST,
-          'The roles.json file does not contain valid data.'
-        );
+        throw new AppError({
+          statusCode: HttpStatusCodeEnum.BAD_REQUEST,
+          statusText: HttpStatusTextEnum.BAD_REQUEST,
+          message: 'The roles.json file does not contain valid data.',
+        });
       }
     } catch (error) {
-      throw new AppError(
-        HttpStatusCodeEnum.BAD_REQUEST,
-        HttpStatusTextEnum.BAD_REQUEST,
-        `Failed to initialize roles: ${error.message || error}`
-      );
+      throw new AppError({
+        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
+        statusText: HttpStatusTextEnum.BAD_REQUEST,
+        message: `Failed to initialize roles: ${error.message || error}`,
+      });
     }
   }
 
@@ -63,11 +63,11 @@ export class RolesService {
         data: createRoleDto,
       });
     } catch (error) {
-      throw new AppError(
-        HttpStatusCodeEnum.BAD_REQUEST,
-        HttpStatusTextEnum.BAD_REQUEST,
-        `Failed to create role: ${error.message || error}`
-      );
+      throw new AppError({
+        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
+        statusText: HttpStatusTextEnum.BAD_REQUEST,
+        message: `Failed to create role: ${error.message || error}`,
+      });
     }
   }
 }

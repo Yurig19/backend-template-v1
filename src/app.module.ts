@@ -10,6 +10,7 @@ import { InitModule } from './domain/_init/init.module';
 import { AuditsModule } from './domain/audits/audits.module';
 import { LogsModule } from './domain/errorLogs/logs.module';
 import { UserModule } from './domain/users/users.module';
+import { FileModule } from './files/files.module';
 
 @Module({
   imports: [
@@ -25,6 +26,11 @@ import { UserModule } from './domain/users/users.module';
 
     //
     UserModule,
+
+    //
+
+    //
+    FileModule,
 
     //
     AuditsModule,

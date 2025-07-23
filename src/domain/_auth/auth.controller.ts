@@ -1,10 +1,10 @@
+import { ApiController } from '@/core/decorators/api-controller.decorator';
+import { ApiEndpoint } from '@/core/decorators/methods.decorator';
+import { GetUser } from '@/core/decorators/user-decorator';
 import { Body, Controller } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import { ApiController } from 'src/core/decorators/api-controller.decorator';
-import { ApiEndpoint } from 'src/core/decorators/methods.decorator';
-import { GetUser } from 'src/core/decorators/user-decorator';
-import { ReadUserDto } from '../users/dtos/read/read-user.dto';
+import { ReadUserDto } from '../users/dtos/read-user.dto';
 import { AuthLoginResponseDto } from './dtos/auth-login-response.dto';
 import { AuthLoginDto } from './dtos/auth-logins.dto';
 import { AuthRegisterDto } from './dtos/auth-register.dto';

@@ -1,6 +1,6 @@
-import { ApiParamDecorator } from 'src/core/decorators/api-param.decorator';
+import { ApiParamDecorator } from '@/core/decorators/api-param.decorator';
 
-export class ReadUserDto {
+export class ReadUserAuthDto {
   @ApiParamDecorator({
     type: String,
     required: true,
@@ -28,7 +28,7 @@ export class ReadUserDto {
   @ApiParamDecorator({
     type: String,
     required: true,
-    description: 'User password (hashed or raw depending on usage)',
+    description: 'User password (hashed or plain depending on usage)',
     example: 'Teste@123',
   })
   password: string;

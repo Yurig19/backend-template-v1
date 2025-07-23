@@ -1,10 +1,10 @@
-import { Body, Controller, ParseUUIDPipe, Query } from '@nestjs/common';
+import { ApiController } from '@/core/decorators/api-controller.decorator';
+import { Body, ParseUUIDPipe, Query } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiQuery, ApiTags } from '@nestjs/swagger';
-import { ApiController } from 'src/core/decorators/api-controller.decorator';
+import { ApiQuery } from '@nestjs/swagger';
 import { ApiEndpoint } from '../../core/decorators/methods.decorator';
-import { CreateUserDto } from './dtos/create/create-user.dto';
-import { ReadUserDto } from './dtos/read/read-user.dto';
+import { CreateUserDto } from './dtos/create-user.dto';
+import { ReadUserDto } from './dtos/read-user.dto';
 import { CreateUserCommand } from './use-cases/commands/create-user.command';
 import { UserByUuidQuery } from './use-cases/queries/user-by-uuid.query';
 

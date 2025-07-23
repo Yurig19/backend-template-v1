@@ -1,5 +1,5 @@
+import { ApiParamDecorator } from '@/core/decorators/api-param.decorator';
 import { IsEmail, IsString, IsStrongPassword } from 'class-validator';
-import { ApiParamDecorator } from 'src/core/decorators/api-param.decorator';
 
 export class AuthLoginDto {
   @ApiParamDecorator({

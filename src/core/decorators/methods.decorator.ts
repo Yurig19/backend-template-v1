@@ -1,8 +1,15 @@
-import { UseGuards, applyDecorators } from '@nestjs/common';
+import {
+  Patch,
+  UseGuards,
+  UseInterceptors,
+  applyDecorators,
+} from '@nestjs/common';
 import { Delete, Get, Post, Put } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiConsumes,
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
@@ -13,52 +20,58 @@ import { AppError } from '../errors/app.error';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
 interface ApiEndpointOptions {
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
   path: string;
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   responseType: any;
   summary: string;
-  successDescription: string;
-  errorDescription: string;
+  successDescription?: string;
+  errorDescription?: string;
   isAuth?: boolean;
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   bodyType?: any;
+  isFile?: boolean;
 }
 
 export function ApiEndpoint(options: ApiEndpointOptions) {
   let methodDecorator: MethodDecorator;
-  const decorators: MethodDecorator[] = [
-    ApiOperation({ summary: options.summary }),
+  const decorators: MethodDecorator[] = [];
+
+  const successStatus = options.method === 'POST' ? 201 : 200;
+
+  const successDesc =
+    options.successDescription ?? 'Operation completed successfully';
+  const errorDesc = options.errorDescription ?? 'An error occurred';
+
+  decorators.push(ApiOperation({ summary: options.summary }));
+
+  decorators.push(
     ApiResponse({
       status: 400,
-      description: options.errorDescription,
+      description: errorDesc,
       type: ErrorResponseDto,
-    }),
-  ];
+    })
+  );
 
-  if (options.method === 'POST') {
-    decorators.push(
-      ApiResponse({
-        status: 201,
-        description: options.successDescription,
-        type: options.responseType,
-      })
-    );
-  } else {
-    decorators.push(
-      ApiResponse({
-        status: 200,
-        description: options.successDescription,
-        type: options.responseType,
-      })
-    );
+  decorators.push(
+    ApiResponse({
+      status: successStatus,
+      description: successDesc,
+      type: options.responseType,
+    })
+  );
+
+  if (options.bodyType && ['POST', 'PUT'].includes(options.method)) {
+    decorators.push(ApiBody({ type: options.bodyType }));
   }
 
-  if (
-    options.bodyType &&
-    (options.method === 'POST' || options.method === 'PUT')
-  ) {
-    decorators.push(ApiBody({ type: options.bodyType }));
+  if (options.isFile) {
+    decorators.push(ApiConsumes('multipart/form-data'));
+    decorators.push(UseInterceptors(FileInterceptor('file')));
+
+    if (options.bodyType) {
+      decorators.push(ApiBody({ type: options.bodyType }));
+    }
   }
 
   switch (options.method) {
@@ -68,18 +81,22 @@ export function ApiEndpoint(options: ApiEndpointOptions) {
     case 'POST':
       methodDecorator = Post(options.path);
       break;
+    case 'PATCH':
+      methodDecorator = Patch(options.path);
+      break;
     case 'PUT':
       methodDecorator = Put(options.path);
       break;
     case 'DELETE':
       methodDecorator = Delete(options.path);
       break;
+
     default:
-      throw new AppError(
-        HttpStatusCodeEnum.BAD_REQUEST,
-        HttpStatusTextEnum.BAD_REQUEST,
-        'Método HTTP inválido'
-      );
+      throw new AppError({
+        message: 'Invalid method',
+        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
+        statusText: HttpStatusTextEnum.BAD_REQUEST,
+      });
   }
 
   if (options.isAuth) {

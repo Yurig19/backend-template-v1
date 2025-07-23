@@ -1,8 +1,8 @@
+import { ApiController } from '@/core/decorators/api-controller.decorator';
+import { ApiEndpoint } from '@/core/decorators/methods.decorator';
 import { Controller, Query } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
-import { ApiController } from 'src/core/decorators/api-controller.decorator';
-import { ApiEndpoint } from 'src/core/decorators/methods.decorator';
 import { ListAuditsDto } from './dtos/list-audits.dto';
 import { ListAuditsQuery } from './use-cases/queries/list-audits-query';
 

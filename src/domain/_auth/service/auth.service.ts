@@ -1,11 +1,11 @@
+import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
+import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
+import { AppError } from '@/core/errors/app.error';
+import { checkPassword } from '@/core/utils/generatePassword';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Users } from '@prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
-import { HttpStatusCodeEnum } from 'src/core/enums/errors/statusCodeErrors.enum';
-import { HttpStatusTextEnum } from 'src/core/enums/errors/statusTextError.enum';
-import { AppError } from 'src/core/errors/app.error';
-import { checkPassword } from 'src/core/utils/generatePassword';
 import { VerifyTokenDto } from '../dtos/verify-token.dto';
 
 @Injectable()
@@ -34,11 +34,11 @@ export class AuthService {
         }
       );
     } catch (error) {
-      throw new AppError(
-        HttpStatusCodeEnum.UNAUTHORIZED,
-        HttpStatusTextEnum.UNAUTHORIZED,
-        `Token generation failed: ${error}`
-      );
+      throw new AppError({
+        message: 'unauthorized',
+        statusCode: HttpStatusCodeEnum.UNAUTHORIZED,
+        statusText: HttpStatusTextEnum.UNAUTHORIZED,
+      });
     }
   }
 
@@ -49,11 +49,11 @@ export class AuthService {
         audience: this.issuer,
       });
     } catch (error) {
-      throw new AppError(
-        HttpStatusCodeEnum.UNAUTHORIZED,
-        HttpStatusTextEnum.UNAUTHORIZED,
-        `Invalid token: ${error}`
-      );
+      throw new AppError({
+        message: 'unauthorized',
+        statusCode: HttpStatusCodeEnum.UNAUTHORIZED,
+        statusText: HttpStatusTextEnum.UNAUTHORIZED,
+      });
     }
   }
 
@@ -72,21 +72,21 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new AppError(
-        HttpStatusCodeEnum.UNAUTHORIZED,
-        HttpStatusTextEnum.UNAUTHORIZED,
-        'User not found'
-      );
+      throw new AppError({
+        message: 'unauthorized',
+        statusCode: HttpStatusCodeEnum.UNAUTHORIZED,
+        statusText: HttpStatusTextEnum.UNAUTHORIZED,
+      });
     }
 
     const isValidPassword = await checkPassword(password, user.password);
 
     if (!isValidPassword) {
-      throw new AppError(
-        HttpStatusCodeEnum.UNAUTHORIZED,
-        HttpStatusTextEnum.UNAUTHORIZED,
-        'Invalid password'
-      );
+      throw new AppError({
+        message: 'unauthorized',
+        statusCode: HttpStatusCodeEnum.UNAUTHORIZED,
+        statusText: HttpStatusTextEnum.UNAUTHORIZED,
+      });
     }
 
     return this.generateToken(user);

@@ -1,8 +1,8 @@
+import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
+import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
+import { AppError } from '@/core/errors/app.error';
 import { type IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { HttpStatusCodeEnum } from 'src/core/enums/errors/statusCodeErrors.enum';
-import { HttpStatusTextEnum } from 'src/core/enums/errors/statusTextError.enum';
-import { AppError } from 'src/core/errors/app.error';
-import type { ReadUserDto } from '../../dtos/read/read-user.dto';
+import type { ReadUserDto } from '../../dtos/read-user.dto';
 import { UserService } from '../../services/user.service';
 import { UserByUuidQuery } from './user-by-uuid.query';
 
@@ -16,11 +16,11 @@ export class UserByUuidHandle implements IQueryHandler<UserByUuidQuery> {
     const user = await this.userService.findUserByUuid(uuid);
 
     if (!user) {
-      throw new AppError(
-        HttpStatusCodeEnum.NOT_FOUND,
-        HttpStatusTextEnum.NOT_FOUND,
-        'User not found.'
-      );
+      throw new AppError({
+        statusCode: HttpStatusCodeEnum.NOT_FOUND,
+        statusText: HttpStatusTextEnum.NOT_FOUND,
+        message: 'User not found.',
+      });
     }
 
     return {

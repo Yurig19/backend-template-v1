@@ -1,10 +1,10 @@
+import { JwtStrategy } from '@/core/strategies/jwt.strategy';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { PrismaService } from 'prisma/prisma.service';
-import { JwtStrategy } from 'src/core/strategies/jwt.strategy';
 import { UserModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './service/auth.service';

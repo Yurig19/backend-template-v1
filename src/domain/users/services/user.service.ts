@@ -6,7 +6,7 @@ import { HttpStatusTextEnum } from 'src/core/enums/errors/statusTextError.enum';
 import { RoleEnum } from 'src/core/enums/role.enum';
 import { AppError } from 'src/core/errors/app.error';
 import { generateHashPassword } from 'src/core/utils/generatePassword';
-import { CreateUserDto } from '../dtos/create/create-user.dto';
+import { CreateUserDto } from '../dtos/create-user.dto';
 
 @Injectable()
 export class UserService {
@@ -47,11 +47,11 @@ export class UserService {
       });
 
       if (!roleExists) {
-        throw new AppError(
-          HttpStatusCodeEnum.BAD_REQUEST,
-          HttpStatusTextEnum.BAD_REQUEST,
-          'role não encontrada no banco de dados'
-        );
+        throw new AppError({
+          statusCode: HttpStatusCodeEnum.BAD_REQUEST,
+          statusText: HttpStatusTextEnum.BAD_REQUEST,
+          message: 'role não encontrada no banco de dados',
+        });
       }
 
       const hashedPassword = generateHashPassword(password);
@@ -66,11 +66,11 @@ export class UserService {
         },
       });
     } catch (error) {
-      throw new AppError(
-        HttpStatusCodeEnum.BAD_REQUEST,
-        HttpStatusTextEnum.BAD_REQUEST,
-        `${error}`
-      );
+      throw new AppError({
+        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
+        statusText: HttpStatusTextEnum.BAD_REQUEST,
+        message: `${error}`,
+      });
     }
   }
 
@@ -105,11 +105,11 @@ export class UserService {
         },
       });
     } catch (error) {
-      throw new AppError(
-        HttpStatusCodeEnum.BAD_REQUEST,
-        HttpStatusTextEnum.BAD_REQUEST,
-        `${error}`
-      );
+      throw new AppError({
+        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
+        statusText: HttpStatusTextEnum.BAD_REQUEST,
+        message: `${error}`,
+      });
     }
   }
 
@@ -144,11 +144,11 @@ export class UserService {
         },
       });
     } catch (error) {
-      throw new AppError(
-        HttpStatusCodeEnum.BAD_REQUEST,
-        HttpStatusTextEnum.BAD_REQUEST,
-        `${error}`
-      );
+      throw new AppError({
+        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
+        statusText: HttpStatusTextEnum.BAD_REQUEST,
+        message: `${error}`,
+      });
     }
   }
 
@@ -183,11 +183,11 @@ export class UserService {
         },
       });
     } catch (error) {
-      throw new AppError(
-        HttpStatusCodeEnum.BAD_REQUEST,
-        HttpStatusTextEnum.BAD_REQUEST,
-        `${error}`
-      );
+      throw new AppError({
+        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
+        statusText: HttpStatusTextEnum.BAD_REQUEST,
+        message: `${error}`,
+      });
     }
   }
 
@@ -198,11 +198,11 @@ export class UserService {
         data,
       });
     } catch (error) {
-      throw new AppError(
-        HttpStatusCodeEnum.BAD_REQUEST,
-        HttpStatusTextEnum.BAD_REQUEST,
-        `${error}`
-      );
+      throw new AppError({
+        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
+        statusText: HttpStatusTextEnum.BAD_REQUEST,
+        message: `${error}`,
+      });
     }
   }
 
@@ -212,11 +212,11 @@ export class UserService {
         where: { uuid },
       });
     } catch (error) {
-      throw new AppError(
-        HttpStatusCodeEnum.BAD_REQUEST,
-        HttpStatusTextEnum.BAD_REQUEST,
-        `${error}`
-      );
+      throw new AppError({
+        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
+        statusText: HttpStatusTextEnum.BAD_REQUEST,
+        message: `${error}`,
+      });
     }
   }
 
@@ -227,11 +227,11 @@ export class UserService {
         data: { deletedAt: new Date() },
       });
     } catch (error) {
-      throw new AppError(
-        HttpStatusCodeEnum.BAD_REQUEST,
-        HttpStatusTextEnum.BAD_REQUEST,
-        `${error}`
-      );
+      throw new AppError({
+        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
+        statusText: HttpStatusTextEnum.BAD_REQUEST,
+        message: `${error}`,
+      });
     }
   }
 }

@@ -1,3 +1,5 @@
+import { ApiParamDecorator } from '@/core/decorators/api-param.decorator';
+import { RoleEnum } from '@/core/enums/role.enum';
 import {
   IsEmail,
   IsEnum,
@@ -5,8 +7,6 @@ import {
   IsStrongPassword,
   MinLength,
 } from 'class-validator';
-import { ApiParamDecorator } from 'src/core/decorators/api-param.decorator';
-import { RoleEnum } from 'src/core/enums/role.enum';
 
 export class CreateUserDto {
   @ApiParamDecorator({
