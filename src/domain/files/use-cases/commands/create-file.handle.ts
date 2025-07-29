@@ -14,14 +14,16 @@ export class CreateFileHandler implements ICommandHandler<CreateFileCommand> {
   constructor(private readonly fileService: FilesService) {}
 
   async execute(command: CreateFileCommand): Promise<ReadFileDto> {
+    const { mkdirSync, existsSync, promises } = fs;
+
     const file = command.file;
     const uploadsDir = path.resolve(process.cwd(), 'uploads');
     try {
-      if (!fs.existsSync(uploadsDir)) {
-        fs.mkdirSync(uploadsDir, { recursive: true });
+      if (!existsSync(uploadsDir)) {
+        mkdirSync(uploadsDir, { recursive: true });
       }
       const filePath = path.join(uploadsDir, file.originalname);
-      await fs.promises.writeFile(filePath, file.buffer);
+      await promises.writeFile(filePath, file.buffer);
 
       const createFileDto: CreateFileDto = {
         filename: file.originalname,

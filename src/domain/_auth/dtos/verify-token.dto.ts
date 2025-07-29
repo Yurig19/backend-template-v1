@@ -6,6 +6,7 @@ export class VerifyTokenDto {
     required: true,
     description: 'UUID of the user associated with the token',
     example: '123e4567-e89b-12d3-a456-426614174000',
+    isUuid: true,
   })
   userUuid: string;
 

@@ -282,7 +282,7 @@
     },
     "/api/v1/auth/verify-token": {
       "get": {
-        "operationId": "checkToker",
+        "operationId": "checkToken",
         "parameters": [],
         "responses": {
           "200": {
@@ -529,20 +529,17 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "Full name of the user",
             "example": "John Doe"
           },
           "email": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "Email address of the user",
             "example": "name@email.com"
           },
           "password": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "User password (must contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character)",
             "example": "Teste@123"
           },
@@ -567,52 +564,47 @@
         "type": "object",
         "properties": {
           "uuid": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "UUID of the user",
             "example": "123e4567-e89b-12d3-a456-426614174000"
           },
           "name": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "Full name of the user",
             "example": "John Doe"
           },
           "email": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "Email address of the user",
             "example": "example@example.com"
           },
           "password": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "User password (hashed or raw depending on usage)",
             "example": "Teste@123"
           },
           "role": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "Role assigned to the user",
             "example": "admin"
           },
           "createdAt": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "Timestamp when the user was created",
-            "example": "2025-01-01T10:00:00Z"
+            "example": "2025-01-01T10:00:00Z",
+            "format": "date-time"
           },
           "updatedAt": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "Timestamp when the user was last updated",
-            "example": "2025-02-01T15:00:00Z"
+            "example": "2025-02-01T15:00:00Z",
+            "format": "date-time"
           },
           "deletedAt": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "Timestamp when the user was deleted (if applicable)",
-            "example": "2025-03-01T18:30:00Z"
+            "example": "2025-03-01T18:30:00Z",
+            "format": "date-time"
           }
         },
         "required": [
@@ -630,20 +622,17 @@
         "type": "object",
         "properties": {
           "message": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "Detailed description of the error",
             "example": "Invalid credentials provided"
           },
           "statusCode": {
             "type": "number",
-            "enum": [],
             "description": "HTTP status code of the error",
             "example": 401
           },
           "statusMessage": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "HTTP status message associated with the error",
             "example": "UNAUTHORIZED"
           }
@@ -658,20 +647,17 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "Full name of the user",
             "example": "John Doe"
           },
           "email": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "Email address of the user",
             "example": "name@email.com"
           },
           "password": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "User password (must contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character)",
             "example": "Teste@123"
           },
@@ -696,18 +682,15 @@
         "type": "object",
         "properties": {
           "success": {
-            "type": "number",
-            "enum": [],
+            "type": "boolean",
             "description": "Indicates if the operation was successful"
           },
           "statusCode": {
             "type": "number",
-            "enum": [],
             "description": "HTTP status code of the response"
           },
           "message": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "Detailed response message"
           }
         },
@@ -721,14 +704,12 @@
         "type": "object",
         "properties": {
           "email": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "User email address",
             "example": "example@example.com"
           },
           "password": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "User password (must contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character)",
             "example": "Teste@123"
           }
@@ -742,15 +723,17 @@
         "type": "object",
         "properties": {
           "accessToken": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "JWT access token used for authenticated requests",
             "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyVXVpZCI6IjEyM2U0NTY3LWU4OWItMTJkMy1hNDU2LTQyNjYxNDE3NDAwMCIsImlhdCI6MTYxNjIzOTAyMn0.1"
           },
           "user": {
-            "type": "number",
-            "enum": [],
-            "description": "Authenticated user details"
+            "description": "Authenticated user details",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReadUserDto"
+              }
+            ]
           }
         },
         "required": [
@@ -762,20 +745,17 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "Full name of the user",
             "example": "John Doe"
           },
           "email": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "Email address of the user",
             "example": "name@email.com"
           },
           "password": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "User password (must contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character)",
             "example": "Teste@123"
           },
@@ -800,26 +780,22 @@
         "type": "object",
         "properties": {
           "filename": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "Original name of the uploaded file",
             "example": "document.pdf"
           },
           "mimetype": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "MIME type of the file",
             "example": "application/pdf"
           },
           "path": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "Path where the file is stored",
             "example": "/uploads/document.pdf"
           },
           "size": {
             "type": "number",
-            "enum": [],
             "description": "Size of the file in bytes",
             "example": 204800
           }
@@ -829,52 +805,47 @@
         "type": "object",
         "properties": {
           "uuid": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "Unique identifier of the file",
             "example": "c57b8c8f-1e84-4b92-8b0f-96ad76361e89"
           },
           "filename": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "Original name of the uploaded file",
             "example": "document.pdf"
           },
           "mimetype": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "MIME type of the file",
             "example": "application/pdf"
           },
           "path": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "Path where the file is stored",
             "example": "/uploads/document.pdf"
           },
           "size": {
             "type": "number",
-            "enum": [],
             "description": "Size of the file in bytes",
             "example": 204800
           },
           "createdAt": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "Date and time when the file was created",
-            "example": "2025-07-22T10:15:30Z"
+            "example": "2025-07-22T10:15:30Z",
+            "format": "date-time"
           },
           "updatedAt": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "Date and time when the file was last updated",
-            "example": "2025-07-22T10:15:30Z"
+            "example": "2025-07-22T10:15:30Z",
+            "format": "date-time"
           },
           "deletedAt": {
-            "type": "number",
-            "enum": [],
+            "type": "string",
             "description": "Date and time when the file was deleted (if applicable)",
-            "example": "2025-07-23T14:20:00Z"
+            "example": "2025-07-23T14:20:00Z",
+            "format": "date-time"
           }
         },
         "required": [
@@ -883,32 +854,96 @@
           "updatedAt"
         ]
       },
+      "ReadAuditsListDto": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "description": "Unique identifier of the audit entry",
+            "example": "a1b2c3d4"
+          },
+          "entity": {
+            "type": "string",
+            "description": "Name of the audited entity (e.g., \"User\", \"Order\")",
+            "example": "User"
+          },
+          "method": {
+            "type": "string",
+            "description": "HTTP method used for the operation",
+            "example": "UPDATE"
+          },
+          "userUuid": {
+            "type": "string",
+            "description": "UUID of the user who performed the action",
+            "example": "u1v2w3x4"
+          },
+          "oldData": {
+            "type": "string",
+            "description": "Data before the change (old state)",
+            "example": "{\"name\": \"Old Name\"}"
+          },
+          "newData": {
+            "type": "string",
+            "description": "Data after the change (new state)",
+            "example": "{\"name\": \"New Name\"}"
+          },
+          "url": {
+            "type": "string",
+            "description": "URL path where the operation occurred",
+            "example": "/api/v1/users/123"
+          },
+          "ip": {
+            "type": "string",
+            "description": "IP address of the client that initiated the request",
+            "example": "192.168.1.10"
+          },
+          "userAgent": {
+            "type": "string",
+            "description": "User agent string from the client",
+            "example": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Date and time when the audit entry was created",
+            "example": "2024-07-22T12:00:00.000Z",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "uuid",
+          "entity",
+          "method",
+          "userUuid",
+          "oldData",
+          "newData",
+          "url",
+          "ip",
+          "userAgent",
+          "createdAt"
+        ]
+      },
       "ListAuditsDto": {
         "type": "object",
         "properties": {
           "data": {
-            "type": "array",
             "description": "List of audit log entries",
+            "type": "array",
             "items": {
-              "type": "number",
-              "enum": []
+              "$ref": "#/components/schemas/ReadAuditsListDto"
             }
           },
           "total": {
             "type": "number",
-            "enum": [],
             "description": "Total number of audit records available",
             "example": 42
           },
           "actualPage": {
             "type": "number",
-            "enum": [],
             "description": "Current page number in the paginated result",
             "example": 1
           },
           "totalPages": {
             "type": "number",
-            "enum": [],
             "description": "Total number of pages based on pagination settings",
             "example": 5
           }
@@ -917,32 +952,90 @@
           "data"
         ]
       },
+      "ReadListLogsDto": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "description": "Unique identifier of the log entry",
+            "example": "1"
+          },
+          "error": {
+            "type": "string",
+            "description": "Error message associated with the log",
+            "example": "Something went wrong"
+          },
+          "statusCode": {
+            "type": "number",
+            "description": "HTTP status code returned by the request",
+            "example": 404
+          },
+          "statusText": {
+            "type": "string",
+            "description": "HTTP status text corresponding to the status code",
+            "example": "Not Found"
+          },
+          "method": {
+            "type": "string",
+            "description": "HTTP method used in the request (GET, POST, etc.)",
+            "example": "GET"
+          },
+          "path": {
+            "type": "string",
+            "description": "Request path that triggered the log",
+            "example": "/api/v1/users"
+          },
+          "ip": {
+            "type": "string",
+            "description": "IP address of the client that made the request",
+            "example": "192.168.0.1"
+          },
+          "userAgent": {
+            "type": "string",
+            "description": "User agent string from the request header",
+            "example": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Date and time when the log entry was created",
+            "example": "2023-07-22T12:34:56.789Z",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "uuid",
+          "error",
+          "statusCode",
+          "statusText",
+          "method",
+          "path",
+          "ip",
+          "userAgent",
+          "createdAt"
+        ]
+      },
       "ListLogsDto": {
         "type": "object",
         "properties": {
           "data": {
-            "type": "array",
             "description": "List of log entries",
+            "type": "array",
             "items": {
-              "type": "number",
-              "enum": []
+              "$ref": "#/components/schemas/ReadListLogsDto"
             }
           },
           "total": {
             "type": "number",
-            "enum": [],
             "description": "Total number of log entries available",
             "example": 100
           },
           "actualPage": {
             "type": "number",
-            "enum": [],
             "description": "Current page number in the paginated result",
             "example": 1
           },
           "totalPages": {
             "type": "number",
-            "enum": [],
             "description": "Total number of pages based on pagination",
             "example": 10
           }

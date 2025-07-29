@@ -2,16 +2,14 @@ import { DeleteDto } from '@/core/dtos/delete.dto';
 import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
 import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
 import { AppError } from '@/core/errors/app.error';
+import { File } from '@prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateFileDto } from '../dtos/create-file.dto';
-import { ReadFileDto } from '../dtos/read-file.dto';
 
 export class FilesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // private fileEntity = this.prisma.file;
-
-  async create(file: CreateFileDto): Promise<ReadFileDto> {
+  async create(file: CreateFileDto): Promise<File> {
     try {
       return await this.prisma.file.create({
         data: file,
@@ -25,7 +23,7 @@ export class FilesService {
     }
   }
 
-  async getByUuid(uuid: string): Promise<ReadFileDto> {
+  async getByUuid(uuid: string): Promise<File> {
     try {
       return await this.prisma.file.findUnique({
         where: {
@@ -41,7 +39,7 @@ export class FilesService {
     }
   }
 
-  async softDelete(uuid: string): Promise<ReadFileDto> {
+  async softDelete(uuid: string): Promise<File> {
     try {
       return await this.prisma.file.update({
         where: {

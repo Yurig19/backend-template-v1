@@ -58,7 +58,7 @@ export class AuthController {
     responseType: ReadUserDto,
     path: '/verify-token',
     summary: 'Verify token',
-    operationId: 'checkToker',
+    operationId: 'checkToken',
     successDescription: 'Token is valid',
     errorDescription: 'Token is invalid',
     isAuth: true,

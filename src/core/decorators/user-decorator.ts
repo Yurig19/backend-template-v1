@@ -11,7 +11,7 @@ export const GetUser = createParamDecorator(
       return user?.[data];
     }
 
-    return {
+    return <ReadUserAuthDto>{
       uuid: user.uuid,
       name: user.name,
       email: user.email,
@@ -20,6 +20,6 @@ export const GetUser = createParamDecorator(
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       deletedAt: user.deletedAt,
-    } as ReadUserAuthDto;
+    };
   }
 );

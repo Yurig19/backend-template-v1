@@ -13,16 +13,14 @@ import {
 } from 'class-validator';
 
 type AllowedTypes =
-  | 'string'
-  | 'number'
-  | 'boolean'
-  | 'array'
-  | 'integer'
-  | 'null'
+  | StringConstructor
+  | NumberConstructor
+  | BooleanConstructor
+  | ArrayConstructor
+  | ObjectConstructor
+  | DateConstructor
   // biome-ignore lint/complexity/noBannedTypes: <explanation>
   | Function
-  // biome-ignore lint/complexity/noBannedTypes: <explanation>
-  | Object
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   | Record<string, any>;
 
@@ -38,46 +36,59 @@ interface ParamOptions {
   isUuid?: boolean;
 }
 
-function normalizeType(type: AllowedTypes | EnumType): AllowedTypes | EnumType {
-  if (typeof type === 'function') {
-    switch (type) {
-      case String:
-        return 'string';
-      case Number:
-        return 'number';
-      case Boolean:
-        return 'boolean';
-      case Array:
-        return 'array';
-      case Object:
-        return 'object';
-      default:
-        return type;
-    }
-  }
-  return type;
-}
-
-export function ApiParamDecorator(options: ParamOptions) {
-  let { type, required, description, example, isUuid } = options;
-
+export function ApiParamDecorator(opts: ParamOptions) {
+  const {
+    type,
+    required = true,
+    description,
+    example,
+    isUuid,
+    enumName,
+  } = opts;
   const isEnumType = isEnum(type);
 
-  if (!isEnumType) {
-    type = normalizeType(type) as AllowedTypes;
-  }
+  // let swaggerType: any;
+  // if (isEnumType || type === String) {
+  //   swaggerType = 'string';
+  // } else if (type === Number) {
+  //   swaggerType = 'number';
+  // } else if (type === Boolean) {
+  //   swaggerType = 'boolean';
+  // } else if (type === Date) {
+  //   swaggerType = 'string';
+  // } else if (type === Array) {
+  //   swaggerType = 'array';
+  // } else if (type === Object) {
+  //   swaggerType = 'object';
+  // } else {
+  //   swaggerType = 'string';
+  // }
+
   const apiPropertyOptions: ApiPropertyOptions = {
-    type: isEnumType ? 'string' : type,
-    enum: isEnumType ? Object.values(type) : undefined,
-    required: required ?? true,
+    required,
     description: description ?? 'No description provided',
     example,
-    enumName: isEnumType && options.enumName ? options.enumName : undefined,
+    ...(isEnumType
+      ? {
+          enum: Object.values(type as EnumType),
+          enumName,
+        }
+      : type === Date
+        ? {
+            type: String,
+            format: 'date-time',
+          }
+        : {
+            type: () => type as AllowedTypes,
+          }),
   };
 
   const decorators = [ApiProperty(apiPropertyOptions)];
+  if (type === Date) {
+    apiPropertyOptions.format = 'date-time';
+  }
 
-  if (required === false) {
+  if (!required) {
     decorators.push(IsOptional());
   } else {
     decorators.push(IsNotEmpty());
@@ -94,26 +105,33 @@ export function ApiParamDecorator(options: ParamOptions) {
     }
   }
 
+  console.log('[ApiParamDecorator] apiPropertyOptions:', apiPropertyOptions);
   return applyDecorators(...decorators);
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 function isEnum(value: any): value is EnumType {
-  return typeof value === 'object' && !Array.isArray(value);
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    !Array.isArray(value) &&
+    Object.values(value).every(
+      (v) => typeof v === 'string' || typeof v === 'number'
+    )
+  );
 }
 
 function getValidationDecorator(type: AllowedTypes) {
   switch (type) {
-    case 'string':
+    case String:
       return IsString();
-    case 'number':
-    case 'integer':
+    case Number:
       return IsNumber();
-    case 'boolean':
+    case Boolean:
       return IsBoolean();
-    case 'array':
+    case Array:
       return IsArray();
-    case 'object':
+    case Object:
       return IsObject();
     default:
       return null;
