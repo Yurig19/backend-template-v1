@@ -3,9 +3,9 @@ import * as path from 'node:path';
 import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
 import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
 import { AppError } from '@/core/errors/app.error';
-import { CreateFileDto } from '@/domain/files/dtos/create-file.dto';
-import { ReadFileDto } from '@/domain/files/dtos/read-file.dto';
-import { FilesService } from '@/domain/files/services/files.service';
+import { CreateFileDto } from '@/modules/files/dtos/create-file.dto';
+import { ReadFileDto } from '@/modules/files/dtos/read-file.dto';
+import { FilesService } from '@/modules/files/services/files.service';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreateFileCommand } from './create-file.command';
 

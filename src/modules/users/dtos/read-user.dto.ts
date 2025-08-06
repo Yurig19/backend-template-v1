@@ -1,4 +1,5 @@
 import { ApiParamDecorator } from '@/core/decorators/api-param.decorator';
+import { RoleEnum } from '@/core/enums/role.enum';
 
 export class ReadUserDto {
   @ApiParamDecorator({
@@ -35,11 +36,19 @@ export class ReadUserDto {
 
   @ApiParamDecorator({
     type: String,
-    required: true,
+    required: false,
     description: 'Role assigned to the user',
     example: 'admin',
   })
-  role: string;
+  role?: RoleEnum;
+
+  @ApiParamDecorator({
+    type: String,
+    required: true,
+    description: 'UUID of the role assigned to the user',
+    example: '987e6543-e21b-12d3-a456-426614174999',
+  })
+  roleUuid: string;
 
   @ApiParamDecorator({
     type: Date,

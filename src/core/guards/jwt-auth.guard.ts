@@ -1,4 +1,4 @@
-import { UserService } from '@/domain/users/services/user.service';
+import { UserService } from '@/modules/users/services/user.service';
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { HttpStatusCodeEnum } from '../enums/errors/statusCodeErrors.enum';

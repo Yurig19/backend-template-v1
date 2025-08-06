@@ -1,5 +1,5 @@
 import { ApiParamDecorator } from '@/core/decorators/api-param.decorator';
-import { ReadUserDto } from '@/domain/users/dtos/read-user.dto';
+import { ReadUserDto } from '@/modules/users/dtos/read-user.dto';
 
 export class AuthLoginResponseDto {
   @ApiParamDecorator({

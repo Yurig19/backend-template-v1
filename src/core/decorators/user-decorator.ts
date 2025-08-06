@@ -1,4 +1,4 @@
-import { ReadUserAuthDto } from '@/domain/users/dtos/read-user-auth.dto';
+import { ReadUserAuthDto } from '@/modules/users/dtos/read-user-auth.dto';
 import { ExecutionContext, createParamDecorator } from '@nestjs/common';
 
 export const GetUser = createParamDecorator(

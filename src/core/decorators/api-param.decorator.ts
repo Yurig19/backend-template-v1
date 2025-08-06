@@ -105,7 +105,6 @@ export function ApiParamDecorator(opts: ParamOptions) {
     }
   }
 
-  console.log('[ApiParamDecorator] apiPropertyOptions:', apiPropertyOptions);
   return applyDecorators(...decorators);
 }
 

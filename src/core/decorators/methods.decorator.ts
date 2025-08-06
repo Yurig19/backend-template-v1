@@ -105,6 +105,14 @@ export function ApiEndpoint(options: ApiEndpointOptions) {
   if (options.isAuth) {
     decorators.push(UseGuards(JwtAuthGuard));
     decorators.push(ApiBearerAuth());
+
+    decorators.push(
+      ApiResponse({
+        status: 401,
+        description: 'Unauthorized',
+        type: ErrorResponseDto,
+      })
+    );
   }
 
   decorators.unshift(methodDecorator);

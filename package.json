@@ -29,6 +29,7 @@
     "@nestjs/platform-express": "^10.4.15",
     "@nestjs/swagger": "^8.1.0",
     "@prisma/client": "^6.4.1",
+    "@scalar/nestjs-api-reference": "^0.5.12",
     "@types/crypto-js": "^4.2.2",
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
@@ -36,12 +37,14 @@
     "crypto-js": "^4.2.0",
     "dotenv": "^16.4.7",
     "fs": "0.0.1-security",
+    "knex": "^3.1.0",
     "passport-jwt": "^4.0.1",
     "path": "^0.12.7",
     "prisma": "^6.1.0",
     "redoc": "^2.5.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
+    "sqlite3": "^5.1.7",
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
@@ -52,6 +55,7 @@
     "@types/bcrypt": "^5.0.2",
     "@types/express": "^4.17.21",
     "@types/jest": "^29.5.14",
+    "@types/knex": "^0.16.1",
     "@types/multer": "^2.0.0",
     "@types/node": "^20.17.10",
     "@types/supertest": "^6.0.2",
@@ -65,21 +69,20 @@
     "typescript": "^5.7.2"
   },
   "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
+    "moduleFileExtensions": ["js", "json", "ts"],
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
+    "collectCoverageFrom": ["**/*.(t|j)s"],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/$1",
+      "^src/(.*)$": "<rootDir>/$1",
+      "^prisma/(.*)$": "<rootDir>/../prisma/$1"
+    }
   },
   "packageManager": "pnpm@10.6.2+sha512.47870716bea1572b53df34ad8647b42962bc790ce2bf4562ba0f643237d7302a3d6a8ecef9e4bdfc01d23af1969aa90485d4cebb0b9638fa5ef1daef656f6c1b"
 }

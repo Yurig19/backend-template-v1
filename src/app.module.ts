@@ -5,12 +5,12 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { PrismaService } from 'prisma/prisma.service';
 import { AuditInterceptor } from './core/interceptors/audits.interceptor';
 import { validateEnv } from './core/validations/env.validation';
-import { AuthModule } from './domain/_auth/auth.module';
-import { InitModule } from './domain/_init/init.module';
-import { AuditsModule } from './domain/audits/audits.module';
-import { LogsModule } from './domain/errorLogs/logs.module';
-import { FileModule } from './domain/files/files.module';
-import { UserModule } from './domain/users/users.module';
+import { AuthModule } from './modules/_auth/auth.module';
+import { InitModule } from './modules/_init/init.module';
+import { AuditsModule } from './modules/audits/audits.module';
+import { LogsModule } from './modules/errorLogs/logs.module';
+import { FileModule } from './modules/files/files.module';
+import { UserModule } from './modules/users/users.module';
 
 @Module({
   imports: [

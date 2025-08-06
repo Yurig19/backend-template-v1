@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { apiReference } from '@scalar/nestjs-api-reference';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -51,7 +52,14 @@ async function bootstrap() {
     res.send(html);
   });
 
-  SwaggerModule.setup(`api/${apiVersion}/docs`, app, document);
+  app.use(
+    `/api/${apiVersion}/docs`,
+    apiReference({
+      spec: {
+        content: document,
+      },
+    })
+  );
 
   await app.listen(process.env.PORT ?? 8080);
 }

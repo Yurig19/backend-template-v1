@@ -26,6 +26,6 @@
   },
   "include": [
     "src",
-    "src/domain/roles/services/init.json"
+    "src/modules/roles/services/init.json"
   ]
 }

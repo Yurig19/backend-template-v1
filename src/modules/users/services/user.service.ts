@@ -42,6 +42,17 @@ export class UserService {
     return false;
   }
 
+  async checkUuid(uuid: string): Promise<boolean> {
+    const checkUuid = await this.users.count({
+      where: { deletedAt: null, uuid: uuid },
+    });
+
+    if (checkUuid) {
+      return true;
+    }
+    return false;
+  }
+
   async create(createUserDto: CreateUserDto): Promise<Users> {
     try {
       const { password, role, ...data } = createUserDto;
