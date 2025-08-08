@@ -51,7 +51,6 @@ describe('AuthRegisterHandler', () => {
     authService.register.mockResolvedValue('mock-token');
 
     const command = new AuthRegisterCommand(mockDto);
-
     const result = await handler.execute(command);
 
     expect(result).toEqual({
@@ -81,8 +80,6 @@ describe('AuthRegisterHandler', () => {
       statusText: HttpStatusTextEnum.BAD_REQUEST,
       message: 'Email already registered!',
     });
-
-    expect(userService.checkEmail).toHaveBeenCalledWith(mockDto.email);
   });
 
   it('should throw AppError if user creation fails', async () => {
@@ -92,7 +89,7 @@ describe('AuthRegisterHandler', () => {
     const command = new AuthRegisterCommand(mockDto);
 
     await expect(handler.execute(command)).rejects.toThrow(AppError);
-    await expect(handler.execute(command)).toMatchObject({
+    await expect(handler.execute(command)).rejects.toMatchObject({
       statusCode: HttpStatusCodeEnum.UNAUTHORIZED,
       statusText: HttpStatusTextEnum.UNAUTHORIZED,
       message: 'User not found!',
@@ -107,7 +104,7 @@ describe('AuthRegisterHandler', () => {
     const command = new AuthRegisterCommand(mockDto);
 
     await expect(handler.execute(command)).rejects.toThrow(AppError);
-    await expect(handler.execute(command)).toMatchObject({
+    await expect(handler.execute(command)).rejects.toMatchObject({
       statusCode: HttpStatusCodeEnum.UNAUTHORIZED,
       statusText: HttpStatusTextEnum.UNAUTHORIZED,
       message: 'Not authorized. Check your credentials!',

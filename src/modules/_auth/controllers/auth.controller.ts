@@ -5,7 +5,7 @@ import { Body } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ReadUserDto } from '../../users/dtos/read-user.dto';
 import { AuthLoginResponseDto } from '../dtos/auth-login-response.dto';
-import { AuthLoginDto } from '../dtos/auth-logins.dto';
+import { AuthLoginDto } from '../dtos/auth-login.dto';
 import { AuthRegisterDto } from '../dtos/auth-register.dto';
 import { CreateUserCommand } from '../use-cases/commands/auth-login.command';
 import { AuthRegisterCommand } from '../use-cases/commands/auth-register.command';
