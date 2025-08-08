@@ -14,7 +14,10 @@ export class RolesService {
 
   async initRoles() {
     try {
-      const filePath = path.resolve(__dirname, 'init.json');
+      const filePath = path.resolve(
+        process.cwd(),
+        'src/modules/roles/services/init.json'
+      );
 
       if (!existsSync(filePath)) {
         throw new AppError({

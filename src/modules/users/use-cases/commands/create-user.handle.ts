@@ -27,6 +27,7 @@ export class CreateUserHandle implements ICommandHandler<CreateUserCommand> {
       uuid: user.uuid,
       name: user.name,
       email: user.email,
+      roleUuid: user.roleUuid,
       password: user.password,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,

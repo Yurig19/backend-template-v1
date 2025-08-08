@@ -3,22 +3,22 @@ import { ApiEndpoint } from '@/core/decorators/methods.decorator';
 import { Controller, Query } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
-import { ListLogsDto } from './dtos/list-logs.dto';
-import { LogsListQuery } from './use-cases/queries/logs-list.query';
+import { ListAuditsDto } from '../dtos/list-audits.dto';
+import { ListAuditsQuery } from '../use-cases/queries/list-audits-query';
 
-@ApiController('logs')
-export class LogsController {
+@ApiController('audits')
+export class AuditsController {
   constructor(private readonly queryBus: QueryBus) {}
 
   @ApiEndpoint({
     method: 'GET',
     path: '/list',
-    responseType: ListLogsDto,
-    summary: 'List logs',
-    operationId: 'listLogs',
+    responseType: ListAuditsDto,
+    summary: 'List Audits',
+    operationId: 'listAudits',
     isAuth: true,
-    errorDescription: 'list error logs',
-    successDescription: 'list error logs successfully',
+    errorDescription: 'list error Audits',
+    successDescription: 'list error Audits successfully',
   })
   @ApiQuery({ name: 'page', type: Number, required: true, example: 1 })
   @ApiQuery({ name: 'dataPerPage', type: Number, required: true, example: 10 })
@@ -28,13 +28,13 @@ export class LogsController {
     example: 'search',
     required: false,
   })
-  async list(
+  async listAudits(
     @Query('page') page: number,
     @Query('dataPerPage') dataPerPage: number,
     @Query('search') search?: string
-  ): Promise<ListLogsDto> {
+  ): Promise<ListAuditsDto> {
     return await this.queryBus.execute(
-      new LogsListQuery(page, dataPerPage, search)
+      new ListAuditsQuery(page, dataPerPage, search)
     );
   }
 }

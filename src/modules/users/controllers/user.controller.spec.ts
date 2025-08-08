@@ -2,13 +2,13 @@ import { DeleteDto } from '@/core/dtos/delete.dto';
 import { RoleEnum } from '@/core/enums/role.enum';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateUserDto } from './dtos/create-user.dto';
-import { ReadUserDto } from './dtos/read-user.dto';
-import { UpdateUserDto } from './dtos/update-user.dto';
-import { CreateUserCommand } from './use-cases/commands/create-user.command';
-import { DeleteUserCommand } from './use-cases/commands/delete-user.command';
-import { UpdateUserCommand } from './use-cases/commands/update-user.command';
-import { UserByUuidQuery } from './use-cases/queries/user-by-uuid.query';
+import { CreateUserDto } from '../dtos/create-user.dto';
+import { ReadUserDto } from '../dtos/read-user.dto';
+import { UpdateUserDto } from '../dtos/update-user.dto';
+import { CreateUserCommand } from '../use-cases/commands/create-user.command';
+import { DeleteUserCommand } from '../use-cases/commands/delete-user.command';
+import { UpdateUserCommand } from '../use-cases/commands/update-user.command';
+import { UserByUuidQuery } from '../use-cases/queries/user-by-uuid.query';
 import { UsersController } from './users.controller';
 
 describe('UsersController', () => {

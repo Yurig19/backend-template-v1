@@ -26,7 +26,7 @@ describe('AuthRegisterHandler', () => {
   const mockUser: ReadUserDto = {
     ...mockDto,
     uuid: 'uuid-456',
-    roleUuid: 'uuid-test',
+    roleUuid: 'role-uuid-test',
     createdAt: mockDate,
     updatedAt: mockDate,
     deletedAt: null,

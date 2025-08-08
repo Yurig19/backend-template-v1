@@ -1,13 +1,14 @@
 import { RoleEnum } from '@/core/enums/role.enum';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ReadUserDto } from '../users/dtos/read-user.dto';
+import { ReadUserDto } from '../../users/dtos/read-user.dto';
+
+import { AuthLoginResponseDto } from '../dtos/auth-login-response.dto';
+import { AuthLoginDto } from '../dtos/auth-logins.dto';
+import { AuthRegisterDto } from '../dtos/auth-register.dto';
+import { CreateUserCommand } from '../use-cases/commands/auth-login.command';
+import { AuthRegisterCommand } from '../use-cases/commands/auth-register.command';
 import { AuthController } from './auth.controller';
-import { AuthLoginResponseDto } from './dtos/auth-login-response.dto';
-import { AuthLoginDto } from './dtos/auth-logins.dto';
-import { AuthRegisterDto } from './dtos/auth-register.dto';
-import { CreateUserCommand } from './use-cases/commands/auth-login.command';
-import { AuthRegisterCommand } from './use-cases/commands/auth-register.command';
 
 describe('AuthController', () => {
   let controller: AuthController;

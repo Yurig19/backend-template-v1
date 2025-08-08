@@ -668,6 +668,11 @@
             "description": "Role assigned to the user",
             "example": "admin"
           },
+          "roleUuid": {
+            "type": "string",
+            "description": "UUID of the role assigned to the user",
+            "example": "987e6543-e21b-12d3-a456-426614174999"
+          },
           "createdAt": {
             "type": "string",
             "description": "Timestamp when the user was created",
@@ -693,6 +698,7 @@
           "email",
           "password",
           "role",
+          "roleUuid",
           "createdAt",
           "updatedAt",
           "deletedAt"

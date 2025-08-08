@@ -3,12 +3,12 @@ import { ApiEndpoint } from '@/core/decorators/methods.decorator';
 import { GetUser } from '@/core/decorators/user-decorator';
 import { Body } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ReadUserDto } from '../users/dtos/read-user.dto';
-import { AuthLoginResponseDto } from './dtos/auth-login-response.dto';
-import { AuthLoginDto } from './dtos/auth-logins.dto';
-import { AuthRegisterDto } from './dtos/auth-register.dto';
-import { CreateUserCommand } from './use-cases/commands/auth-login.command';
-import { AuthRegisterCommand } from './use-cases/commands/auth-register.command';
+import { ReadUserDto } from '../../users/dtos/read-user.dto';
+import { AuthLoginResponseDto } from '../dtos/auth-login-response.dto';
+import { AuthLoginDto } from '../dtos/auth-logins.dto';
+import { AuthRegisterDto } from '../dtos/auth-register.dto';
+import { CreateUserCommand } from '../use-cases/commands/auth-login.command';
+import { AuthRegisterCommand } from '../use-cases/commands/auth-register.command';
 
 @ApiController('auth')
 export class AuthController {

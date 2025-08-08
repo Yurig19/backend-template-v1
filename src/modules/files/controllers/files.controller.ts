@@ -3,9 +3,9 @@ import { ApiEndpoint } from '@/core/decorators/methods.decorator';
 import { UploadedFile, UseInterceptors } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CreateFileDto } from './dtos/create-file.dto';
-import { ReadFileDto } from './dtos/read-file.dto';
-import { CreateFileCommand } from './use-cases/commands/create-file.command';
+import { CreateFileDto } from '../dtos/create-file.dto';
+import { ReadFileDto } from '../dtos/read-file.dto';
+import { CreateFileCommand } from '../use-cases/commands/create-file.command';
 
 @ApiController('files')
 export class FilesController {

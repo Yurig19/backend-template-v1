@@ -6,7 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { PrismaService } from 'prisma/prisma.service';
 import { UserModule } from '../users/users.module';
-import { AuthController } from './auth.controller';
+import { AuthController } from './controllers/auth.controller';
 import { AuthService } from './service/auth.service';
 import { AuthLoginHandler } from './use-cases/commands/auth-login.query';
 import { AuthRegisterHandler } from './use-cases/commands/auth-register.handle';

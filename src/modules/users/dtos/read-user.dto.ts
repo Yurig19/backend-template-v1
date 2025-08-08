@@ -36,7 +36,7 @@ export class ReadUserDto {
 
   @ApiParamDecorator({
     type: String,
-    required: false,
+    required: true,
     description: 'Role assigned to the user',
     example: 'admin',
   })
