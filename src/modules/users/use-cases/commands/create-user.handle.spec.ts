@@ -1,24 +1,19 @@
+import { randomUUID } from 'node:crypto';
 import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
 import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
 import { RoleEnum } from '@/core/enums/role.enum';
 import { AppError } from '@/core/errors/app.error';
+import { Test, TestingModule } from '@nestjs/testing';
+import { PrismaService } from 'prisma/prisma.service';
 import { CreateUserDto } from '../../dtos/create-user.dto';
-import { ReadUserDto } from '../../dtos/read-user.dto';
 import { UserService } from '../../services/user.service';
 import { CreateUserCommand } from './create-user.command';
 import { CreateUserHandle } from './create-user.handle';
 
-describe('CreateUserHandle', () => {
+describe('CreateUserHandle (integration)', () => {
   let handler: CreateUserHandle;
-  let userService: jest.Mocked<UserService>;
-
-  beforeEach(() => {
-    userService = {
-      create: jest.fn(),
-    } as unknown as jest.Mocked<UserService>;
-
-    handler = new CreateUserHandle(userService);
-  });
+  let userService: UserService;
+  let prisma: PrismaService;
 
   const mockDto: CreateUserDto = {
     name: 'John Doe',
@@ -27,41 +22,60 @@ describe('CreateUserHandle', () => {
     role: RoleEnum.admin,
   };
 
-  const mockUser = {
-    ...mockDto,
-    uuid: 'uuid-123',
-    roleUuid: 'role-uuid',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    deletedAt: null,
-  };
+  beforeAll(async () => {
+    process.env.NODE_ENV = 'test';
+    require('dotenv').config({ path: '.env.test' });
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [CreateUserHandle, UserService, PrismaService],
+    }).compile();
+
+    handler = module.get<CreateUserHandle>(CreateUserHandle);
+    userService = module.get<UserService>(UserService);
+    prisma = module.get<PrismaService>(PrismaService);
+
+    await prisma.users.deleteMany();
+
+    await prisma.roles.create({
+      data: {
+        uuid: randomUUID(),
+        type: RoleEnum.admin,
+        name: 'admin',
+        createdAt: new Date(),
+      },
+    });
+  });
+
+  afterAll(async () => {
+    await prisma.users.deleteMany();
+    await prisma.$disconnect();
+  });
 
   it('should create user and return ReadUserDto', async () => {
-    userService.create.mockResolvedValue(mockUser);
-
     const command = new CreateUserCommand(mockDto);
 
     const result = await handler.execute(command);
 
-    const expected: ReadUserDto = {
-      uuid: mockUser.uuid,
-      name: mockUser.name,
-      email: mockUser.email,
-      roleUuid: mockUser.roleUuid,
-      password: mockUser.password,
-      createdAt: mockUser.createdAt,
-      updatedAt: mockUser.updatedAt,
-      deletedAt: mockUser.deletedAt,
-    };
+    expect(result).toMatchObject({
+      uuid: expect.any(String),
+      name: mockDto.name,
+      email: mockDto.email,
+      roleUuid: expect.any(String),
+      password: expect.any(String),
+      createdAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+      deletedAt: null,
+    });
 
-    expect(userService.create).toHaveBeenCalledWith(mockDto);
-    expect(result).toEqual(expected);
+    const userInDb = await prisma.users.findUnique({
+      where: { email: mockDto.email },
+    });
+    expect(userInDb).toBeTruthy();
   });
 
   it('should throw AppError if user creation fails', async () => {
-    userService.create.mockResolvedValue(null);
-
     const command = new CreateUserCommand(mockDto);
+    await handler.execute(command);
 
     await expect(handler.execute(command)).rejects.toThrow(AppError);
     await expect(handler.execute(command)).rejects.toMatchObject({
@@ -69,7 +83,5 @@ describe('CreateUserHandle', () => {
       statusText: HttpStatusTextEnum.BAD_REQUEST,
       message: 'User could not be created. Please verify the provided data.',
     });
-
-    expect(userService.create).toHaveBeenCalledWith(mockDto);
   });
 });

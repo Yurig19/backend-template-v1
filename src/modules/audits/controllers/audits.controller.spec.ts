@@ -1,80 +1,97 @@
 import { QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ListAuditsDto } from '../dtos/list-audits.dto';
-import { ListAuditsQuery } from '../use-cases/queries/list-audits-query';
+import { PrismaService } from 'prisma/prisma.service';
+import { AuditsService } from '../services/audits.service';
 import { AuditsController } from './audits.controller';
 
-describe('AuditsController', () => {
+describe('AuditsController (integration)', () => {
   let controller: AuditsController;
-  let queryBus: QueryBus;
+  let auditsService: AuditsService;
+  let prisma: PrismaService;
 
-  const mockListAuditsDto: ListAuditsDto = {
-    data: [
-      {
-        uuid: 'audit-uuid-1',
-        entity: 'User',
-        method: 'POST',
-        url: '/users',
-        userAgent: 'PostmanRuntime/7.28.4',
-        userUuid: 'user-uuid-1',
-        newData: '{}',
-        oldData: '{}',
-        ip: '127.0.0.1',
-        createdAt: new Date(),
-      },
-    ],
-    actualPage: 1,
-    totalPages: 1,
-    total: 1,
-  };
+  beforeAll(async () => {
+    process.env.NODE_ENV = 'test';
+    require('dotenv').config({ path: '.env.test' });
 
-  const queryBusMock = {
-    execute: jest.fn(),
-  };
-
-  beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuditsController],
-      providers: [{ provide: QueryBus, useValue: queryBusMock }],
+      providers: [
+        AuditsService,
+        PrismaService,
+        {
+          provide: QueryBus,
+          useValue: {
+            execute: jest.fn().mockResolvedValue({
+              data: [
+                {
+                  uuid: 'audit-uuid-1',
+                  entity: 'User',
+                  method: 'POST',
+                  url: '/users',
+                  userAgent: 'PostmanRuntime/7.28.4',
+                  userUuid: 'user-uuid-1',
+                  newData: '{}',
+                  oldData: '{}',
+                  ip: '127.0.0.1',
+                  createdAt: new Date(),
+                },
+              ],
+              actualPage: 1,
+              totalPages: 1,
+              total: 1,
+            }),
+          },
+        },
+      ],
     }).compile();
 
     controller = module.get<AuditsController>(AuditsController);
-    queryBus = module.get<QueryBus>(QueryBus);
-  });
+    auditsService = module.get<AuditsService>(AuditsService);
+    prisma = module.get<PrismaService>(PrismaService);
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
+    await prisma.audits.deleteMany();
 
-  describe('listAudits', () => {
-    it('should call queryBus.execute with ListAuditsQuery and return data', async () => {
-      const page = 1;
-      const dataPerPage = 10;
-      const search = 'test';
+    const mockAudit = {
+      uuid: 'audit-uuid-1',
+      entity: 'User',
+      method: 'POST',
+      url: '/users',
+      userAgent: 'PostmanRuntime/7.28.4',
+      userUuid: 'user-uuid-1',
+      newData: '{}',
+      oldData: '{}',
+      ip: '127.0.0.1',
+      createdAt: new Date(),
+    };
 
-      queryBusMock.execute.mockResolvedValueOnce(mockListAuditsDto);
-
-      const result = await controller.listAudits(page, dataPerPage, search);
-
-      expect(queryBus.execute).toHaveBeenCalledWith(
-        new ListAuditsQuery(page, dataPerPage, search)
-      );
-      expect(result).toEqual(mockListAuditsDto);
+    await prisma.users.create({
+      data: {
+        uuid: mockAudit.userUuid,
+        name: 'User Test',
+        email: 'user@test.com',
+        password: 'hashed-password',
+        createdAt: new Date(),
+      },
     });
 
-    it('should handle undefined search param', async () => {
-      const page = 2;
-      const dataPerPage = 5;
-      const search = undefined;
+    await prisma.audits.create({
+      data: mockAudit,
+    });
+  });
 
-      queryBusMock.execute.mockResolvedValueOnce(mockListAuditsDto);
+  afterAll(async () => {
+    await prisma.audits.deleteMany();
+    await prisma.$disconnect();
+  });
 
-      const result = await controller.listAudits(page, dataPerPage, search);
+  it('should return audits list from the real service', async () => {
+    const result = await controller.listAudits(1, 10, 'User');
 
-      expect(queryBus.execute).toHaveBeenCalledWith(
-        new ListAuditsQuery(page, dataPerPage, undefined)
-      );
-      expect(result).toEqual(mockListAuditsDto);
+    expect(result.data.length).toBeGreaterThan(0);
+    expect(result.data[0]).toMatchObject({
+      uuid: 'audit-uuid-1',
+      entity: 'User',
+      method: 'POST',
     });
   });
 });

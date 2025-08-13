@@ -1,8 +1,9 @@
+import { randomUUID } from 'node:crypto';
 import { RoleEnum } from '@/core/enums/role.enum';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
+import { PrismaService } from 'prisma/prisma.service';
 import { ReadUserDto } from '../../users/dtos/read-user.dto';
-
 import { AuthLoginResponseDto } from '../dtos/auth-login-response.dto';
 import { AuthLoginDto } from '../dtos/auth-login.dto';
 import { AuthRegisterDto } from '../dtos/auth-register.dto';
@@ -14,11 +15,13 @@ describe('AuthController', () => {
   let controller: AuthController;
   let commandBus: CommandBus;
   let queryBus: QueryBus;
+  let prisma: PrismaService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
+        PrismaService,
         {
           provide: CommandBus,
           useValue: { execute: jest.fn() },
@@ -35,19 +38,21 @@ describe('AuthController', () => {
     queryBus = module.get<QueryBus>(QueryBus);
   });
 
+  const user: ReadUserDto = {
+    uuid: randomUUID(),
+    name: 'Jane Doe',
+    email: 'jane@example.com',
+    password: 'hashed-password',
+    role: RoleEnum.admin,
+    roleUuid: randomUUID(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
+  };
+
   const mockResponse: AuthLoginResponseDto = {
     accessToken: 'fake-jwt-token',
-    user: {
-      uuid: 'uuid-123',
-      name: 'Jane Doe',
-      email: 'jane@example.com',
-      password: 'hashed-password',
-      role: RoleEnum.admin,
-      roleUuid: 'role-uuid',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      deletedAt: null,
-    },
+    user: user,
   };
 
   it('should login user', async () => {
@@ -83,20 +88,14 @@ describe('AuthController', () => {
   });
 
   it('should return current user on verifyToken', async () => {
-    const user: ReadUserDto = {
-      uuid: 'uuid-123',
-      name: 'Jane Doe',
-      email: 'jane@example.com',
-      password: 'hashed-password',
-      role: RoleEnum.admin,
-      roleUuid: 'role-uuid',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      deletedAt: null,
-    };
-
     const result = await controller.verifyToken(user);
 
     expect(result).toEqual(user);
+  });
+
+  afterAll(async () => {
+    await prisma.audits.deleteMany();
+    await prisma.users.deleteMany();
+    await prisma.$disconnect();
   });
 });

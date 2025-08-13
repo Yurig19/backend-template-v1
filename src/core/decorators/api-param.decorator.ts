@@ -47,23 +47,6 @@ export function ApiParamDecorator(opts: ParamOptions) {
   } = opts;
   const isEnumType = isEnum(type);
 
-  // let swaggerType: any;
-  // if (isEnumType || type === String) {
-  //   swaggerType = 'string';
-  // } else if (type === Number) {
-  //   swaggerType = 'number';
-  // } else if (type === Boolean) {
-  //   swaggerType = 'boolean';
-  // } else if (type === Date) {
-  //   swaggerType = 'string';
-  // } else if (type === Array) {
-  //   swaggerType = 'array';
-  // } else if (type === Object) {
-  //   swaggerType = 'object';
-  // } else {
-  //   swaggerType = 'string';
-  // }
-
   const apiPropertyOptions: ApiPropertyOptions = {
     required,
     description: description ?? 'No description provided',

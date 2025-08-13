@@ -15,6 +15,8 @@ export class AuditsController {
     path: '/list',
     responseType: ListAuditsDto,
     summary: 'List Audits',
+    description:
+      'Retrieves a paginated list of audit records, optionally filtered by search criteria.',
     operationId: 'listAudits',
     isAuth: true,
     errorDescription: 'list error Audits',

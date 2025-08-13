@@ -1,11 +1,11 @@
+import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
+import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
+import { RoleEnum } from '@/core/enums/role.enum';
+import { AppError } from '@/core/errors/app.error';
+import { generateHashPassword } from '@/core/utils/generatePassword';
 import { Injectable } from '@nestjs/common';
 import type { Users } from '@prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
-import { HttpStatusCodeEnum } from 'src/core/enums/errors/statusCodeErrors.enum';
-import { HttpStatusTextEnum } from 'src/core/enums/errors/statusTextError.enum';
-import { RoleEnum } from 'src/core/enums/role.enum';
-import { AppError } from 'src/core/errors/app.error';
-import { generateHashPassword } from 'src/core/utils/generatePassword';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { PatchUserDto } from '../dtos/patch-user.dto';
 import { UpdateUserDto } from '../dtos/update-user.dto';

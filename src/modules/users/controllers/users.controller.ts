@@ -25,6 +25,8 @@ export class UsersController {
     responseType: ReadUserDto,
     path: '/create',
     summary: 'Create a new user',
+    description:
+      'Accepts user data and creates a new user record in the system.',
     operationId: 'createUser',
     successDescription: 'User successfully created',
     errorDescription: 'Invalid data',
@@ -39,6 +41,7 @@ export class UsersController {
     responseType: ReadUserDto,
     path: '/find-by-uuid',
     summary: 'Find a user by UUID',
+    description: 'Retrieves a user based on the provided UUID parameter.',
     operationId: 'getByUserUuid',
     successDescription: 'User successfully found',
     errorDescription: 'User not found',
@@ -57,6 +60,7 @@ export class UsersController {
     method: 'PUT',
     path: '/update',
     summary: 'Update a user by UUID',
+    description: 'Updates the user information for the specified UUID.',
     operationId: 'updateUser',
     bodyType: UpdateUserDto,
     responseType: ReadUserDto,
@@ -76,6 +80,8 @@ export class UsersController {
     method: 'DELETE',
     path: '/delete',
     summary: 'Delete a user by UUID',
+    description:
+      'Deletes the user associated with the given UUID from the system.',
     operationId: 'deleteUser',
     responseType: DeleteDto,
     isAuth: true,

@@ -1,67 +1,88 @@
+import { randomUUID } from 'node:crypto';
 import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
 import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
 import { RoleEnum } from '@/core/enums/role.enum';
 import { AppError } from '@/core/errors/app.error';
+import { Test, TestingModule } from '@nestjs/testing';
+import { PrismaService } from 'prisma/prisma.service';
 import { UserService } from '../../services/user.service';
 import { UserByUuidHandle } from './user-by-uuid.handle';
 import { UserByUuidQuery } from './user-by-uuid.query';
 
-describe('UserByUuidHandle', () => {
+describe('UserByUuidHandle (integration)', () => {
   let handler: UserByUuidHandle;
-  let userService: jest.Mocked<UserService>;
+  let prisma: PrismaService;
+  let roleUuid: string;
 
-  beforeEach(() => {
-    userService = {
-      findByUuid: jest.fn(),
-    } as unknown as jest.Mocked<UserService>;
+  beforeAll(async () => {
+    process.env.NODE_ENV = 'test';
+    require('dotenv').config({ path: '.env.test' });
 
-    handler = new UserByUuidHandle(userService);
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [PrismaService, UserService, UserByUuidHandle],
+    }).compile();
+
+    prisma = module.get<PrismaService>(PrismaService);
+    handler = module.get<UserByUuidHandle>(UserByUuidHandle);
+
+    await prisma.users.deleteMany();
+    await prisma.roles.deleteMany();
+
+    roleUuid = randomUUID();
+    await prisma.roles.create({
+      data: {
+        uuid: roleUuid,
+        type: RoleEnum.manager,
+        name: 'manager',
+        createdAt: new Date(),
+      },
+    });
   });
 
-  const mockUser = {
-    uuid: 'user-uuid',
-    name: 'Jane Doe',
-    email: 'jane@example.com',
-    password: 'hashedpassword',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    deletedAt: null,
-    roles: {
-      name: RoleEnum.manager,
-    },
-  };
+  afterAll(async () => {
+    await prisma.users.deleteMany();
+    await prisma.roles.deleteMany();
+    await prisma.$disconnect();
+  });
 
-  it('should return user data as ReadUserDto', async () => {
-    userService.findByUuid.mockResolvedValue(mockUser);
+  it('should return user data when found', async () => {
+    const createdUser = await prisma.users.create({
+      data: {
+        uuid: randomUUID(),
+        name: 'Jane Doe',
+        email: `jane-${Date.now()}@example.com`,
+        password: 'hashedpassword',
+        roleUuid,
+        createdAt: new Date(),
+      },
+    });
 
-    const query = new UserByUuidQuery(mockUser.uuid);
+    const query = new UserByUuidQuery(createdUser.uuid);
     const result = await handler.execute(query);
 
-    expect(result).toEqual({
-      uuid: mockUser.uuid,
-      name: mockUser.name,
-      email: mockUser.email,
-      role: mockUser.roles.name,
-      password: mockUser.password,
-      createdAt: mockUser.createdAt,
-      updatedAt: mockUser.updatedAt,
-      deletedAt: mockUser.deletedAt,
+    expect(result).toMatchObject({
+      uuid: createdUser.uuid,
+      name: createdUser.name,
+      email: createdUser.email,
+      role: RoleEnum.manager,
+      password: createdUser.password,
+      createdAt: createdUser.createdAt,
+      updatedAt: createdUser.updatedAt,
+      deletedAt: createdUser.deletedAt,
     });
-    expect(userService.findByUuid).toHaveBeenCalledWith(mockUser.uuid);
   });
 
   it('should throw AppError when user is not found', async () => {
-    userService.findByUuid.mockResolvedValue(null);
+    const nonExistentUuid = 'non-existent-uuid';
 
-    const query = new UserByUuidQuery('nonexistent-uuid');
-
-    await expect(handler.execute(query)).rejects.toThrow(AppError);
-    await expect(handler.execute(query)).rejects.toMatchObject({
-      statusCode: HttpStatusCodeEnum.NOT_FOUND,
-      statusText: HttpStatusTextEnum.NOT_FOUND,
-      message: 'User not found.',
-    });
-
-    expect(userService.findByUuid).toHaveBeenCalledWith('nonexistent-uuid');
+    await expect(
+      handler.execute(new UserByUuidQuery(nonExistentUuid))
+    ).rejects.toEqual(
+      new AppError({
+        message: 'User not found.',
+        statusCode: HttpStatusCodeEnum.NOT_FOUND,
+        statusText: HttpStatusTextEnum.NOT_FOUND,
+      })
+    );
   });
 });

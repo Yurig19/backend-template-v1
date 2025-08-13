@@ -25,6 +25,7 @@ interface ApiEndpointOptions {
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   responseType: any;
   summary: string;
+  description: string;
   operationId: string;
   successDescription?: string;
   errorDescription?: string;
@@ -34,18 +35,35 @@ interface ApiEndpointOptions {
   isFile?: boolean;
 }
 
-export function ApiEndpoint(options: ApiEndpointOptions) {
+export function ApiEndpoint(opts: ApiEndpointOptions) {
   let methodDecorator: MethodDecorator;
   const decorators: MethodDecorator[] = [];
 
-  const successStatus = options.method === 'POST' ? 201 : 200;
+  const {
+    description,
+    method,
+    operationId,
+    path,
+    responseType,
+    summary,
+    bodyType,
+    errorDescription,
+    isAuth,
+    isFile,
+    successDescription,
+  } = opts;
 
-  const successDesc =
-    options.successDescription ?? 'Operation completed successfully';
-  const errorDesc = options.errorDescription ?? 'An error occurred';
+  const successStatus = method === 'POST' ? 201 : 200;
+
+  const successDesc = successDescription ?? 'Operation completed successfully';
+  const errorDesc = errorDescription ?? 'An error occurred';
 
   decorators.push(
-    ApiOperation({ summary: options.summary, operationId: options.operationId })
+    ApiOperation({
+      summary: summary,
+      operationId: operationId,
+      description: description,
+    })
   );
 
   decorators.push(
@@ -60,38 +78,38 @@ export function ApiEndpoint(options: ApiEndpointOptions) {
     ApiResponse({
       status: successStatus,
       description: successDesc,
-      type: options.responseType,
+      type: responseType,
     })
   );
 
-  if (options.bodyType && ['POST', 'PUT'].includes(options.method)) {
-    decorators.push(ApiBody({ type: options.bodyType }));
+  if (bodyType && ['POST', 'PUT'].includes(method)) {
+    decorators.push(ApiBody({ type: bodyType }));
   }
 
-  if (options.isFile) {
+  if (isFile) {
     decorators.push(ApiConsumes('multipart/form-data'));
     decorators.push(UseInterceptors(FileInterceptor('file')));
 
-    if (options.bodyType) {
-      decorators.push(ApiBody({ type: options.bodyType }));
+    if (bodyType) {
+      decorators.push(ApiBody({ type: bodyType }));
     }
   }
 
-  switch (options.method) {
+  switch (method) {
     case 'GET':
-      methodDecorator = Get(options.path);
+      methodDecorator = Get(path);
       break;
     case 'POST':
-      methodDecorator = Post(options.path);
+      methodDecorator = Post(path);
       break;
     case 'PATCH':
-      methodDecorator = Patch(options.path);
+      methodDecorator = Patch(path);
       break;
     case 'PUT':
-      methodDecorator = Put(options.path);
+      methodDecorator = Put(path);
       break;
     case 'DELETE':
-      methodDecorator = Delete(options.path);
+      methodDecorator = Delete(path);
       break;
 
     default:
@@ -102,7 +120,7 @@ export function ApiEndpoint(options: ApiEndpointOptions) {
       });
   }
 
-  if (options.isAuth) {
+  if (isAuth) {
     decorators.push(UseGuards(JwtAuthGuard));
     decorators.push(ApiBearerAuth());
 

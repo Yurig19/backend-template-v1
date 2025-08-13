@@ -15,6 +15,8 @@ export class LogsController {
     path: '/list',
     responseType: ListLogsDto,
     summary: 'List logs',
+    description:
+      'Retrieves a paginated list of error logs, optionally filtered by search criteria.',
     operationId: 'listLogs',
     isAuth: true,
     errorDescription: 'list error logs',

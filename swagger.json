@@ -3,6 +3,7 @@
   "paths": {
     "/api/v1/Users/create": {
       "post": {
+        "description": "Accepts user data and creates a new user record in the system.",
         "operationId": "createUser",
         "parameters": [],
         "requestBody": {
@@ -60,6 +61,7 @@
     },
     "/api/v1/Users/find-by-uuid": {
       "get": {
+        "description": "Retrieves a user based on the provided UUID parameter.",
         "operationId": "getByUserUuid",
         "parameters": [
           {
@@ -116,6 +118,7 @@
     },
     "/api/v1/Users/update": {
       "put": {
+        "description": "Updates the user information for the specified UUID.",
         "operationId": "updateUser",
         "parameters": [
           {
@@ -182,6 +185,7 @@
     },
     "/api/v1/Users/delete": {
       "delete": {
+        "description": "Deletes the user associated with the given UUID from the system.",
         "operationId": "deleteUser",
         "parameters": [
           {
@@ -238,6 +242,7 @@
     },
     "/api/v1/auth/login": {
       "post": {
+        "description": "Authenticates a user and returns an access token if credentials are valid.",
         "operationId": "login",
         "parameters": [],
         "requestBody": {
@@ -280,6 +285,7 @@
     },
     "/api/v1/auth/register": {
       "post": {
+        "description": "Registers a new user and returns an access token upon successful registration.",
         "operationId": "register",
         "parameters": [],
         "requestBody": {
@@ -322,6 +328,7 @@
     },
     "/api/v1/auth/verify-token": {
       "get": {
+        "description": "Checks if the provided authentication token is valid and returns user data.",
         "operationId": "checkToken",
         "parameters": [],
         "responses": {
@@ -369,6 +376,7 @@
     },
     "/api/v1/files/create": {
       "post": {
+        "description": "Uploads a file and creates a new file record in the system.",
         "operationId": "createFile",
         "parameters": [],
         "requestBody": {
@@ -426,6 +434,7 @@
     },
     "/api/v1/audits/list": {
       "get": {
+        "description": "Retrieves a paginated list of audit records, optionally filtered by search criteria.",
         "operationId": "listAudits",
         "parameters": [
           {
@@ -501,6 +510,7 @@
     },
     "/api/v1/logs/list": {
       "get": {
+        "description": "Retrieves a paginated list of error logs, optionally filtered by search criteria.",
         "operationId": "listLogs",
         "parameters": [
           {

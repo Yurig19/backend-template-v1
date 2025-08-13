@@ -19,6 +19,9 @@
     "noFallthroughCasesInSwitch": false,
     "resolveJsonModule": true,
     "paths": {
+      "prisma/*": [
+        "prisma/*"
+      ],
       "@/*": [
         "src/*"
       ]
@@ -26,5 +29,7 @@
   },
   "include": [
     "src",
+    "jest.config.ts",
+    "jest.setup.ts"
   ]
 }

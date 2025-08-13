@@ -23,6 +23,8 @@ export class AuthController {
     responseType: AuthLoginResponseDto,
     path: '/login',
     summary: 'Login',
+    description:
+      'Authenticates a user and returns an access token if credentials are valid.',
     operationId: 'login',
     successDescription: 'User logged in successfully',
     errorDescription: 'User not logged in',
@@ -40,6 +42,8 @@ export class AuthController {
     responseType: AuthLoginResponseDto,
     path: '/register',
     summary: 'Register',
+    description:
+      'Registers a new user and returns an access token upon successful registration.',
     operationId: 'register',
     successDescription: 'User registered in successfully',
     errorDescription: 'User not registered in',
@@ -58,6 +62,8 @@ export class AuthController {
     responseType: ReadUserDto,
     path: '/verify-token',
     summary: 'Verify token',
+    description:
+      'Checks if the provided authentication token is valid and returns user data.',
     operationId: 'checkToken',
     successDescription: 'Token is valid',
     errorDescription: 'Token is invalid',

@@ -1,7 +1,7 @@
+import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
+import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
+import { AppError } from '@/core/errors/app.error';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
-import { HttpStatusCodeEnum } from 'src/core/enums/errors/statusCodeErrors.enum';
-import { HttpStatusTextEnum } from 'src/core/enums/errors/statusTextError.enum';
-import { AppError } from 'src/core/errors/app.error';
 import type { ReadUserDto } from '../../dtos/read-user.dto';
 import { UserService } from '../../services/user.service';
 import { CreateUserCommand } from './create-user.command';
@@ -23,7 +23,7 @@ export class CreateUserHandle implements ICommandHandler<CreateUserCommand> {
       });
     }
 
-    return {
+    return <ReadUserDto>{
       uuid: user.uuid,
       name: user.name,
       email: user.email,
@@ -32,6 +32,6 @@ export class CreateUserHandle implements ICommandHandler<CreateUserCommand> {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       deletedAt: user.deletedAt,
-    } as ReadUserDto;
+    };
   }
 }

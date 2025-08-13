@@ -2,84 +2,99 @@ import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
 import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
 import { RoleEnum } from '@/core/enums/role.enum';
 import { AppError } from '@/core/errors/app.error';
-import { ReadUserDto } from '../../dtos/read-user.dto';
+import { Test, TestingModule } from '@nestjs/testing';
+import { PrismaService } from 'prisma/prisma.service';
 import { UpdateUserDto } from '../../dtos/update-user.dto';
 import { UserService } from '../../services/user.service';
 import { UpdateUserCommand } from './update-user.command';
 import { UpdateUserHandler } from './update-user.handle';
 
-describe('UpdateUserHandler', () => {
+describe('UpdateUserHandler (integration)', () => {
+  let prisma: PrismaService;
   let handler: UpdateUserHandler;
-  let userService: jest.Mocked<UserService>;
 
-  const uuid = 'user-uuid';
-  const updateUserDto: UpdateUserDto = {
-    name: 'Updated Name',
-    email: 'updated@email.com',
-    password: 'newpassword123',
-    role: RoleEnum.admin,
-  };
+  let createdUserUuid: string;
 
-  const userMock = {
-    uuid,
-    name: updateUserDto.name,
-    email: updateUserDto.email,
-    password: updateUserDto.password,
-    roleUuid: updateUserDto.role,
-    createdAt: new Date('2023-01-01'),
-    updatedAt: new Date('2023-08-01'),
-    deletedAt: null,
-  };
+  beforeAll(async () => {
+    process.env.NODE_ENV = 'test';
+    require('dotenv').config({ path: '.env.test' });
 
-  beforeEach(() => {
-    userService = {
-      update: jest.fn(),
-      checkUuid: jest.fn(),
-      delete: jest.fn(),
-      initAdmin: jest.fn(),
-      checkEmail: jest.fn(),
-      create: jest.fn(),
-      findByUuid: jest.fn(),
-      findAuthByUuid: jest.fn(),
-      findByEmail: jest.fn(),
-    } as unknown as jest.Mocked<UserService>;
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [PrismaService, UserService, UpdateUserHandler],
+    }).compile();
 
-    handler = new UpdateUserHandler(userService);
+    prisma = module.get<PrismaService>(PrismaService);
+    handler = module.get<UpdateUserHandler>(UpdateUserHandler);
+
+    await prisma.users.deleteMany();
+
+    await prisma.roles.deleteMany();
+
+    await prisma.roles.createMany({
+      data: [
+        { uuid: RoleEnum.employee, name: 'Employee' },
+        { uuid: RoleEnum.admin, name: 'Admin' },
+      ],
+    });
+
+    const user = await prisma.users.create({
+      data: {
+        name: 'Initial User',
+        email: 'initial@example.com',
+        password: 'oldpassword',
+        roleUuid: RoleEnum.employee,
+      },
+    });
+
+    createdUserUuid = user.uuid;
   });
 
-  it('should update user successfully and return ReadUserDto', async () => {
-    userService.update.mockResolvedValue(userMock);
+  afterAll(async () => {
+    await prisma.users.deleteMany();
+    await prisma.$disconnect();
+  });
+
+  it('should update user successfully and return updated data', async () => {
+    const updateUserDto: UpdateUserDto = {
+      name: 'Updated Name',
+      email: 'updated@example.com',
+      password: 'newpassword123',
+      role: RoleEnum.admin,
+    };
 
     const result = await handler.execute(
-      new UpdateUserCommand(uuid, updateUserDto)
+      new UpdateUserCommand(createdUserUuid, updateUserDto)
     );
 
-    expect(userService.update).toHaveBeenCalledWith(uuid, updateUserDto);
-    expect(result).toEqual({
-      uuid: userMock.uuid,
-      name: userMock.name,
-      email: userMock.email,
-      role: userMock.roleUuid,
-      password: userMock.password,
-      createdAt: userMock.createdAt,
-      updatedAt: userMock.updatedAt,
-      deletedAt: userMock.deletedAt,
-    } as ReadUserDto);
+    expect(result.name).toBe(updateUserDto.name);
+    expect(result.email).toBe(updateUserDto.email);
+    expect(result.role).toBe(updateUserDto.role);
+
+    const updatedDbUser = await prisma.users.findUnique({
+      where: { uuid: createdUserUuid },
+    });
+    expect(updatedDbUser?.name).toBe(updateUserDto.name);
+    expect(updatedDbUser?.email).toBe(updateUserDto.email);
   });
 
-  it('should throw AppError (400) if update returns null', async () => {
-    userService.update.mockResolvedValue(null);
+  it('should throw AppError (400) if user does not exist', async () => {
+    await prisma.users.delete({ where: { uuid: createdUserUuid } });
+
+    const updateUserDto: UpdateUserDto = {
+      name: 'Non existent',
+      email: 'nope@example.com',
+      password: 'pass123',
+      role: RoleEnum.admin,
+    };
 
     await expect(
-      handler.execute(new UpdateUserCommand(uuid, updateUserDto))
-    ).rejects.toEqual(
+      handler.execute(new UpdateUserCommand(createdUserUuid, updateUserDto))
+    ).rejects.toMatchObject(
       new AppError({
         message: '',
         statusCode: HttpStatusCodeEnum.BAD_REQUEST,
         statusText: HttpStatusTextEnum.BAD_REQUEST,
       })
     );
-
-    expect(userService.update).toHaveBeenCalledWith(uuid, updateUserDto);
   });
 });

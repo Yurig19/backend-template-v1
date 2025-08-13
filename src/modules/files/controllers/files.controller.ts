@@ -15,6 +15,7 @@ export class FilesController {
     method: 'POST',
     path: '/create',
     summary: 'Create a file',
+    description: 'Uploads a file and creates a new file record in the system.',
     operationId: 'createFile',
     responseType: ReadFileDto,
     bodyType: CreateFileDto,
