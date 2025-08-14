@@ -8,7 +8,7 @@ import {
 import { Request, Response } from 'express';
 import { PrismaService } from 'prisma/prisma.service';
 import { ErrorResponseDto } from '../enums/errors/dtos/error.dto';
-import { AppError } from '../errors/app.error';
+import { AppError } from '../exceptions/app.error';
 
 @Injectable()
 @Catch()

@@ -5,7 +5,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { HttpStatusCodeEnum } from '../enums/errors/statusCodeErrors.enum';
 import { HttpStatusTextEnum } from '../enums/errors/statusTextError.enum';
-import { AppError } from '../errors/app.error';
+import { AppError } from '../exceptions/app.error';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {

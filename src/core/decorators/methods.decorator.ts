@@ -16,7 +16,7 @@ import {
 import { ErrorResponseDto } from '../enums/errors/dtos/error.dto';
 import { HttpStatusCodeEnum } from '../enums/errors/statusCodeErrors.enum';
 import { HttpStatusTextEnum } from '../enums/errors/statusTextError.enum';
-import { AppError } from '../errors/app.error';
+import { AppError } from '../exceptions/app.error';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
 interface ApiEndpointOptions {

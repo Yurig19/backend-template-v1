@@ -1,7 +1,7 @@
 import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
 import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
 import { RoleEnum } from '@/core/enums/role.enum';
-import { AppError } from '@/core/errors/app.error';
+import { AppError } from '@/core/exceptions/app.error';
 import { UserService } from '@/modules/users/services/user.service';
 import { AuthService } from '../../service/auth.service';
 import { CreateUserCommand } from './auth-login.command';

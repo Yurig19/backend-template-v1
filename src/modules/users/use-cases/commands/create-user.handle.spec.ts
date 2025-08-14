@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
 import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
 import { RoleEnum } from '@/core/enums/role.enum';
-import { AppError } from '@/core/errors/app.error';
+import { AppError } from '@/core/exceptions/app.error';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateUserDto } from '../../dtos/create-user.dto';

@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { AppError } from '@/core/errors/app.error';
+import { AppError } from '@/core/exceptions/app.error';
 import { FilesService } from '@/modules/files/services/files.service';
 import { CreateFileCommand } from './create-file.command';
 import { CreateFileHandler } from './create-file.handle';

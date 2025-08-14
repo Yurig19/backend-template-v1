@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
 import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
 import { RoleEnum } from '@/core/enums/role.enum';
-import { AppError } from '@/core/errors/app.error';
+import { AppError } from '@/core/exceptions/app.error';
 import { Injectable } from '@nestjs/common';
 import { Roles } from '@prisma/client';
 import { PrismaService } from 'prisma/prisma.service';

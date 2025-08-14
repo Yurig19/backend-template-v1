@@ -1,6 +1,6 @@
 import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
 import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
-import { AppError } from '@/core/errors/app.error';
+import { AppError } from '@/core/exceptions/app.error';
 import { checkPassword } from '@/core/utils/generatePassword';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';

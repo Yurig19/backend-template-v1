@@ -1,6 +1,6 @@
 import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
 import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
-import { AppError } from '@/core/errors/app.error';
+import { AppError } from '@/core/exceptions/app.error';
 import { AuthService } from '@/modules/_auth/service/auth.service';
 import { ReadUserDto } from '@/modules/users/dtos/read-user.dto';
 import { UserService } from '@/modules/users/services/user.service';

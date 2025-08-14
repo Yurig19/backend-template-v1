@@ -1,7 +1,7 @@
 import { DeleteDto } from '@/core/dtos/delete.dto';
 import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
 import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
-import { AppError } from '@/core/errors/app.error';
+import { AppError } from '@/core/exceptions/app.error';
 import { File } from '@prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateFileDto } from '../dtos/create-file.dto';
