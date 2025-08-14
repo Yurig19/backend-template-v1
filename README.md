@@ -1,85 +1,144 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🚀 Template Backend API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Este projeto é um **template de back-end** desenvolvido em **NestJS** com integração ao **PostgreSQL** e **Prisma ORM**, documentação via **Swagger** e **Redoc**, testes com **Jest** e suporte a execução via **Docker**.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## 📌 Tecnologias Utilizadas
+- **[NestJS](https://nestjs.com/)** – Framework Node.js para construção de APIs escaláveis.
+- **[Prisma](https://www.prisma.io/)** – ORM moderno para Node.js e TypeScript.
+- **[Swagger](https://swagger.io/)** – Documentação interativa da API.
+- **[Redoc](https://redoc.ly/)** – Documentação estática da API.
+- **[PostgreSQL](https://www.postgresql.org/)** – Banco de dados relacional.
+- **[Jest](https://jestjs.io/)** – Framework de testes.
+- **Docker & Docker Compose** – Containerização e orquestração.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+---
 
-## Project setup
+## 📂 Estrutura de Pastas
 
-```bash
-$ pnpm install
+```
+.
+├── prisma/                     # Esquema do Prisma e migrações do banco de dados
+├── src/
+│   ├── core/                    # Núcleo da aplicação (compartilhado entre módulos)
+│   │   ├── decorators/          # Decorators personalizados
+│   │   ├── dtos/                 # DTOs universais usados por todo o projeto
+│   │   ├── exceptions/          # Classes para tratamento de erros
+│   │   ├── interceptors/        # Interceptadores globais
+│   │   ├── filters/             # Filtros de exceção (Exception Filters)
+│   │   ├── pipes/                # Pipes globais
+│   │   └── utils/               # Funções utilitárias
+│   │
+│   └── modules/                 # Módulos de cada entidade
+│       └── <entidade>/          # Exemplo: user, product, order, etc.
+│           ├── controllers/     # Controladores HTTP (rotas)
+│           ├── services/        # Serviços com regras de negócio
+│           ├── use-cases/       # Casos de uso
+│           │   ├── commands/    # Comandos (ações que modificam estado)
+│           │   └── queries/     # Consultas (ações que leem dados)
+│           ├── dtos/            # DTOs específicos da entidade
+│           └── entities/        # Modelos ou classes da entidade
+│
+├── test/                        # Testes unitários e de integração (Jest)
+├── docker-compose.yml           # Configuração Docker
+├── package.json
+└── README.md
 ```
 
-## Compile and run the project
+---
 
-```bash
-# development
-$ pnpm run start
+## ⚙️ Exemplo de `.env`
 
-# watch mode
-$ pnpm run start:dev
+```env
+NODE_ENV="development"
+# NODE_ENV="production"
+# NODE_ENV="test"
+# NODE_ENV="homologation"
 
-# production mode
-$ pnpm run start:prod
+PORT="8080"
+API_VERSION="v1"
+
+FRONTEND_URL="http://localhost:5173"
+
+DB_USER="admin"
+DB_PASSWORD="admin"
+DB_PORT="5433"
+DB_NAME="template_test"
+DB_HOST="localhost"
+
+DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=public"
+
+ADMIN_NAME="admin"
+ADMIN_EMAIL="admin@admin.com"
+ADMIN_PASSWORD="Teste@123"
+
+JWT_SECRET="ee8184f1c73ee6e4b07ac4f3c0cf96c8554f06733fc8105867bcdd758b876f"
+CRYPTO_SECRET_KEY="a91f3464d74ed76e542b909f777bf11366eb7ba7e1898e49aef9b282376958"
 ```
 
-## Run tests
+---
+
+## 🐳 Executando com Docker
 
 ```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+docker compose up -d
 ```
 
-## Resources
+- PostgreSQL na porta `5434`
+- API na porta `8081` (internamente `8080`)
 
-Check out a few resources that may come in handy when working with NestJS:
+Rodar migrações do Prisma:
+```bash
+docker exec -it template-backend pnpm prisma migrate deploy
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Parar os containers:
+```bash
+docker compose down
+```
 
-## Support
+Acompanhar logs:
+```bash
+docker compose logs -f
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+---
 
-## Stay in touch
+## 📜 Documentação da API
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+| Tipo | URL |
+|------|-----|
+| **Swagger UI** | `http://localhost:8081/api/v1/docs` |
+| **Swagger JSON** | `http://localhost:8081/swagger.json` |
+| **Redoc** | `http://localhost:8081/api/v1/redoc` |
 
-## License
+---
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## 🧪 Rodando os Testes
+
+```bash
+pnpm install
+pnpm run test
+pnpm run test:cov
+```
+
+---
+
+## 📦 Build Manual (sem Docker)
+
+```bash
+pnpm install
+pnpm run build
+pnpm run start
+```
+
+Para aplicar migrações:
+```bash
+pnpm prisma migrate dev
+```
+
+---
+
+## 📄 Licença
+Este projeto é um template livre para uso e modificação.

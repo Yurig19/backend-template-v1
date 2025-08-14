@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import * as path from 'node:path';
 import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
 import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
+import { RoleEnum } from '@/core/enums/role.enum';
 import { AppError } from '@/core/errors/app.error';
 import { Injectable } from '@nestjs/common';
 import { Roles } from '@prisma/client';
@@ -56,6 +57,21 @@ export class RolesService {
         statusCode: HttpStatusCodeEnum.BAD_REQUEST,
         statusText: HttpStatusTextEnum.BAD_REQUEST,
         message: `Failed to initialize roles: ${error.message || error}`,
+      });
+    }
+  }
+
+  async findByType(type: RoleEnum): Promise<{ uuid: string }> {
+    try {
+      return await this.prisma.roles.findUnique({
+        where: { type },
+        select: { uuid: true },
+      });
+    } catch (error) {
+      throw new AppError({
+        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
+        statusText: HttpStatusTextEnum.BAD_REQUEST,
+        message: `Failed to find role: ${error.message || error}`,
       });
     }
   }

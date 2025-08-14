@@ -3,6 +3,8 @@ import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
 import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
 import { RoleEnum } from '@/core/enums/role.enum';
 import { AppError } from '@/core/errors/app.error';
+import { RolesModule } from '@/modules/roles/roles.module';
+import { RolesService } from '@/modules/roles/services/roles.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'prisma/prisma.service';
 import { UserService } from '../../services/user.service';
@@ -19,7 +21,7 @@ describe('UserByUuidHandle (integration)', () => {
     require('dotenv').config({ path: '.env.test' });
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [PrismaService, UserService, UserByUuidHandle],
+      providers: [PrismaService, UserService, RolesService, UserByUuidHandle],
     }).compile();
 
     prisma = module.get<PrismaService>(PrismaService);
@@ -64,7 +66,7 @@ describe('UserByUuidHandle (integration)', () => {
       uuid: createdUser.uuid,
       name: createdUser.name,
       email: createdUser.email,
-      role: RoleEnum.manager,
+      role: 'manager',
       password: createdUser.password,
       createdAt: createdUser.createdAt,
       updatedAt: createdUser.updatedAt,

@@ -3,6 +3,7 @@ import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
 import { RoleEnum } from '@/core/enums/role.enum';
 import { AppError } from '@/core/errors/app.error';
 import { generateHashPassword } from '@/core/utils/generatePassword';
+import { RolesService } from '@/modules/roles/services/roles.service';
 import { Injectable } from '@nestjs/common';
 import type { Users } from '@prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
@@ -12,7 +13,10 @@ import { UpdateUserDto } from '../dtos/update-user.dto';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly rolesService: RolesService
+  ) {}
 
   private users = this.prisma.users;
 
@@ -225,9 +229,26 @@ export class UserService {
 
   async update(uuid: string, data: UpdateUserDto): Promise<Users> {
     try {
+      const { role, ...rest } = data;
+      const roleData = await this.rolesService.findByType(role);
+
+      if (!roleData) {
+        throw new AppError({
+          statusCode: HttpStatusCodeEnum.BAD_REQUEST,
+          statusText: HttpStatusTextEnum.BAD_REQUEST,
+          message: 'role not found',
+        });
+      }
       return await this.users.update({
         where: { uuid },
-        data,
+        data: {
+          ...rest,
+          roles: {
+            connect: {
+              uuid: roleData.uuid,
+            },
+          },
+        },
       });
     } catch (error) {
       throw new AppError({

@@ -2,6 +2,7 @@ import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
 import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
 import { RoleEnum } from '@/core/enums/role.enum';
 import { AppError } from '@/core/errors/app.error';
+import { RolesService } from '@/modules/roles/services/roles.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'prisma/prisma.service';
 import { UpdateUserDto } from '../../dtos/update-user.dto';
@@ -12,7 +13,6 @@ import { UpdateUserHandler } from './update-user.handle';
 describe('UpdateUserHandler (integration)', () => {
   let prisma: PrismaService;
   let handler: UpdateUserHandler;
-
   let createdUserUuid: string;
 
   beforeAll(async () => {
@@ -20,14 +20,15 @@ describe('UpdateUserHandler (integration)', () => {
     require('dotenv').config({ path: '.env.test' });
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [PrismaService, UserService, UpdateUserHandler],
+      providers: [PrismaService, UserService, RolesService, UpdateUserHandler],
     }).compile();
 
     prisma = module.get<PrismaService>(PrismaService);
     handler = module.get<UpdateUserHandler>(UpdateUserHandler);
+  });
 
+  beforeEach(async () => {
     await prisma.users.deleteMany();
-
     await prisma.roles.deleteMany();
 
     await prisma.roles.createMany({
@@ -50,7 +51,6 @@ describe('UpdateUserHandler (integration)', () => {
   });
 
   afterAll(async () => {
-    await prisma.users.deleteMany();
     await prisma.$disconnect();
   });
 
@@ -78,7 +78,7 @@ describe('UpdateUserHandler (integration)', () => {
   });
 
   it('should throw AppError (400) if user does not exist', async () => {
-    await prisma.users.delete({ where: { uuid: createdUserUuid } });
+    await prisma.users.deleteMany({ where: { uuid: createdUserUuid } });
 
     const updateUserDto: UpdateUserDto = {
       name: 'Non existent',

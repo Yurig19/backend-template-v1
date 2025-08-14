@@ -1,118 +1,116 @@
-import { DeleteDto } from '@/core/dtos/delete.dto';
 import { RoleEnum } from '@/core/enums/role.enum';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { CommandBus, CqrsModule, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
+import { PrismaService } from 'prisma/prisma.service';
+import * as request from 'supertest';
+import { UsersController } from '../controllers/users.controller';
 import { CreateUserDto } from '../dtos/create-user.dto';
-import { ReadUserDto } from '../dtos/read-user.dto';
 import { UpdateUserDto } from '../dtos/update-user.dto';
-import { CreateUserCommand } from '../use-cases/commands/create-user.command';
-import { DeleteUserCommand } from '../use-cases/commands/delete-user.command';
-import { UpdateUserCommand } from '../use-cases/commands/update-user.command';
-import { UserByUuidQuery } from '../use-cases/queries/user-by-uuid.query';
-import { UsersController } from './users.controller';
 
-describe('UsersController', () => {
-  let controller: UsersController;
-  let commandBus: CommandBus;
-  let queryBus: QueryBus;
+describe('UsersController (Integration)', () => {
+  let app: INestApplication;
+  let prisma: PrismaService;
+  let testUserUuid: string;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [CqrsModule],
       controllers: [UsersController],
-      providers: [
-        {
-          provide: CommandBus,
-          useValue: { execute: jest.fn() },
-        },
-        {
-          provide: QueryBus,
-          useValue: { execute: jest.fn() },
-        },
-      ],
+      providers: [PrismaService, CommandBus, QueryBus],
     }).compile();
 
-    controller = module.get<UsersController>(UsersController);
-    commandBus = module.get<CommandBus>(CommandBus);
-    queryBus = module.get<QueryBus>(QueryBus);
+    app = module.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe({ transform: true }));
+    await app.init();
+
+    prisma = module.get<PrismaService>(PrismaService);
+
+    await prisma.users.deleteMany();
+
+    const role = await prisma.roles.create({
+      data: {
+        name: 'employee',
+        type: RoleEnum.employee,
+      },
+    });
+
+    const user = await prisma.users.create({
+      data: {
+        name: 'Test User',
+        email: 'testuser@example.com',
+        password: 'testpassword',
+        roleUuid: role.uuid,
+      },
+    });
+
+    testUserUuid = user.uuid;
   });
 
-  const mockUser: ReadUserDto = {
-    uuid: 'uuid-123',
-    name: 'John Doe',
-    email: 'john@example.com',
-    password: 'secret123',
-    role: RoleEnum.admin,
-    roleUuid: 'role-uuid',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    deletedAt: null,
-  };
+  afterAll(async () => {
+    await prisma.users.deleteMany();
+    await prisma.$disconnect();
+    await app.close();
+  });
 
-  it('should create a user', async () => {
-    const dto: CreateUserDto = {
-      name: 'John Doe',
-      email: 'john@example.com',
-      password: 'secret123',
-      role: RoleEnum.admin,
+  it('should create a new user', async () => {
+    const createUserDto: CreateUserDto = {
+      name: 'New User',
+      email: 'newuser@example.com',
+      password: 'newpassword',
+      role: RoleEnum.employee,
     };
 
-    jest.spyOn(commandBus, 'execute').mockResolvedValueOnce(mockUser);
+    const response = await request(app.getHttpServer())
+      .post('/Users/create')
+      .send(createUserDto)
+      .expect(201);
 
-    const result = await controller.create(dto);
-
-    expect(commandBus.execute).toHaveBeenCalledWith(new CreateUserCommand(dto));
-    expect(result).toEqual(mockUser);
+    expect(response.body).toHaveProperty('uuid');
+    expect(response.body.name).toBe(createUserDto.name);
+    expect(response.body.email).toBe(createUserDto.email);
   });
 
   it('should get user by uuid', async () => {
-    jest.spyOn(queryBus, 'execute').mockResolvedValueOnce(mockUser);
+    const response = await request(app.getHttpServer())
+      .get('/Users/find-by-uuid')
+      .query({ uuid: testUserUuid })
+      .expect(200);
 
-    const result = await controller.getByUuid(mockUser.uuid);
-
-    expect(queryBus.execute).toHaveBeenCalledWith(
-      new UserByUuidQuery(mockUser.uuid)
-    );
-    expect(result).toEqual(mockUser);
+    expect(response.body).toHaveProperty('uuid', testUserUuid);
+    expect(response.body).toHaveProperty('name', 'Test User');
   });
 
   it('should update a user', async () => {
-    const updateDto: UpdateUserDto = {
-      role: RoleEnum.admin,
-      name: 'Updated Name',
-      email: 'updated@example.com',
-      password: 'newpassword123',
+    const updateUserDto: UpdateUserDto = {
+      name: 'Updated User',
+      email: 'updateduser@example.com',
+      password: 'updatedpassword',
+      role: RoleEnum.employee,
     };
 
-    const updatedUser: ReadUserDto = {
-      ...mockUser,
-      ...updateDto,
-      updatedAt: new Date(),
-    };
+    const response = await request(app.getHttpServer())
+      .put('/Users/update')
+      .query({ uuid: testUserUuid })
+      .send(updateUserDto)
+      .expect(200);
 
-    jest.spyOn(queryBus, 'execute').mockResolvedValueOnce(updatedUser);
-
-    const result = await controller.update(mockUser.uuid, updateDto);
-
-    expect(queryBus.execute).toHaveBeenCalledWith(
-      new UpdateUserCommand(mockUser.uuid, updateDto)
-    );
-    expect(result).toEqual(updatedUser);
+    expect(response.body).toHaveProperty('uuid', testUserUuid);
+    expect(response.body.name).toBe(updateUserDto.name);
+    expect(response.body.email).toBe(updateUserDto.email);
   });
 
   it('should delete a user', async () => {
-    const deleteDto: DeleteDto = {
-      success: true,
-      statusCode: 200,
-      message: 'User deleted successfully',
-    };
+    const response = await request(app.getHttpServer())
+      .delete('/Users/delete')
+      .query({ uuid: testUserUuid })
+      .expect(200);
 
-    jest.spyOn(queryBus, 'execute').mockResolvedValueOnce(deleteDto);
+    expect(response.body).toHaveProperty('deleted', true);
 
-    const result = await controller.delete(mockUser.uuid);
-
-    expect(queryBus.execute).toHaveBeenCalledWith(
-      new DeleteUserCommand(mockUser.uuid)
-    );
-    expect(result).toEqual(deleteDto);
+    const user = await prisma.users.findUnique({
+      where: { uuid: testUserUuid },
+    });
+    expect(user).toBeNull();
   });
 });
