@@ -11,7 +11,7 @@ Este projeto é um **template de back-end** desenvolvido em **NestJS** com integ
 - **[Redoc](https://redoc.ly/)** – Documentação estática da API.
 - **[PostgreSQL](https://www.postgresql.org/)** – Banco de dados relacional.
 - **[Jest](https://jestjs.io/)** – Framework de testes.
-- **Docker & Docker Compose** – Containerização e orquestração.
+- **[Docker & Docker Compose](https://docs.docker.com/)** – Containerização e orquestração.
 
 ---
 
