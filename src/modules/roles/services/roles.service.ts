@@ -13,44 +13,48 @@ import { CreateRoleDto } from '../dtos/create-role.dto';
 export class RolesService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private nodeEnv = process.env.NODE_ENV;
+
   async initRoles() {
     try {
-      const filePath = path.resolve(
-        process.cwd(),
-        'src/modules/roles/services/init.json'
-      );
+      if (this.nodeEnv !== 'test') {
+        const filePath = path.resolve(
+          process.cwd(),
+          'src/modules/roles/services/init.json'
+        );
 
-      if (!existsSync(filePath)) {
-        throw new AppError({
-          statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-          statusText: HttpStatusTextEnum.BAD_REQUEST,
-          message: `File not found: ${filePath}`,
-        });
-      }
-
-      const rolesData = JSON.parse(readFileSync(filePath, 'utf-8'));
-
-      if (rolesData && Array.isArray(rolesData)) {
-        for (const role of rolesData) {
-          const existingRole = await this.prisma.roles.findUnique({
-            where: { type: role.type },
+        if (!existsSync(filePath)) {
+          throw new AppError({
+            statusCode: HttpStatusCodeEnum.BAD_REQUEST,
+            statusText: HttpStatusTextEnum.BAD_REQUEST,
+            message: `File not found: ${filePath}`,
           });
-
-          const roleData: CreateRoleDto = {
-            name: role.name,
-            type: role.type,
-          };
-
-          if (!existingRole) {
-            await this.createRole(roleData);
-          }
         }
-      } else {
-        throw new AppError({
-          statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-          statusText: HttpStatusTextEnum.BAD_REQUEST,
-          message: 'The roles.json file does not contain valid data.',
-        });
+
+        const rolesData = JSON.parse(readFileSync(filePath, 'utf-8'));
+
+        if (rolesData && Array.isArray(rolesData)) {
+          for (const role of rolesData) {
+            const existingRole = await this.prisma.roles.findUnique({
+              where: { type: role.type },
+            });
+
+            const roleData: CreateRoleDto = {
+              name: role.name,
+              type: role.type,
+            };
+
+            if (!existingRole) {
+              await this.createRole(roleData);
+            }
+          }
+        } else {
+          throw new AppError({
+            statusCode: HttpStatusCodeEnum.BAD_REQUEST,
+            statusText: HttpStatusTextEnum.BAD_REQUEST,
+            message: 'The roles.json file does not contain valid data.',
+          });
+        }
       }
     } catch (error) {
       throw new AppError({

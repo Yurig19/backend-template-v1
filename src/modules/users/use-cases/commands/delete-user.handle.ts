@@ -26,7 +26,7 @@ export class DeleteUserHandler implements ICommandHandler<DeleteUserCommand> {
       return {
         success: true,
         statusCode: HttpStatusCodeEnum.OK,
-        message: 'User deleted successfully',
+        message: 'User deleted successfully!',
       };
     } catch (error) {
       throw new AppError({

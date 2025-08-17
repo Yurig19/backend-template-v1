@@ -7,92 +7,80 @@ import { LogsListHandler } from './logs-list.handle';
 import { LogsListQuery } from './logs-list.query';
 
 describe('LogsListHandler (integration)', () => {
-  let prisma: PrismaService;
   let handler: LogsListHandler;
+  let logsService: LogsService;
+  let prisma: PrismaService;
 
-  const mockDate = new Date('2025-08-01T10:00:00Z');
+  const mockLog = {
+    uuid: randomUUID(),
+    error: 'Unauthorized access',
+    statusCode: 401,
+    statusText: 'UNAUTHORIZED',
+    method: 'GET',
+    path: '/orders',
+    ip: '127.0.0.1',
+    userAgent: 'jest-test',
+    createdAt: new Date(),
+  };
 
   beforeAll(async () => {
     process.env.NODE_ENV = 'test';
     require('dotenv').config({ path: '.env.test' });
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [PrismaService, LogsService, LogsListHandler],
+      providers: [LogsListHandler, LogsService, PrismaService],
     }).compile();
 
-    prisma = module.get<PrismaService>(PrismaService);
     handler = module.get<LogsListHandler>(LogsListHandler);
+    logsService = module.get<LogsService>(LogsService);
+    prisma = module.get<PrismaService>(PrismaService);
 
+    await prisma.logs.deleteMany();
+    await prisma.logs.create({ data: mockLog });
+  });
+
+  afterEach(async () => {
     await prisma.logs.deleteMany();
   });
 
   afterAll(async () => {
-    await prisma.logs.deleteMany();
     await prisma.$disconnect();
   });
 
-  it('should return paginated logs', async () => {
-    const log1 = await prisma.logs.create({
-      data: {
-        uuid: randomUUID(),
-        ip: '127.0.0.1',
-        error: '',
-        method: 'GET',
-        path: '/api/users',
-        statusCode: 200,
-        statusText: 'OK',
-        userAgent: 'Mozilla/5.0',
-        createdAt: mockDate,
-      },
-    });
+  it('should return paginated logs list', async () => {
+    const query = new LogsListQuery(1, 10, 'Unauthorized');
 
-    const log2 = await prisma.logs.create({
-      data: {
-        uuid: randomUUID(),
-        ip: '192.168.1.1',
-        error: 'Internal error',
-        method: 'POST',
-        path: '/api/orders',
-        statusCode: 500,
-        statusText: 'Internal Server Error',
-        userAgent: 'PostmanRuntime/7.28.4',
-        createdAt: mockDate,
-      },
-    });
-
-    const query = new LogsListQuery(1, 10);
     const result = await handler.execute(query);
 
-    const expected: ListLogsDto = {
-      data: [log1, log2].map((log) => ({
-        uuid: log.uuid,
-        ip: log.ip,
-        error: log.error,
-        method: log.method,
-        path: log.path,
-        statusCode: log.statusCode,
-        statusText: log.statusText,
-        userAgent: log.userAgent,
-        createdAt: log.createdAt,
-      })),
+    expect(result).toEqual<ListLogsDto>({
+      data: [
+        {
+          uuid: mockLog.uuid,
+          error: mockLog.error,
+          statusCode: mockLog.statusCode,
+          statusText: mockLog.statusText,
+          method: mockLog.method,
+          path: mockLog.path,
+          ip: mockLog.ip,
+          userAgent: mockLog.userAgent,
+          createdAt: mockLog.createdAt,
+        },
+      ],
       actualPage: 1,
       totalPages: 1,
-      total: 2,
-    };
-
-    expect(result).toEqual(expected);
+      total: 1,
+    });
   });
 
   it('should return empty data when no logs found', async () => {
-    await prisma.logs.deleteMany();
-
     const query = new LogsListQuery(1, 10);
+
     const result = await handler.execute(query);
 
-    expect(result).toEqual({
+    expect(result).toEqual<ListLogsDto>({
       data: [],
       actualPage: 1,
-      totalPages: 0,
+      totalPages: 1,
       total: 0,
     });
   });

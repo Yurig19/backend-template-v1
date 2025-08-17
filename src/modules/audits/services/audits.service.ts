@@ -33,7 +33,12 @@ export class AuditsService {
       const query = this.prisma.audits;
 
       const where: Prisma.AuditsWhereInput = search
-        ? { entity: { contains: search, mode: 'insensitive' } }
+        ? {
+            OR: [
+              { entity: { contains: search, mode: 'insensitive' } },
+              { method: { contains: search, mode: 'insensitive' } },
+            ],
+          }
         : {};
 
       const data = await query.findMany({

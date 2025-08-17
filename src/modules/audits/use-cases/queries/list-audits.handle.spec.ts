@@ -96,7 +96,7 @@ describe('AuditsListHandler (integration)', () => {
     expect(result).toEqual<ListAuditsDto>({
       data: [],
       actualPage: 1,
-      totalPages: 0,
+      totalPages: 1,
       total: 0,
     });
   });

@@ -1,24 +1,31 @@
 import { RoleEnum } from '@/core/enums/role.enum';
-import { UserService } from '@/modules/users/services/user.service';
+import { generateHashPassword } from '@/core/utils/generatePassword';
+import { AuthModule } from '@/modules/_auth/auth.module';
+import { RolesModule } from '@/modules/roles/roles.module';
+import { UserModule } from '@/modules/users/users.module';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { CqrsModule, QueryBus } from '@nestjs/cqrs';
+import { CqrsModule } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'prisma/prisma.service';
 import * as request from 'supertest';
-import { AuditsController } from '../controllers/audits.controller';
-import { ListAuditsQuery } from '../use-cases/queries/list-audits-query';
+import { AuditsModule } from '../audits.module';
 
-describe('AuditsController (Integration)', () => {
+describe('AuditsController (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
-  let queryBus: QueryBus;
   let testUserUuid: string;
+  let accessToken: string;
+
+  const userPassword = process.env.ADMIN_PASSWORD;
+  const userPasswordHashed = generateHashPassword(userPassword);
 
   beforeAll(async () => {
+    process.env.NODE_ENV = 'test';
+    require('dotenv').config({ path: '.env.test' });
+
     const module: TestingModule = await Test.createTestingModule({
-      imports: [CqrsModule],
-      controllers: [AuditsController],
-      providers: [PrismaService, UserService],
+      imports: [CqrsModule, UserModule, RolesModule, AuthModule, AuditsModule],
+      providers: [PrismaService],
     }).compile();
 
     app = module.createNestApplication();
@@ -26,18 +33,34 @@ describe('AuditsController (Integration)', () => {
     await app.init();
 
     prisma = module.get<PrismaService>(PrismaService);
-    queryBus = module.get<QueryBus>(QueryBus);
 
     await prisma.audits.deleteMany();
+    await prisma.users.deleteMany();
+    await prisma.roles.deleteMany();
+
+    const role = await prisma.roles.create({
+      data: {
+        name: 'employee',
+        type: RoleEnum.employee,
+      },
+    });
+
     const user = await prisma.users.create({
       data: {
         name: 'Test User',
         email: 'testuser@example.com',
-        password: 'testpassword',
-        roleUuid: RoleEnum.employee,
+        password: userPasswordHashed,
+        roleUuid: role.uuid,
       },
     });
     testUserUuid = user.uuid;
+
+    const loginResponse = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: user.email, password: userPassword })
+      .expect(201);
+
+    accessToken = loginResponse.body.accessToken;
 
     await prisma.audits.createMany({
       data: [
@@ -68,6 +91,7 @@ describe('AuditsController (Integration)', () => {
   afterAll(async () => {
     await prisma.audits.deleteMany();
     await prisma.users.deleteMany();
+    await prisma.roles.deleteMany();
     await prisma.$disconnect();
     await app.close();
   });
@@ -75,6 +99,7 @@ describe('AuditsController (Integration)', () => {
   it('should list audits with pagination', async () => {
     const response = await request(app.getHttpServer())
       .get('/audits/list')
+      .set('Authorization', `Bearer ${accessToken}`)
       .query({ page: 1, dataPerPage: 10 })
       .expect(200);
 
@@ -87,6 +112,7 @@ describe('AuditsController (Integration)', () => {
   it('should filter audits by search term', async () => {
     const response = await request(app.getHttpServer())
       .get('/audits/list')
+      .set('Authorization', `Bearer ${accessToken}`)
       .query({ page: 1, dataPerPage: 10, search: 'UPDATE' })
       .expect(200);
 

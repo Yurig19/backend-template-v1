@@ -5,7 +5,7 @@ import { AppError } from '@/core/exceptions/app.error';
 import { generateHashPassword } from '@/core/utils/generatePassword';
 import { RolesService } from '@/modules/roles/services/roles.service';
 import { Injectable } from '@nestjs/common';
-import type { Users } from '@prisma/client';
+import type { Prisma, Users } from '@prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { PatchUserDto } from '../dtos/patch-user.dto';
@@ -69,7 +69,7 @@ export class UserService {
         throw new AppError({
           statusCode: HttpStatusCodeEnum.BAD_REQUEST,
           statusText: HttpStatusTextEnum.BAD_REQUEST,
-          message: 'role não encontrada no banco de dados',
+          message: 'role not found in the database',
         });
       }
 
@@ -206,6 +206,74 @@ export class UserService {
         statusCode: HttpStatusCodeEnum.BAD_REQUEST,
         statusText: HttpStatusTextEnum.BAD_REQUEST,
         message: `${error}`,
+      });
+    }
+  }
+
+  async listWithPagination(
+    actualPage: number,
+    dataPerPage: number,
+    search?: string
+  ): Promise<{
+    users: (Users & {
+      roles: {
+        name: string;
+      };
+    })[];
+    total: number;
+    totalPages: number;
+    currentPage: number;
+  }> {
+    try {
+      const page =
+        Number.isNaN(Number(actualPage)) || Number(actualPage) < 1
+          ? 1
+          : Number(actualPage);
+      const take =
+        Number.isNaN(Number(dataPerPage)) || Number(dataPerPage) < 1
+          ? 10
+          : Number(dataPerPage);
+      const skip = (page - 1) * take;
+
+      const query = this.prisma.users;
+
+      const where: Prisma.UsersWhereInput = search
+        ? { name: { contains: search, mode: 'insensitive' } }
+        : {};
+
+      const data = await query.findMany({
+        where,
+        skip,
+        take,
+        include: {
+          roles: {
+            select: {
+              name: true,
+            },
+          },
+        },
+        orderBy: [
+          {
+            createdAt: 'desc',
+          },
+        ],
+      });
+
+      const total = await query.count({ where });
+
+      const totalPages = Math.max(Math.ceil(total / take), 1);
+
+      return {
+        users: data,
+        total: total,
+        totalPages: totalPages,
+        currentPage: page,
+      };
+    } catch (error) {
+      throw new AppError({
+        message: `${error}`,
+        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
+        statusText: HttpStatusTextEnum.BAD_REQUEST,
       });
     }
   }

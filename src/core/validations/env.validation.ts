@@ -80,8 +80,8 @@ export function validateEnv(config: Record<string, any>) {
   });
 
   if (errors.length > 0) {
-    console.error('❌ Erro na validação do .env:', errors);
-    throw new Error('Configuração inválida!');
+    console.error('❌ Error validating .env:', errors);
+    throw new Error('Invalid configuration!');
   }
 
   return validatedConfig;

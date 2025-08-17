@@ -5,14 +5,16 @@ import { Body, ParseUUIDPipe, Query } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiQuery } from '@nestjs/swagger';
 import { CreateUserDto } from '../dtos/create-user.dto';
+import { ListUserDto } from '../dtos/list-user.dto';
 import { ReadUserDto } from '../dtos/read-user.dto';
 import { UpdateUserDto } from '../dtos/update-user.dto';
 import { CreateUserCommand } from '../use-cases/commands/create-user.command';
 import { DeleteUserCommand } from '../use-cases/commands/delete-user.command';
 import { UpdateUserCommand } from '../use-cases/commands/update-user.command';
+import { ListUsersQuery } from '../use-cases/queries/list-user.query';
 import { UserByUuidQuery } from '../use-cases/queries/user-by-uuid.query';
 
-@ApiController('Users')
+@ApiController('users')
 export class UsersController {
   constructor(
     private readonly commandBus: CommandBus,
@@ -57,6 +59,31 @@ export class UsersController {
   }
 
   @ApiEndpoint({
+    method: 'GET',
+    path: '/list',
+    summary: 'List users with pagination and search',
+    description:
+      'Returns a paginated list of users. Supports optional search by name.',
+    operationId: 'listUsers',
+    responseType: ListUserDto,
+    isAuth: true,
+    successDescription: 'Users successfully listed',
+    errorDescription: 'Could not list users',
+  })
+  @ApiQuery({ name: 'page', type: Number, required: true })
+  @ApiQuery({ name: 'dataPerPage', type: Number, required: true })
+  @ApiQuery({ name: 'search', type: String, required: false })
+  async list(
+    @Query('page') page: number,
+    @Query('dataPerPage') dataPerPage: number,
+    @Query('search') search?: string
+  ) {
+    return this.queryBus.execute<ListUsersQuery, ListUserDto>(
+      new ListUsersQuery(page, dataPerPage, search)
+    );
+  }
+
+  @ApiEndpoint({
     method: 'PUT',
     path: '/update',
     summary: 'Update a user by UUID',
@@ -73,7 +100,7 @@ export class UsersController {
     @Query('uuid', ParseUUIDPipe) uuid: string,
     @Body() updateUserDto: UpdateUserDto
   ): Promise<ReadUserDto> {
-    return this.queryBus.execute(new UpdateUserCommand(uuid, updateUserDto));
+    return this.commandBus.execute(new UpdateUserCommand(uuid, updateUserDto));
   }
 
   @ApiEndpoint({
@@ -90,6 +117,6 @@ export class UsersController {
   })
   @ApiQuery({ name: 'uuid', type: String, required: true })
   async delete(@Query('uuid', ParseUUIDPipe) uuid: string): Promise<DeleteDto> {
-    return await this.queryBus.execute(new DeleteUserCommand(uuid));
+    return await this.commandBus.execute(new DeleteUserCommand(uuid));
   }
 }

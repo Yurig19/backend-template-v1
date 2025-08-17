@@ -1,79 +1,119 @@
-import { QueryBus } from '@nestjs/cqrs';
+import { RoleEnum } from '@/core/enums/role.enum';
+import { generateHashPassword } from '@/core/utils/generatePassword';
+import { AuthModule } from '@/modules/_auth/auth.module';
+import { RolesModule } from '@/modules/roles/roles.module';
+import { UserModule } from '@/modules/users/users.module';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { CqrsModule } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ListLogsDto } from '../dtos/list-logs.dto';
-import { LogsListQuery } from '../use-cases/queries/logs-list.query';
-import { LogsController } from './logs.controller';
+import { PrismaService } from 'prisma/prisma.service';
+import * as request from 'supertest';
+import { LogsModule } from '../logs.module';
 
-describe('LogsController', () => {
-  let controller: LogsController;
-  let queryBus: QueryBus;
+describe('LogsController (e2e)', () => {
+  let app: INestApplication;
+  let prisma: PrismaService;
+  let accessToken: string;
 
-  const mockListLogsDto: ListLogsDto = {
-    data: [
-      {
-        uuid: 'e1b1c3f4-12ab-4c56-9e78-9f0a1b2c3d4e',
-        statusText: 'OK',
-        method: 'GET',
-        statusCode: 200,
-        ip: '192.168.1.100',
-        error: '',
-        path: '/api/users',
-        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-        createdAt: new Date('2025-08-01T12:34:56.000Z'),
-      },
-    ],
-    actualPage: 1,
-    totalPages: 1,
-    total: 1,
-  };
+  const plainPassword = process.env.ADMIN_PASSWORD;
+  const hashedPassword = generateHashPassword(plainPassword);
 
-  const queryBusMock = {
-    execute: jest.fn(),
-  };
+  beforeAll(async () => {
+    process.env.NODE_ENV = 'test';
+    require('dotenv').config({ path: '.env.test' });
 
-  beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [LogsController],
-      providers: [{ provide: QueryBus, useValue: queryBusMock }],
+      imports: [CqrsModule, UserModule, RolesModule, AuthModule, LogsModule],
+      providers: [PrismaService],
     }).compile();
 
-    controller = module.get<LogsController>(LogsController);
-    queryBus = module.get<QueryBus>(QueryBus);
-  });
+    app = module.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe({ transform: true }));
+    await app.init();
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
+    prisma = module.get<PrismaService>(PrismaService);
 
-  describe('list', () => {
-    it('should call queryBus.execute with LogsListQuery and return result', async () => {
-      const page = 1;
-      const dataPerPage = 10;
-      const search = 'log';
+    await prisma.logs.deleteMany();
+    await prisma.users.deleteMany();
+    await prisma.roles.deleteMany();
 
-      queryBusMock.execute.mockResolvedValueOnce(mockListLogsDto);
-
-      const result = await controller.list(page, dataPerPage, search);
-
-      expect(queryBus.execute).toHaveBeenCalledWith(
-        new LogsListQuery(page, dataPerPage, search)
-      );
-      expect(result).toEqual(mockListLogsDto);
+    const role = await prisma.roles.create({
+      data: { name: 'employee', type: RoleEnum.employee },
     });
 
-    it('should handle undefined search param', async () => {
-      const page = 2;
-      const dataPerPage = 5;
-      const search = undefined;
-
-      queryBusMock.execute.mockResolvedValueOnce(mockListLogsDto);
-
-      const result = await controller.list(page, dataPerPage, search);
-
-      expect(queryBus.execute).toHaveBeenCalledWith(
-        new LogsListQuery(page, dataPerPage, undefined)
-      );
-      expect(result).toEqual(mockListLogsDto);
+    const user = await prisma.users.create({
+      data: {
+        name: 'Test User',
+        email: 'testuser@example.com',
+        password: hashedPassword,
+        roleUuid: role.uuid,
+      },
     });
+
+    const loginResponse = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: user.email, password: plainPassword })
+      .expect(201);
+
+    accessToken = loginResponse.body.accessToken;
+
+    await prisma.logs.createMany({
+      data: [
+        {
+          error: 'Failed to create user',
+          statusCode: 500,
+          statusText: 'INTERNAL_SERVER_ERROR',
+          method: 'POST',
+          path: '/users',
+          ip: '127.0.0.1',
+          userAgent: 'jest-test',
+        },
+        {
+          error: 'Unauthorized access',
+          statusCode: 401,
+          statusText: 'UNAUTHORIZED',
+          method: 'GET',
+          path: '/orders',
+          ip: '127.0.0.1',
+          userAgent: 'jest-test',
+        },
+      ],
+    });
+  });
+
+  afterAll(async () => {
+    await prisma.logs.deleteMany();
+    await prisma.users.deleteMany();
+    await prisma.roles.deleteMany();
+    await prisma.$disconnect();
+    await app.close();
+  });
+
+  it('should list logs with pagination', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/logs/list')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .query({ page: 1, dataPerPage: 10 })
+      .expect(200);
+
+    expect(response.body).toBeDefined();
+    expect(response.body.data).toHaveLength(2);
+
+    expect(response.body.data[0]).toHaveProperty('error');
+    expect(response.body.data[0]).toHaveProperty('statusCode');
+    expect(response.body.data[0]).toHaveProperty('method');
+    expect(response.body.data[0]).toHaveProperty('path');
+  });
+
+  it('should filter logs by search term', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/logs/list')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .query({ page: 1, dataPerPage: 10, search: 'Unauthorized' })
+      .expect(200);
+
+    expect(response.body.data).toHaveLength(1);
+    expect(response.body.data[0].statusCode).toBe(401);
+    expect(response.body.data[0].error).toContain('Unauthorized');
   });
 });
