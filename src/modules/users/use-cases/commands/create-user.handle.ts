@@ -13,6 +13,14 @@ export class CreateUserHandle implements ICommandHandler<CreateUserCommand> {
   async execute(command: CreateUserCommand): Promise<ReadUserDto> {
     const { createUserDto } = command;
 
+    if (await this.userService.checkEmail(createUserDto.email)) {
+      throw new AppError({
+        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
+        statusText: HttpStatusTextEnum.BAD_REQUEST,
+        message: 'User already exists with this email.',
+      });
+    }
+
     const user = await this.userService.create(createUserDto);
 
     if (!user) {

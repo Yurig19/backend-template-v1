@@ -3,9 +3,11 @@ import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
 import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
 import { RoleEnum } from '@/core/enums/role.enum';
 import { AppError } from '@/core/exceptions/app.error';
+import { RolesModule } from '@/modules/roles/roles.module';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'prisma/prisma.service';
 import { UserService } from '../../services/user.service';
+import { UserModule } from '../../users.module';
 import { DeleteUserCommand } from './delete-user.command';
 import { DeleteUserHandler } from './delete-user.handle';
 
@@ -21,7 +23,7 @@ describe('DeleteUserHandler (integration)', () => {
     require('dotenv').config({ path: '.env.test' });
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [DeleteUserHandler, UserService, PrismaService],
+      imports: [UserModule, RolesModule],
     }).compile();
 
     handler = module.get(DeleteUserHandler);
@@ -34,7 +36,6 @@ describe('DeleteUserHandler (integration)', () => {
 
     const role = await prisma.roles.create({
       data: {
-        uuid: randomUUID(),
         name: RoleEnum.admin,
         createdAt: new Date(),
       },
@@ -42,7 +43,6 @@ describe('DeleteUserHandler (integration)', () => {
 
     const user = await prisma.users.create({
       data: {
-        uuid: randomUUID(),
         name: 'User Test',
         email: 'usertest@example.com',
         password: 'hashed',
@@ -70,7 +70,7 @@ describe('DeleteUserHandler (integration)', () => {
     expect(result).toEqual({
       success: true,
       statusCode: HttpStatusCodeEnum.OK,
-      message: 'User deleted successfully',
+      message: 'User deleted successfully!',
     });
 
     const userInDb = await prisma.users.findUnique({

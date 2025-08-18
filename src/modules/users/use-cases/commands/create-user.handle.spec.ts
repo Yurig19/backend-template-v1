@@ -1,12 +1,13 @@
-import { randomUUID } from 'node:crypto';
 import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
 import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
 import { RoleEnum } from '@/core/enums/role.enum';
 import { AppError } from '@/core/exceptions/app.error';
+import { RolesModule } from '@/modules/roles/roles.module';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateUserDto } from '../../dtos/create-user.dto';
 import { UserService } from '../../services/user.service';
+import { UserModule } from '../../users.module';
 import { CreateUserCommand } from './create-user.command';
 import { CreateUserHandle } from './create-user.handle';
 
@@ -27,6 +28,7 @@ describe('CreateUserHandle (integration)', () => {
     require('dotenv').config({ path: '.env.test' });
 
     const module: TestingModule = await Test.createTestingModule({
+      imports: [UserModule, RolesModule],
       providers: [CreateUserHandle, UserService, PrismaService],
     }).compile();
 
@@ -35,19 +37,19 @@ describe('CreateUserHandle (integration)', () => {
     prisma = module.get<PrismaService>(PrismaService);
 
     await prisma.users.deleteMany();
+    await prisma.roles.deleteMany();
 
     await prisma.roles.create({
       data: {
-        uuid: randomUUID(),
         type: RoleEnum.admin,
         name: 'admin',
-        createdAt: new Date(),
       },
     });
   });
 
   afterAll(async () => {
     await prisma.users.deleteMany();
+    await prisma.roles.deleteMany();
     await prisma.$disconnect();
   });
 
@@ -75,13 +77,14 @@ describe('CreateUserHandle (integration)', () => {
 
   it('should throw AppError if user creation fails', async () => {
     const command = new CreateUserCommand(mockDto);
-    await handler.execute(command);
-
-    await expect(handler.execute(command)).rejects.toThrow(AppError);
-    await expect(handler.execute(command)).rejects.toMatchObject({
-      statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-      statusText: HttpStatusTextEnum.BAD_REQUEST,
-      message: 'User could not be created. Please verify the provided data.',
-    });
+    try {
+      await handler.execute(command);
+      fail('Expected AppError but nothing was thrown');
+    } catch (error) {
+      expect(error).toBeInstanceOf(AppError);
+      expect(error.statusCode).toBe(HttpStatusCodeEnum.BAD_REQUEST);
+      expect(error.statusText).toBe(HttpStatusTextEnum.BAD_REQUEST);
+      expect(error.message).toBe('User already exists with this email.');
+    }
   });
 });

@@ -278,11 +278,27 @@ export class UserService {
     }
   }
 
-  async patch(uuid: string, data: PatchUserDto): Promise<Users> {
+  async patch(
+    uuid: string,
+    data: PatchUserDto
+  ): Promise<
+    Users & {
+      roles: {
+        name: string;
+      };
+    }
+  > {
     try {
       return await this.users.update({
         where: {
           uuid,
+        },
+        include: {
+          roles: {
+            select: {
+              name: true,
+            },
+          },
         },
         data,
       });
@@ -295,7 +311,16 @@ export class UserService {
     }
   }
 
-  async update(uuid: string, data: UpdateUserDto): Promise<Users> {
+  async update(
+    uuid: string,
+    data: UpdateUserDto
+  ): Promise<
+    Users & {
+      roles: {
+        type: string;
+      };
+    }
+  > {
     try {
       const { role, ...rest } = data;
       const roleData = await this.rolesService.findByType(role);
@@ -314,6 +339,13 @@ export class UserService {
           roles: {
             connect: {
               uuid: roleData.uuid,
+            },
+          },
+        },
+        include: {
+          roles: {
+            select: {
+              type: true,
             },
           },
         },

@@ -116,6 +116,79 @@
         ]
       }
     },
+    "/api/v1/users/list": {
+      "get": {
+        "description": "Returns a paginated list of users. Supports optional search by name.",
+        "operationId": "listUsers",
+        "parameters": [
+          {
+            "name": "page",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "dataPerPage",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users successfully listed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListUserDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Could not list users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List users with pagination and search",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
     "/api/v1/users/update": {
       "put": {
         "description": "Updates the user information for the specified UUID.",
@@ -737,6 +810,100 @@
           "message",
           "statusCode",
           "statusMessage"
+        ]
+      },
+      "ReadUserListDto": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "description": "UUID of the user",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "name": {
+            "type": "string",
+            "description": "Full name of the user",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email address of the user",
+            "example": "example@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "User password (hashed or plain depending on usage)",
+            "example": "Teste@123"
+          },
+          "role": {
+            "type": "string",
+            "description": "Role assigned to the user",
+            "example": "admin"
+          },
+          "roleUuid": {
+            "type": "string",
+            "description": "Role UUID assigned to the user",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Timestamp when the user was created",
+            "example": "2025-01-01T10:00:00Z",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Timestamp when the user was last updated",
+            "example": "2025-02-01T15:00:00Z",
+            "format": "date-time"
+          },
+          "deletedAt": {
+            "type": "string",
+            "description": "Timestamp when the user was deleted (if applicable)",
+            "example": "2025-03-01T18:30:00Z",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "uuid",
+          "name",
+          "email",
+          "password",
+          "role",
+          "roleUuid",
+          "createdAt",
+          "updatedAt",
+          "deletedAt"
+        ]
+      },
+      "ListUserDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "List of audit log entries",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReadUserListDto"
+            }
+          },
+          "total": {
+            "type": "number",
+            "description": "Total number of audit records available",
+            "example": 42
+          },
+          "actualPage": {
+            "type": "number",
+            "description": "Current page number in the paginated result",
+            "example": 1
+          },
+          "totalPages": {
+            "type": "number",
+            "description": "Total number of pages based on pagination settings",
+            "example": 5
+          }
+        },
+        "required": [
+          "data"
         ]
       },
       "UpdateUserDto": {

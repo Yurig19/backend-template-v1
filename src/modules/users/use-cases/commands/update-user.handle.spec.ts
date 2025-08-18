@@ -25,17 +25,16 @@ describe('UpdateUserHandler (integration)', () => {
 
     prisma = module.get<PrismaService>(PrismaService);
     handler = module.get<UpdateUserHandler>(UpdateUserHandler);
-  });
 
-  beforeEach(async () => {
     await prisma.users.deleteMany();
     await prisma.roles.deleteMany();
 
-    await prisma.roles.createMany({
-      data: [
-        { uuid: RoleEnum.employee, name: 'Employee' },
-        { uuid: RoleEnum.admin, name: 'Admin' },
-      ],
+    const employeeRole = await prisma.roles.create({
+      data: { type: RoleEnum.employee, name: 'Employee' },
+    });
+
+    await prisma.roles.create({
+      data: { type: RoleEnum.admin, name: 'Admin' },
     });
 
     const user = await prisma.users.create({
@@ -43,14 +42,18 @@ describe('UpdateUserHandler (integration)', () => {
         name: 'Initial User',
         email: 'initial@example.com',
         password: 'oldpassword',
-        roleUuid: RoleEnum.employee,
+        roleUuid: employeeRole.uuid,
       },
     });
 
     createdUserUuid = user.uuid;
   });
 
+  beforeEach(async () => {});
+
   afterAll(async () => {
+    await prisma.users.deleteMany();
+    await prisma.roles.deleteMany();
     await prisma.$disconnect();
   });
 
@@ -89,12 +92,13 @@ describe('UpdateUserHandler (integration)', () => {
 
     await expect(
       handler.execute(new UpdateUserCommand(createdUserUuid, updateUserDto))
-    ).rejects.toMatchObject(
-      new AppError({
-        message: '',
-        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-        statusText: HttpStatusTextEnum.BAD_REQUEST,
-      })
-    );
+    ).rejects.toBeInstanceOf(AppError);
+
+    await expect(
+      handler.execute(new UpdateUserCommand(createdUserUuid, updateUserDto))
+    ).rejects.toMatchObject({
+      statusCode: HttpStatusCodeEnum.BAD_REQUEST,
+      statusText: HttpStatusTextEnum.BAD_REQUEST,
+    });
   });
 });

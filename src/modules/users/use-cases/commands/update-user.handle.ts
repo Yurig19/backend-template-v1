@@ -27,7 +27,7 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand> {
       uuid: user.uuid,
       name: user.name,
       email: user.email,
-      role: user.roleUuid,
+      role: user.roles ? (user.roles.type ? user.roles.type : null) : null,
       password: user.password,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
