@@ -10,8 +10,8 @@ export class ListUserHandle implements IQueryHandler<ListUsersQuery> {
     const { dataPerPage, page, search } = query;
 
     const data = await this.userService.listWithPagination(
-      dataPerPage,
       page,
+      dataPerPage,
       search
     );
 
@@ -33,6 +33,9 @@ export class ListUserHandle implements IQueryHandler<ListUsersQuery> {
                 }
             )
           : [],
+      actualPage: data.currentPage,
+      total: data.total,
+      totalPages: data.totalPages,
     };
   }
 }

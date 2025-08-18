@@ -77,7 +77,7 @@ describe('UsersController (e2e)', () => {
     const createUserDto: CreateUserDto = {
       name: 'New User',
       email: 'newuser@example.com',
-      password: 'newpassword',
+      password: 'new@Password123',
       role: RoleEnum.employee,
     };
 
@@ -101,26 +101,6 @@ describe('UsersController (e2e)', () => {
 
     expect(response.body).toHaveProperty('uuid', testUserUuid);
     expect(response.body).toHaveProperty('name', 'Test User');
-  });
-
-  it('should update a user', async () => {
-    const updateUserDto: UpdateUserDto = {
-      name: 'Updated User',
-      email: 'updateduser@example.com',
-      password: 'updatedpassword',
-      role: RoleEnum.employee,
-    };
-
-    const response = await request(app.getHttpServer())
-      .put('/users/update')
-      .set('Authorization', `Bearer ${accessToken}`)
-      .query({ uuid: testUserUuid })
-      .send(updateUserDto)
-      .expect(200);
-
-    expect(response.body).toHaveProperty('uuid', testUserUuid);
-    expect(response.body.name).toBe(updateUserDto.name);
-    expect(response.body.email).toBe(updateUserDto.email);
   });
 
   it('should list users with pagination', async () => {
@@ -159,6 +139,26 @@ describe('UsersController (e2e)', () => {
     ).toBe(true);
   });
 
+  it('should update a user', async () => {
+    const updateUserDto: UpdateUserDto = {
+      name: 'Updated User',
+      email: 'updateduser@example.com',
+      password: 'updated@Password123',
+      role: RoleEnum.employee,
+    };
+
+    const response = await request(app.getHttpServer())
+      .put('/users/update')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .query({ uuid: testUserUuid })
+      .send(updateUserDto)
+      .expect(200);
+
+    expect(response.body).toHaveProperty('uuid', testUserUuid);
+    expect(response.body.name).toBe(updateUserDto.name);
+    expect(response.body.email).toBe(updateUserDto.email);
+  });
+
   it('should delete a user', async () => {
     const response = await request(app.getHttpServer())
       .delete('/users/delete')
@@ -166,7 +166,12 @@ describe('UsersController (e2e)', () => {
       .query({ uuid: testUserUuid })
       .expect(200);
 
-    expect(response.body).toHaveProperty('deleted', true);
+    expect(response.body).toHaveProperty('success', true);
+    expect(response.body).toHaveProperty('statusCode', 200);
+    expect(response.body).toHaveProperty(
+      'message',
+      'User deleted successfully!'
+    );
 
     const user = await prisma.users.findUnique({
       where: { uuid: testUserUuid },
