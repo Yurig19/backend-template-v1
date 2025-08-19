@@ -49,8 +49,6 @@ describe('UpdateUserHandler (integration)', () => {
     createdUserUuid = user.uuid;
   });
 
-  beforeEach(async () => {});
-
   afterAll(async () => {
     await prisma.users.deleteMany();
     await prisma.roles.deleteMany();
