@@ -1,12 +1,11 @@
-import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
-import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
-import { AppError } from '@/core/exceptions/app.error';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { Audits, Prisma } from '@prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
 
 @Injectable()
 export class AuditsService {
+  private readonly logger = new Logger(AuditsService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   async listWithPagination(
@@ -63,11 +62,8 @@ export class AuditsService {
         currentPage: page,
       };
     } catch (error) {
-      throw new AppError({
-        message: `${error}`,
-        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-        statusText: HttpStatusTextEnum.BAD_REQUEST,
-      });
+      this.logger.error('Failed to list audits with pagination', error);
+      throw new BadRequestException('Failed to retrieve audits list.');
     }
   }
 }

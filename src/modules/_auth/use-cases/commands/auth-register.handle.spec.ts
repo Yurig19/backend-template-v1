@@ -1,10 +1,8 @@
-import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
-import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
 import { RoleEnum } from '@/core/enums/role.enum';
-import { AppError } from '@/core/exceptions/app.error';
 import { AuthService } from '@/modules/_auth/service/auth.service';
 import { ReadUserDto } from '@/modules/users/dtos/read-user.dto';
 import { UserService } from '@/modules/users/services/user.service';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { AuthRegisterDto } from '../../dtos/auth-register.dto';
 import { AuthRegisterCommand } from './auth-register.command';
 import { AuthRegisterHandler } from './auth-register.handle';
@@ -69,45 +67,41 @@ describe('AuthRegisterHandler', () => {
     expect(authService.register).toHaveBeenCalledWith(mockUser);
   });
 
-  it('should throw AppError if email is already registered', async () => {
+  it('should throw BadRequestException if email is already registered', async () => {
     userService.checkEmail.mockResolvedValue(true);
 
     const command = new AuthRegisterCommand(mockDto);
 
-    await expect(handler.execute(command)).rejects.toThrow(AppError);
-    await expect(handler.execute(command)).rejects.toMatchObject({
-      statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-      statusText: HttpStatusTextEnum.BAD_REQUEST,
-      message: 'Email already registered!',
-    });
+    await expect(handler.execute(command)).rejects.toThrow(BadRequestException);
+    await expect(handler.execute(command)).rejects.toThrow(
+      'Email already registered!'
+    );
   });
 
-  it('should throw AppError if user creation fails', async () => {
+  it('should throw UnauthorizedException if user creation fails', async () => {
     userService.checkEmail.mockResolvedValue(false);
     userService.create.mockResolvedValue(null);
 
     const command = new AuthRegisterCommand(mockDto);
 
-    await expect(handler.execute(command)).rejects.toThrow(AppError);
-    await expect(handler.execute(command)).rejects.toMatchObject({
-      statusCode: HttpStatusCodeEnum.UNAUTHORIZED,
-      statusText: HttpStatusTextEnum.UNAUTHORIZED,
-      message: 'User not found!',
-    });
+    await expect(handler.execute(command)).rejects.toThrow(
+      UnauthorizedException
+    );
+    await expect(handler.execute(command)).rejects.toThrow('User not found!');
   });
 
-  it('should throw AppError if authService.register fails', async () => {
+  it('should throw UnauthorizedException if authService.register fails', async () => {
     userService.checkEmail.mockResolvedValue(false);
     userService.create.mockResolvedValue(mockUser);
     authService.register.mockResolvedValue(null);
 
     const command = new AuthRegisterCommand(mockDto);
 
-    await expect(handler.execute(command)).rejects.toThrow(AppError);
-    await expect(handler.execute(command)).rejects.toMatchObject({
-      statusCode: HttpStatusCodeEnum.UNAUTHORIZED,
-      statusText: HttpStatusTextEnum.UNAUTHORIZED,
-      message: 'Not authorized. Check your credentials!',
-    });
+    await expect(handler.execute(command)).rejects.toThrow(
+      UnauthorizedException
+    );
+    await expect(handler.execute(command)).rejects.toThrow(
+      'Not authorized. Check your credentials!'
+    );
   });
 });

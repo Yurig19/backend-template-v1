@@ -1,12 +1,13 @@
 import { DeleteDto } from '@/core/dtos/delete.dto';
 import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
-import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
-import { AppError } from '@/core/exceptions/app.error';
+import { BadRequestException, Logger } from '@nestjs/common';
 import { File } from '@prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateFileDto } from '../dtos/create-file.dto';
 
 export class FilesService {
+  private readonly logger = new Logger(FilesService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   async create(file: CreateFileDto): Promise<File> {
@@ -15,11 +16,8 @@ export class FilesService {
         data: file,
       });
     } catch (error) {
-      throw new AppError({
-        message: `${error}`,
-        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-        statusText: HttpStatusTextEnum.BAD_REQUEST,
-      });
+      this.logger.error('Failed to create file', error);
+      throw new BadRequestException('Failed to create file.');
     }
   }
 
@@ -31,11 +29,8 @@ export class FilesService {
         },
       });
     } catch (error) {
-      throw new AppError({
-        message: `${error}`,
-        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-        statusText: HttpStatusTextEnum.BAD_REQUEST,
-      });
+      this.logger.error(`Failed to get file by uuid: ${uuid}`, error);
+      throw new BadRequestException('Failed to retrieve file.');
     }
   }
 
@@ -50,11 +45,8 @@ export class FilesService {
         },
       });
     } catch (error) {
-      throw new AppError({
-        message: `${error}`,
-        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-        statusText: HttpStatusTextEnum.BAD_REQUEST,
-      });
+      this.logger.error(`Failed to soft delete file: ${uuid}`, error);
+      throw new BadRequestException('Failed to soft delete file.');
     }
   }
 
@@ -69,11 +61,8 @@ export class FilesService {
         message: 'File deleted successfully',
       };
     } catch (error) {
-      throw new AppError({
-        message: `${error}`,
-        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-        statusText: HttpStatusTextEnum.BAD_REQUEST,
-      });
+      this.logger.error(`Failed to delete file: ${uuid}`, error);
+      throw new BadRequestException('Failed to delete file.');
     }
   }
 }

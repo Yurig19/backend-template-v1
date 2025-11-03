@@ -1,7 +1,7 @@
+import { Logger, UnauthorizedException } from '@nestjs/common';
 import * as CryptoJS from 'crypto-js';
-import { HttpStatusCodeEnum } from '../enums/errors/statusCodeErrors.enum';
-import { HttpStatusTextEnum } from '../enums/errors/statusTextError.enum';
-import { AppError } from '../exceptions/app.error';
+
+const logger = new Logger('GeneratePassword');
 
 export const generateHashPassword = (password: string): string => {
   try {
@@ -10,11 +10,8 @@ export const generateHashPassword = (password: string): string => {
       process.env.CRYPTO_SECRET_KEY
     ).toString();
   } catch (error) {
-    throw new AppError({
-      message: 'unauthorized',
-      statusCode: HttpStatusCodeEnum.UNAUTHORIZED,
-      statusText: HttpStatusTextEnum.UNAUTHORIZED,
-    });
+    logger.error('Failed to generate hash password', error);
+    throw new UnauthorizedException('Failed to encrypt password.');
   }
 };
 
@@ -35,11 +32,8 @@ export const checkPassword = async (
     }
     return false;
   } catch (error) {
-    throw new AppError({
-      message: 'unauthorized',
-      statusCode: HttpStatusCodeEnum.UNAUTHORIZED,
-      statusText: HttpStatusTextEnum.UNAUTHORIZED,
-    });
+    logger.error('Failed to check password', error);
+    throw new UnauthorizedException('Failed to verify password.');
   }
 };
 
@@ -50,10 +44,7 @@ export const decryptHashPassword = (password: string): string => {
       process.env.CRYPTO_SECRET_KEY
     ).toString();
   } catch (error) {
-    throw new AppError({
-      message: 'unauthorized',
-      statusCode: HttpStatusCodeEnum.UNAUTHORIZED,
-      statusText: HttpStatusTextEnum.UNAUTHORIZED,
-    });
+    logger.error('Failed to decrypt hash password', error);
+    throw new UnauthorizedException('Failed to decrypt password.');
   }
 };

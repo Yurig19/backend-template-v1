@@ -1,16 +1,15 @@
 import { existsSync, readFileSync } from 'node:fs';
 import * as path from 'node:path';
-import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
-import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
 import { RoleEnum } from '@/core/enums/role.enum';
-import { AppError } from '@/core/exceptions/app.error';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { Roles } from '@prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateRoleDto } from '../dtos/create-role.dto';
 
 @Injectable()
 export class RolesService {
+  private readonly logger = new Logger(RolesService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   private nodeEnv = process.env.NODE_ENV;
@@ -24,11 +23,7 @@ export class RolesService {
         );
 
         if (!existsSync(filePath)) {
-          throw new AppError({
-            statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-            statusText: HttpStatusTextEnum.BAD_REQUEST,
-            message: `File not found: ${filePath}`,
-          });
+          throw new BadRequestException(`File not found: ${filePath}`);
         }
 
         const rolesData = JSON.parse(readFileSync(filePath, 'utf-8'));
@@ -49,19 +44,14 @@ export class RolesService {
             }
           }
         } else {
-          throw new AppError({
-            statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-            statusText: HttpStatusTextEnum.BAD_REQUEST,
-            message: 'The roles.json file does not contain valid data.',
-          });
+          throw new BadRequestException(
+            'The roles.json file does not contain valid data.'
+          );
         }
       }
     } catch (error) {
-      throw new AppError({
-        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-        statusText: HttpStatusTextEnum.BAD_REQUEST,
-        message: `Failed to initialize roles: ${error.message || error}`,
-      });
+      this.logger.error('Failed to initialize roles', error);
+      throw new BadRequestException('Failed to initialize roles.');
     }
   }
 
@@ -72,11 +62,8 @@ export class RolesService {
         select: { uuid: true },
       });
     } catch (error) {
-      throw new AppError({
-        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-        statusText: HttpStatusTextEnum.BAD_REQUEST,
-        message: `Failed to find role: ${error.message || error}`,
-      });
+      this.logger.error(`Failed to find role by type: ${type}`, error);
+      throw new BadRequestException('Failed to find role.');
     }
   }
 
@@ -86,11 +73,8 @@ export class RolesService {
         data: createRoleDto,
       });
     } catch (error) {
-      throw new AppError({
-        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-        statusText: HttpStatusTextEnum.BAD_REQUEST,
-        message: `Failed to create role: ${error.message || error}`,
-      });
+      this.logger.error('Failed to create role', error);
+      throw new BadRequestException('Failed to create role.');
     }
   }
 }

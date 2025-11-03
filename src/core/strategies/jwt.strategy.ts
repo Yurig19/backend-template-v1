@@ -1,11 +1,8 @@
 import { UserService } from '@/modules/users/services/user.service';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { HttpStatusCodeEnum } from '../enums/errors/statusCodeErrors.enum';
-import { HttpStatusTextEnum } from '../enums/errors/statusTextError.enum';
-import { AppError } from '../exceptions/app.error';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -24,11 +21,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   async validate(payload: any) {
     const user = await this.userService.findAuthByUuid(payload.userUuid);
     if (!user) {
-      throw new AppError({
-        message: 'unauthorized',
-        statusCode: HttpStatusCodeEnum.UNAUTHORIZED,
-        statusText: HttpStatusTextEnum.UNAUTHORIZED,
-      });
+      throw new UnauthorizedException('User not found in token validation.');
     }
     return user;
   }

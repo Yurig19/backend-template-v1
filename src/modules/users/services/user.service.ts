@@ -1,10 +1,7 @@
-import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
-import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
 import { RoleEnum } from '@/core/enums/role.enum';
-import { AppError } from '@/core/exceptions/app.error';
 import { generateHashPassword } from '@/core/utils/generatePassword';
 import { RolesService } from '@/modules/roles/services/roles.service';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import type { Prisma, Users } from '@prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateUserDto } from '../dtos/create-user.dto';
@@ -13,6 +10,8 @@ import { UpdateUserDto } from '../dtos/update-user.dto';
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly rolesService: RolesService
@@ -66,11 +65,7 @@ export class UserService {
       });
 
       if (!roleExists) {
-        throw new AppError({
-          statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-          statusText: HttpStatusTextEnum.BAD_REQUEST,
-          message: 'role not found in the database',
-        });
+        throw new BadRequestException('role not found in the database');
       }
 
       const hashedPassword = generateHashPassword(password);
@@ -85,11 +80,10 @@ export class UserService {
         },
       });
     } catch (error) {
-      throw new AppError({
-        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-        statusText: HttpStatusTextEnum.BAD_REQUEST,
-        message: `${error}`,
-      });
+      this.logger.error('Failed to create user', error);
+      throw new BadRequestException(
+        'Failed to create user. Please verify the provided data.'
+      );
     }
   }
 
@@ -124,11 +118,8 @@ export class UserService {
         },
       });
     } catch (error) {
-      throw new AppError({
-        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-        statusText: HttpStatusTextEnum.BAD_REQUEST,
-        message: `${error}`,
-      });
+      this.logger.error(`Failed to find user by uuid: ${uuid}`, error);
+      throw new BadRequestException('Failed to retrieve user information.');
     }
   }
 
@@ -163,11 +154,8 @@ export class UserService {
         },
       });
     } catch (error) {
-      throw new AppError({
-        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-        statusText: HttpStatusTextEnum.BAD_REQUEST,
-        message: `${error}`,
-      });
+      this.logger.error(`Failed to find user by uuid for auth: ${uuid}`, error);
+      throw new BadRequestException('Failed to retrieve user information.');
     }
   }
 
@@ -202,11 +190,8 @@ export class UserService {
         },
       });
     } catch (error) {
-      throw new AppError({
-        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-        statusText: HttpStatusTextEnum.BAD_REQUEST,
-        message: `${error}`,
-      });
+      this.logger.error(`Failed to find user by email: ${email}`, error);
+      throw new BadRequestException('Failed to retrieve user information.');
     }
   }
 
@@ -270,11 +255,8 @@ export class UserService {
         currentPage: page,
       };
     } catch (error) {
-      throw new AppError({
-        message: `${error}`,
-        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-        statusText: HttpStatusTextEnum.BAD_REQUEST,
-      });
+      this.logger.error('Failed to list users with pagination', error);
+      throw new BadRequestException('Failed to retrieve users list.');
     }
   }
 
@@ -303,11 +285,8 @@ export class UserService {
         data,
       });
     } catch (error) {
-      throw new AppError({
-        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-        statusText: HttpStatusTextEnum.BAD_REQUEST,
-        message: `${error}`,
-      });
+      this.logger.error(`Failed to patch user: ${uuid}`, error);
+      throw new BadRequestException('Failed to update user.');
     }
   }
 
@@ -326,11 +305,7 @@ export class UserService {
       const roleData = await this.rolesService.findByType(role);
 
       if (!roleData) {
-        throw new AppError({
-          statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-          statusText: HttpStatusTextEnum.BAD_REQUEST,
-          message: 'role not found',
-        });
+        throw new BadRequestException('role not found');
       }
       return await this.users.update({
         where: { uuid },
@@ -351,11 +326,8 @@ export class UserService {
         },
       });
     } catch (error) {
-      throw new AppError({
-        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-        statusText: HttpStatusTextEnum.BAD_REQUEST,
-        message: `${error}`,
-      });
+      this.logger.error(`Failed to update user: ${uuid}`, error);
+      throw new BadRequestException('Failed to update user.');
     }
   }
 
@@ -365,11 +337,8 @@ export class UserService {
         where: { uuid },
       });
     } catch (error) {
-      throw new AppError({
-        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-        statusText: HttpStatusTextEnum.BAD_REQUEST,
-        message: `${error}`,
-      });
+      this.logger.error(`Failed to delete user: ${uuid}`, error);
+      throw new BadRequestException('Failed to delete user.');
     }
   }
 
@@ -380,11 +349,8 @@ export class UserService {
         data: { deletedAt: new Date() },
       });
     } catch (error) {
-      throw new AppError({
-        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-        statusText: HttpStatusTextEnum.BAD_REQUEST,
-        message: `${error}`,
-      });
+      this.logger.error(`Failed to soft delete user: ${uuid}`, error);
+      throw new BadRequestException('Failed to soft delete user.');
     }
   }
 }

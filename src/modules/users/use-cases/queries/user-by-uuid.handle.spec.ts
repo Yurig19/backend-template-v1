@@ -1,9 +1,7 @@
 import { randomUUID } from 'node:crypto';
-import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
-import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
 import { RoleEnum } from '@/core/enums/role.enum';
-import { AppError } from '@/core/exceptions/app.error';
 import { RolesService } from '@/modules/roles/services/roles.service';
+import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'prisma/prisma.service';
 import { UserService } from '../../services/user.service';
@@ -73,17 +71,15 @@ describe('UserByUuidHandle (integration)', () => {
     });
   });
 
-  it('should throw AppError when user is not found', async () => {
+  it('should throw NotFoundException when user is not found', async () => {
     const nonExistentUuid = 'non-existent-uuid';
 
     await expect(
       handler.execute(new UserByUuidQuery(nonExistentUuid))
-    ).rejects.toEqual(
-      new AppError({
-        message: 'User not found.',
-        statusCode: HttpStatusCodeEnum.NOT_FOUND,
-        statusText: HttpStatusTextEnum.NOT_FOUND,
-      })
-    );
+    ).rejects.toThrow(NotFoundException);
+
+    await expect(
+      handler.execute(new UserByUuidQuery(nonExistentUuid))
+    ).rejects.toThrow('User not found.');
   });
 });

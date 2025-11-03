@@ -1,4 +1,6 @@
 import {
+  BadRequestException,
+  HttpCode,
   Patch,
   UseGuards,
   UseInterceptors,
@@ -7,16 +9,20 @@ import {
 import { Delete, Get, Post, Put } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
   ApiConsumes,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiInternalServerErrorResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
   ApiOperation,
-  ApiResponse,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { ErrorResponseDto } from '../enums/errors/dtos/error.dto';
 import { HttpStatusCodeEnum } from '../enums/errors/statusCodeErrors.enum';
-import { HttpStatusTextEnum } from '../enums/errors/statusTextError.enum';
-import { AppError } from '../exceptions/app.error';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
 interface ApiEndpointOptions {
@@ -53,36 +59,64 @@ export function ApiEndpoint(opts: ApiEndpointOptions) {
     successDescription,
   } = opts;
 
-  const successStatus = method === 'POST' ? 201 : 200;
-
+  const successStatus =
+    method === 'POST' ? HttpStatusCodeEnum.CREATED : HttpStatusCodeEnum.OK;
   const successDesc = successDescription ?? 'Operation completed successfully';
   const errorDesc = errorDescription ?? 'An error occurred';
 
   decorators.push(
     ApiOperation({
-      summary: summary,
-      operationId: operationId,
-      description: description,
+      summary,
+      operationId,
+      description,
     })
   );
 
+  if (method === 'POST') {
+    decorators.push(
+      ApiCreatedResponse({
+        description: successDesc,
+        type: responseType,
+      })
+    );
+  } else {
+    decorators.push(
+      ApiOkResponse({
+        description: successDesc,
+        type: responseType,
+      })
+    );
+  }
+
   decorators.push(
-    ApiResponse({
-      status: 400,
+    ApiBadRequestResponse({
       description: errorDesc,
       type: ErrorResponseDto,
     })
   );
 
   decorators.push(
-    ApiResponse({
-      status: successStatus,
-      description: successDesc,
-      type: responseType,
+    ApiForbiddenResponse({
+      description: 'Forbidden',
+      type: ErrorResponseDto,
     })
   );
 
-  if (bodyType && ['POST', 'PUT'].includes(method)) {
+  decorators.push(
+    ApiNotFoundResponse({
+      description: 'Resource not found',
+      type: ErrorResponseDto,
+    })
+  );
+
+  decorators.push(
+    ApiInternalServerErrorResponse({
+      description: 'Internal server error',
+      type: ErrorResponseDto,
+    })
+  );
+
+  if (bodyType && ['POST', 'PUT', 'PATCH'].includes(method)) {
     decorators.push(ApiBody({ type: bodyType }));
   }
 
@@ -111,27 +145,22 @@ export function ApiEndpoint(opts: ApiEndpointOptions) {
     case 'DELETE':
       methodDecorator = Delete(path);
       break;
-
     default:
-      throw new AppError({
-        message: 'Invalid method',
-        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-        statusText: HttpStatusTextEnum.BAD_REQUEST,
-      });
+      throw new BadRequestException('Invalid method');
   }
 
   if (isAuth) {
     decorators.push(UseGuards(JwtAuthGuard));
     decorators.push(ApiBearerAuth());
-
     decorators.push(
-      ApiResponse({
-        status: 401,
+      ApiUnauthorizedResponse({
         description: 'Unauthorized',
         type: ErrorResponseDto,
       })
     );
   }
+
+  decorators.push(HttpCode(successStatus));
 
   decorators.unshift(methodDecorator);
 

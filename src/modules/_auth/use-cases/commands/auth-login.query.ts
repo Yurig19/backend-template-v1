@@ -1,9 +1,6 @@
-import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
-import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
-import { AppError } from '@/core/exceptions/app.error';
 import { ReadUserDto } from '@/modules/users/dtos/read-user.dto';
 import { UserService } from '@/modules/users/services/user.service';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AuthLoginResponseDto } from '../../dtos/auth-login-response.dto';
 import { AuthService } from '../../service/auth.service';
@@ -24,21 +21,13 @@ export class AuthLoginHandler implements ICommandHandler<CreateUserCommand> {
     const login = await this.authService.login(email, password);
 
     if (!login) {
-      throw new AppError({
-        message: 'Invalid email or password',
-        statusCode: HttpStatusCodeEnum.UNAUTHORIZED,
-        statusText: HttpStatusTextEnum.UNAUTHORIZED,
-      });
+      throw new UnauthorizedException('Invalid email or password');
     }
 
     const user = await this.userService.findByEmail(email);
 
     if (!user) {
-      throw new AppError({
-        message: 'Invalid email or password',
-        statusCode: HttpStatusCodeEnum.UNAUTHORIZED,
-        statusText: HttpStatusTextEnum.UNAUTHORIZED,
-      });
+      throw new UnauthorizedException('Invalid email or password');
     }
 
     return {

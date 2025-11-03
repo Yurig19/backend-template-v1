@@ -1,9 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
-import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
 import { RoleEnum } from '@/core/enums/role.enum';
-import { AppError } from '@/core/exceptions/app.error';
 import { RolesModule } from '@/modules/roles/roles.module';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'prisma/prisma.service';
 import { UserService } from '../../services/user.service';
@@ -79,19 +78,17 @@ describe('DeleteUserHandler (integration)', () => {
     expect(userInDb).toBeNull();
   });
 
-  it('should throw AppError (NOT_FOUND) when uuid does not exist', async () => {
+  it('should throw NotFoundException when uuid does not exist', async () => {
     await expect(
       handler.execute(new DeleteUserCommand(randomUUID()))
-    ).rejects.toEqual(
-      new AppError({
-        message: 'User not found',
-        statusCode: HttpStatusCodeEnum.NOT_FOUND,
-        statusText: HttpStatusTextEnum.NOT_FOUND,
-      })
-    );
+    ).rejects.toThrow(NotFoundException);
+
+    await expect(
+      handler.execute(new DeleteUserCommand(randomUUID()))
+    ).rejects.toThrow('User not found');
   });
 
-  it('should throw AppError (BAD_REQUEST) when delete fails internally', async () => {
+  it('should throw BadRequestException when delete fails internally', async () => {
     const fakeUuid = randomUUID();
 
     const role = await prisma.roles.findFirst();
@@ -113,12 +110,10 @@ describe('DeleteUserHandler (integration)', () => {
 
     await expect(
       handler.execute(new DeleteUserCommand(fakeUuid))
-    ).rejects.toEqual(
-      new AppError({
-        message: 'Database error',
-        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-        statusText: HttpStatusTextEnum.BAD_REQUEST,
-      })
-    );
+    ).rejects.toThrow(BadRequestException);
+
+    await expect(
+      handler.execute(new DeleteUserCommand(fakeUuid))
+    ).rejects.toThrow('Failed to delete user.');
   });
 });

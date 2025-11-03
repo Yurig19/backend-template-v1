@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { AppError } from '@/core/exceptions/app.error';
 import { FilesService } from '@/modules/files/services/files.service';
+import { BadRequestException } from '@nestjs/common';
 import { CreateFileCommand } from './create-file.command';
 import { CreateFileHandler } from './create-file.handle';
 
@@ -87,13 +87,16 @@ describe('CreateFileHandler', () => {
     );
   });
 
-  it('should throw AppError when an error occurs', async () => {
+  it('should throw BadRequestException when an error occurs', async () => {
     jest
       .spyOn(fs.promises, 'writeFile')
       .mockRejectedValueOnce(new Error('failed to write'));
 
     const command = new CreateFileCommand(mockFile);
 
-    await expect(handler.execute(command)).rejects.toBeInstanceOf(AppError);
+    await expect(handler.execute(command)).rejects.toThrow(BadRequestException);
+    await expect(handler.execute(command)).rejects.toThrow(
+      'Failed to create file.'
+    );
   });
 });

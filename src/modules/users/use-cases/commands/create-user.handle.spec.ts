@@ -1,8 +1,6 @@
-import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
-import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
 import { RoleEnum } from '@/core/enums/role.enum';
-import { AppError } from '@/core/exceptions/app.error';
 import { RolesModule } from '@/modules/roles/roles.module';
+import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateUserDto } from '../../dtos/create-user.dto';
@@ -75,16 +73,11 @@ describe('CreateUserHandle (integration)', () => {
     expect(userInDb).toBeTruthy();
   });
 
-  it('should throw AppError if user creation fails', async () => {
+  it('should throw BadRequestException if user creation fails', async () => {
     const command = new CreateUserCommand(mockDto);
-    try {
-      await handler.execute(command);
-      fail('Expected AppError but nothing was thrown');
-    } catch (error) {
-      expect(error).toBeInstanceOf(AppError);
-      expect(error.statusCode).toBe(HttpStatusCodeEnum.BAD_REQUEST);
-      expect(error.statusText).toBe(HttpStatusTextEnum.BAD_REQUEST);
-      expect(error.message).toBe('User already exists with this email.');
-    }
+    await expect(handler.execute(command)).rejects.toThrow(BadRequestException);
+    await expect(handler.execute(command)).rejects.toThrow(
+      'User already exists with this email.'
+    );
   });
 });

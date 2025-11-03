@@ -1,13 +1,14 @@
 import { DeleteDto } from '@/core/dtos/delete.dto';
 import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
-import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
-import { AppError } from '@/core/exceptions/app.error';
+import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UserService } from '../../services/user.service';
 import { DeleteUserCommand } from './delete-user.command';
 
 @CommandHandler(DeleteUserCommand)
 export class DeleteUserHandler implements ICommandHandler<DeleteUserCommand> {
+  private readonly logger = new Logger(DeleteUserHandler.name);
+
   constructor(private readonly userService: UserService) {}
 
   async execute(command: DeleteUserCommand): Promise<DeleteDto> {
@@ -15,11 +16,7 @@ export class DeleteUserHandler implements ICommandHandler<DeleteUserCommand> {
 
     try {
       if (!(await this.userService.checkUuid(uuid))) {
-        throw new AppError({
-          message: 'User not found',
-          statusCode: HttpStatusCodeEnum.NOT_FOUND,
-          statusText: HttpStatusTextEnum.NOT_FOUND,
-        });
+        throw new NotFoundException('User not found');
       }
       await this.userService.delete(uuid);
 
@@ -29,11 +26,8 @@ export class DeleteUserHandler implements ICommandHandler<DeleteUserCommand> {
         message: 'User deleted successfully!',
       };
     } catch (error) {
-      throw new AppError({
-        message: `${error.message}`,
-        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-        statusText: HttpStatusTextEnum.BAD_REQUEST,
-      });
+      this.logger.error(`Failed to delete user: ${uuid}`, error);
+      throw new BadRequestException('Failed to delete user.');
     }
   }
 }

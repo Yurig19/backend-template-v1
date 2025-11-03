@@ -25,7 +25,7 @@ const handlers = [AuthLoginHandler, AuthRegisterHandler];
     UserModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, PrismaService, JwtStrategy, ...handlers],
+  providers: [AuthService, JwtStrategy, ...handlers],
   exports: [AuthService, JwtModule, JwtStrategy],
 })
 export class AuthModule {}

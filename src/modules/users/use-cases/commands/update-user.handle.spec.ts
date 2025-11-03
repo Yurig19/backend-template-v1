@@ -1,8 +1,6 @@
-import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
-import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
 import { RoleEnum } from '@/core/enums/role.enum';
-import { AppError } from '@/core/exceptions/app.error';
 import { RolesService } from '@/modules/roles/services/roles.service';
+import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'prisma/prisma.service';
 import { UpdateUserDto } from '../../dtos/update-user.dto';
@@ -78,7 +76,7 @@ describe('UpdateUserHandler (integration)', () => {
     expect(updatedDbUser?.email).toBe(updateUserDto.email);
   });
 
-  it('should throw AppError (400) if user does not exist', async () => {
+  it('should throw BadRequestException if user does not exist', async () => {
     await prisma.users.deleteMany({ where: { uuid: createdUserUuid } });
 
     const updateUserDto: UpdateUserDto = {
@@ -90,13 +88,6 @@ describe('UpdateUserHandler (integration)', () => {
 
     await expect(
       handler.execute(new UpdateUserCommand(createdUserUuid, updateUserDto))
-    ).rejects.toBeInstanceOf(AppError);
-
-    await expect(
-      handler.execute(new UpdateUserCommand(createdUserUuid, updateUserDto))
-    ).rejects.toMatchObject({
-      statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-      statusText: HttpStatusTextEnum.BAD_REQUEST,
-    });
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 });

@@ -1,5 +1,7 @@
 import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
+import { Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
@@ -7,22 +9,30 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const logger = new Logger('Bootstrap');
 
-  const apiVersion = process.env.API_VERSION ?? 'v1';
+  const configService = app.get(ConfigService);
+
+  const apiVersion = configService.get<string>('API_VERSION', 'v1');
+  const frontendUrl = configService.get<string>(
+    'FRONTEND_URL',
+    'http://localhost:3000'
+  );
+  const port = configService.get<number>('PORT', 8080);
 
   app.setGlobalPrefix(`api/${apiVersion}`);
 
   app.enableCors({
-    origin: process.env.FRONTEND_URL ?? 'http://localhost:3000',
-    methods: ['GET', 'POST', 'Patch', 'PUT', 'DELETE'],
+    origin: frontendUrl,
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
   });
 
   const config = new DocumentBuilder()
-    .setTitle('Template Api')
+    .setTitle('Template API')
     .setDescription('The Template API description')
-    .setVersion('1.0')
+    .setVersion(apiVersion)
     .addTag('Template')
     .addBearerAuth(
       {
@@ -61,6 +71,11 @@ async function bootstrap() {
     })
   );
 
-  await app.listen(process.env.PORT ?? 8080);
+  await app.listen(port);
+
+  logger.log(`🚀 Server running on http://localhost:${port}/api/${apiVersion}`);
+  logger.log(
+    `📘 Swagger Docs available at http://localhost:${port}/api/${apiVersion}/docs`
+  );
 }
 bootstrap();

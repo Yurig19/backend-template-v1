@@ -1,6 +1,4 @@
-import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
-import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
-import { AppError } from '@/core/exceptions/app.error';
+import { BadRequestException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ReadUserDto } from '../../dtos/read-user.dto';
 import { UserService } from '../../services/user.service';
@@ -16,11 +14,9 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand> {
     const user = await this.userService.update(uuid, updateUserDto);
 
     if (!user) {
-      throw new AppError({
-        message: '',
-        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-        statusText: HttpStatusTextEnum.BAD_REQUEST,
-      });
+      throw new BadRequestException(
+        'Failed to update user. User not found or update failed.'
+      );
     }
 
     return <ReadUserDto>{

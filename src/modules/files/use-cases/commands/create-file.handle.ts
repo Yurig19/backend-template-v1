@@ -1,16 +1,16 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
-import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
-import { AppError } from '@/core/exceptions/app.error';
 import { CreateFileDto } from '@/modules/files/dtos/create-file.dto';
 import { ReadFileDto } from '@/modules/files/dtos/read-file.dto';
 import { FilesService } from '@/modules/files/services/files.service';
+import { BadRequestException, Logger } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreateFileCommand } from './create-file.command';
 
 @CommandHandler(CreateFileCommand)
 export class CreateFileHandler implements ICommandHandler<CreateFileCommand> {
+  private readonly logger = new Logger(CreateFileHandler.name);
+
   constructor(private readonly fileService: FilesService) {}
 
   async execute(command: CreateFileCommand): Promise<ReadFileDto> {
@@ -45,11 +45,8 @@ export class CreateFileHandler implements ICommandHandler<CreateFileCommand> {
         deletedAt: savedFile.deletedAt,
       };
     } catch (error) {
-      throw new AppError({
-        message: `${error}`,
-        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-        statusText: HttpStatusTextEnum.BAD_REQUEST,
-      });
+      this.logger.error('Failed to create file', error);
+      throw new BadRequestException('Failed to create file.');
     }
   }
 }

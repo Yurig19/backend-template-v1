@@ -1,27 +1,24 @@
-import { ApiParamDecorator } from '@/core/decorators/api-param.decorator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class ErrorResponseDto {
-  @ApiParamDecorator({
-    type: String,
-    required: true,
-    description: 'Detailed description of the error',
-    example: 'Invalid credentials provided',
-  })
-  message: string;
-
-  @ApiParamDecorator({
+  @ApiProperty({
     type: Number,
-    required: true,
     description: 'HTTP status code of the error',
-    example: 401,
+    example: 400,
   })
   statusCode: number;
 
-  @ApiParamDecorator({
+  @ApiProperty({
     type: String,
-    required: true,
-    description: 'HTTP status message associated with the error',
-    example: 'UNAUTHORIZED',
+    description: 'Error message providing more context about the failure',
+    example: 'Bad Request',
   })
-  statusMessage: string;
+  message: string;
+
+  @ApiProperty({
+    type: String,
+    description: 'Short description of the HTTP error type',
+    example: 'Bad Request',
+  })
+  error: string;
 }

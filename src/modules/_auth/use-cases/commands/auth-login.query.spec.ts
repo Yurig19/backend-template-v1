@@ -1,8 +1,6 @@
-import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
-import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
 import { RoleEnum } from '@/core/enums/role.enum';
-import { AppError } from '@/core/exceptions/app.error';
 import { UserService } from '@/modules/users/services/user.service';
+import { UnauthorizedException } from '@nestjs/common';
 import { AuthService } from '../../service/auth.service';
 import { CreateUserCommand } from './auth-login.command';
 import { AuthLoginHandler } from './auth-login.query';
@@ -71,7 +69,7 @@ describe('AuthLoginHandler', () => {
     expect(userService.findByEmail).toHaveBeenCalledWith(mockUser.email);
   });
 
-  it('should throw AppError if login fails', async () => {
+  it('should throw UnauthorizedException if login fails', async () => {
     authService.login.mockResolvedValue(null);
 
     const command = new CreateUserCommand({
@@ -79,12 +77,12 @@ describe('AuthLoginHandler', () => {
       password: mockUser.password,
     });
 
-    await expect(handler.execute(command)).rejects.toThrow(AppError);
-    await expect(handler.execute(command)).rejects.toMatchObject({
-      statusCode: HttpStatusCodeEnum.UNAUTHORIZED,
-      statusText: HttpStatusTextEnum.UNAUTHORIZED,
-      message: 'Invalid email or password',
-    });
+    await expect(handler.execute(command)).rejects.toThrow(
+      UnauthorizedException
+    );
+    await expect(handler.execute(command)).rejects.toThrow(
+      'Invalid email or password'
+    );
 
     expect(authService.login).toHaveBeenCalledWith(
       mockUser.email,
@@ -92,7 +90,7 @@ describe('AuthLoginHandler', () => {
     );
   });
 
-  it('should throw AppError if user is not found after login', async () => {
+  it('should throw UnauthorizedException if user is not found after login', async () => {
     authService.login.mockResolvedValue('mock-token');
     userService.findByEmail.mockResolvedValue(null);
 
@@ -101,12 +99,12 @@ describe('AuthLoginHandler', () => {
       password: mockUser.password,
     });
 
-    await expect(handler.execute(command)).rejects.toThrow(AppError);
-    await expect(handler.execute(command)).rejects.toMatchObject({
-      statusCode: HttpStatusCodeEnum.UNAUTHORIZED,
-      statusText: HttpStatusTextEnum.UNAUTHORIZED,
-      message: 'Invalid email or password',
-    });
+    await expect(handler.execute(command)).rejects.toThrow(
+      UnauthorizedException
+    );
+    await expect(handler.execute(command)).rejects.toThrow(
+      'Invalid email or password'
+    );
 
     expect(authService.login).toHaveBeenCalledWith(
       mockUser.email,

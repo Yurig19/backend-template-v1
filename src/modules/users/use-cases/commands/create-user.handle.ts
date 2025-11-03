@@ -1,6 +1,4 @@
-import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
-import { HttpStatusTextEnum } from '@/core/enums/errors/statusTextError.enum';
-import { AppError } from '@/core/exceptions/app.error';
+import { BadRequestException } from '@nestjs/common';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
 import type { ReadUserDto } from '../../dtos/read-user.dto';
 import { UserService } from '../../services/user.service';
@@ -14,21 +12,15 @@ export class CreateUserHandle implements ICommandHandler<CreateUserCommand> {
     const { createUserDto } = command;
 
     if (await this.userService.checkEmail(createUserDto.email)) {
-      throw new AppError({
-        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-        statusText: HttpStatusTextEnum.BAD_REQUEST,
-        message: 'User already exists with this email.',
-      });
+      throw new BadRequestException('User already exists with this email.');
     }
 
     const user = await this.userService.create(createUserDto);
 
     if (!user) {
-      throw new AppError({
-        statusCode: HttpStatusCodeEnum.BAD_REQUEST,
-        statusText: HttpStatusTextEnum.BAD_REQUEST,
-        message: 'User could not be created. Please verify the provided data.',
-      });
+      throw new BadRequestException(
+        'User could not be created. Please verify the provided data.'
+      );
     }
 
     return <ReadUserDto>{

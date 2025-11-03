@@ -10,7 +10,7 @@ const handlers = [AuditsListHandler];
 @Module({
   imports: [CqrsModule],
   controllers: [AuditsController],
-  providers: [PrismaService, AuditsService, ...handlers],
+  providers: [AuditsService, ...handlers],
   exports: [AuditsService],
 })
 export class AuditsModule {}
