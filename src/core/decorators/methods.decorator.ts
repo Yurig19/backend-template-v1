@@ -92,6 +92,27 @@ export function ApiEndpoint(opts: ApiEndpointOptions) {
     ApiBadRequestResponse({
       description: errorDesc,
       type: ErrorResponseDto,
+      schema: {
+        example: {
+          message: 'Invalid input data',
+          statusCode: 400,
+          error: 'BAD_REQUEST',
+        },
+      },
+    })
+  );
+
+  decorators.push(
+    ApiUnauthorizedResponse({
+      description: 'Unauthorized',
+      type: ErrorResponseDto,
+      schema: {
+        example: {
+          message: 'Missing or invalid token',
+          statusCode: 401,
+          error: 'UNAUTHORIZED',
+        },
+      },
     })
   );
 
@@ -99,6 +120,13 @@ export function ApiEndpoint(opts: ApiEndpointOptions) {
     ApiForbiddenResponse({
       description: 'Forbidden',
       type: ErrorResponseDto,
+      schema: {
+        example: {
+          message: 'You do not have permission to access this resource',
+          statusCode: 403,
+          error: 'FORBIDDEN',
+        },
+      },
     })
   );
 
@@ -106,6 +134,13 @@ export function ApiEndpoint(opts: ApiEndpointOptions) {
     ApiNotFoundResponse({
       description: 'Resource not found',
       type: ErrorResponseDto,
+      schema: {
+        example: {
+          message: 'The requested resource was not found',
+          statusCode: 404,
+          error: 'NOT_FOUND',
+        },
+      },
     })
   );
 
@@ -113,6 +148,13 @@ export function ApiEndpoint(opts: ApiEndpointOptions) {
     ApiInternalServerErrorResponse({
       description: 'Internal server error',
       type: ErrorResponseDto,
+      schema: {
+        example: {
+          message: 'An unexpected error occurred',
+          statusCode: 500,
+          error: 'INTERNAL_SERVER_ERROR',
+        },
+      },
     })
   );
 
@@ -156,6 +198,13 @@ export function ApiEndpoint(opts: ApiEndpointOptions) {
       ApiUnauthorizedResponse({
         description: 'Unauthorized',
         type: ErrorResponseDto,
+        schema: {
+          example: {
+            message: 'Missing or invalid token',
+            statusCode: 401,
+            error: 'UNAUTHORIZED',
+          },
+        },
       })
     );
   }

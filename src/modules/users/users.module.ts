@@ -1,6 +1,5 @@
 import { Global, Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { PrismaService } from 'prisma/prisma.service';
 import { RolesModule } from '../roles/roles.module';
 import { UsersController } from './controllers/users.controller';
 import { UserService } from './services/user.service';
@@ -24,7 +23,6 @@ const handlers = [
   imports: [CqrsModule, RolesModule],
   controllers: [UsersController],
   providers: [
-    PrismaService,
     UserService,
     //
     ...handlers,

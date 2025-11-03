@@ -1,3 +1,4 @@
+import { PrismaService } from '@/core/database/prisma.service';
 import { RoleEnum } from '@/core/enums/role.enum';
 import { generateHashPassword } from '@/core/utils/generatePassword';
 import { AuthModule } from '@/modules/_auth/auth.module';
@@ -5,7 +6,6 @@ import { RolesModule } from '@/modules/roles/roles.module';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from 'prisma/prisma.service';
 import * as request from 'supertest';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { ReadUserListDto } from '../dtos/list-user.dto';

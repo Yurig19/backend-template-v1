@@ -11,7 +11,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../database/prisma.service';
 import { ErrorResponseDto } from '../enums/errors/dtos/error.dto';
 
 @Injectable()

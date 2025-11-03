@@ -1,8 +1,8 @@
+import { PrismaService } from '@/core/database/prisma.service';
 import { DeleteDto } from '@/core/dtos/delete.dto';
 import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
 import { BadRequestException, Logger } from '@nestjs/common';
-import { File } from '@prisma/client';
-import { PrismaService } from 'prisma/prisma.service';
+import { File } from 'generated/prisma/client';
 import { CreateFileDto } from '../dtos/create-file.dto';
 
 export class FilesService {

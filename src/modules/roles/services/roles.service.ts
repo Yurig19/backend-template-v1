@@ -1,9 +1,9 @@
 import { existsSync, readFileSync } from 'node:fs';
 import * as path from 'node:path';
+import { PrismaService } from '@/core/database/prisma.service';
 import { RoleEnum } from '@/core/enums/role.enum';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { Roles } from '@prisma/client';
-import { PrismaService } from 'prisma/prisma.service';
+import { Roles } from 'generated/prisma/client';
 import { CreateRoleDto } from '../dtos/create-role.dto';
 
 @Injectable()

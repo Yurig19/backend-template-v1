@@ -1,9 +1,9 @@
+import { PrismaService } from '@/core/database/prisma.service';
 import { RoleEnum } from '@/core/enums/role.enum';
 import { generateHashPassword } from '@/core/utils/generatePassword';
 import { RolesService } from '@/modules/roles/services/roles.service';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import type { Prisma, Users } from '@prisma/client';
-import { PrismaService } from 'prisma/prisma.service';
+import { Prisma, Users } from 'generated/prisma/client';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { PatchUserDto } from '../dtos/patch-user.dto';
 import { UpdateUserDto } from '../dtos/update-user.dto';

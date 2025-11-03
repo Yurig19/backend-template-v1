@@ -1,8 +1,8 @@
+import { PrismaService } from '@/core/database/prisma.service';
 import { checkPassword } from '@/core/utils/generatePassword';
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Users } from '@prisma/client';
-import { PrismaService } from 'prisma/prisma.service';
+import { Users } from 'generated/prisma/client';
 import { VerifyTokenDto } from '../dtos/verify-token.dto';
 
 @Injectable()

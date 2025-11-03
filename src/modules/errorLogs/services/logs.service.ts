@@ -1,6 +1,6 @@
+import { PrismaService } from '@/core/database/prisma.service';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { Logs, Prisma } from '@prisma/client';
-import { PrismaService } from 'prisma/prisma.service';
+import { Logs, Prisma } from 'generated/prisma/client';
 
 @Injectable()
 export class LogsService {

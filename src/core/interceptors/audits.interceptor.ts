@@ -5,9 +5,9 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { PrismaService } from 'prisma/prisma.service';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class AuditInterceptor implements NestInterceptor {
