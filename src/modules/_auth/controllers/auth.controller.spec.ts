@@ -1,8 +1,8 @@
 import { AppModule } from '@/app.module';
+import { PrismaService } from '@/core/database/prisma.service';
 import { RoleEnum } from '@/core/enums/role.enum';
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from 'prisma/prisma.service';
 import * as request from 'supertest';
 
 describe('AuthController (e2e)', () => {
@@ -17,7 +17,7 @@ describe('AuthController (e2e)', () => {
     app = moduleFixture.createNestApplication();
     prisma = moduleFixture.get<PrismaService>(PrismaService);
 
-    await prisma.roles.create({
+    await prisma.role.create({
       data: {
         name: 'admin',
         type: 'ADMIN',
@@ -74,8 +74,8 @@ describe('AuthController (e2e)', () => {
   });
 
   afterAll(async () => {
-    await prisma.audits.deleteMany();
-    await prisma.users.deleteMany();
+    await prisma.audit.deleteMany();
+    await prisma.user.deleteMany();
     await prisma.$disconnect();
     await app.close();
   });

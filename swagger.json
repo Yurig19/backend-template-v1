@@ -28,86 +28,41 @@
             }
           },
           "400": {
-            "description": "Invalid data",
-            "schema": {
-              "example": {
-                "message": "Invalid input data",
-                "statusCode": 400,
-                "error": "BAD_REQUEST"
-              }
-            },
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/BadRequestErrorDto"
                 }
               }
             }
           },
           "401": {
             "description": "Unauthorized",
-            "schema": {
-              "example": {
-                "message": "Missing or invalid token",
-                "statusCode": 401,
-                "error": "UNAUTHORIZED"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "schema": {
-              "example": {
-                "message": "You do not have permission to access this resource",
-                "statusCode": 403,
-                "error": "FORBIDDEN"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/UnauthorizedErrorDto"
                 }
               }
             }
           },
           "404": {
-            "description": "Resource not found",
-            "schema": {
-              "example": {
-                "message": "The requested resource was not found",
-                "statusCode": 404,
-                "error": "NOT_FOUND"
-              }
-            },
+            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/NotFoundErrorDto"
                 }
               }
             }
           },
           "500": {
-            "description": "Internal server error",
-            "schema": {
-              "example": {
-                "message": "An unexpected error occurred",
-                "statusCode": 500,
-                "error": "INTERNAL_SERVER_ERROR"
-              }
-            },
+            "description": "Internal Server Error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/InternalServerErrorDto"
                 }
               }
             }
@@ -150,86 +105,41 @@
             }
           },
           "400": {
-            "description": "User not found",
-            "schema": {
-              "example": {
-                "message": "Invalid input data",
-                "statusCode": 400,
-                "error": "BAD_REQUEST"
-              }
-            },
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/BadRequestErrorDto"
                 }
               }
             }
           },
           "401": {
             "description": "Unauthorized",
-            "schema": {
-              "example": {
-                "message": "Missing or invalid token",
-                "statusCode": 401,
-                "error": "UNAUTHORIZED"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "schema": {
-              "example": {
-                "message": "You do not have permission to access this resource",
-                "statusCode": 403,
-                "error": "FORBIDDEN"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/UnauthorizedErrorDto"
                 }
               }
             }
           },
           "404": {
-            "description": "Resource not found",
-            "schema": {
-              "example": {
-                "message": "The requested resource was not found",
-                "statusCode": 404,
-                "error": "NOT_FOUND"
-              }
-            },
+            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/NotFoundErrorDto"
                 }
               }
             }
           },
           "500": {
-            "description": "Internal server error",
-            "schema": {
-              "example": {
-                "message": "An unexpected error occurred",
-                "statusCode": 500,
-                "error": "INTERNAL_SERVER_ERROR"
-              }
-            },
+            "description": "Internal Server Error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/InternalServerErrorDto"
                 }
               }
             }
@@ -288,86 +198,41 @@
             }
           },
           "400": {
-            "description": "Could not list users",
-            "schema": {
-              "example": {
-                "message": "Invalid input data",
-                "statusCode": 400,
-                "error": "BAD_REQUEST"
-              }
-            },
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/BadRequestErrorDto"
                 }
               }
             }
           },
           "401": {
             "description": "Unauthorized",
-            "schema": {
-              "example": {
-                "message": "Missing or invalid token",
-                "statusCode": 401,
-                "error": "UNAUTHORIZED"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "schema": {
-              "example": {
-                "message": "You do not have permission to access this resource",
-                "statusCode": 403,
-                "error": "FORBIDDEN"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/UnauthorizedErrorDto"
                 }
               }
             }
           },
           "404": {
-            "description": "Resource not found",
-            "schema": {
-              "example": {
-                "message": "The requested resource was not found",
-                "statusCode": 404,
-                "error": "NOT_FOUND"
-              }
-            },
+            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/NotFoundErrorDto"
                 }
               }
             }
           },
           "500": {
-            "description": "Internal server error",
-            "schema": {
-              "example": {
-                "message": "An unexpected error occurred",
-                "statusCode": 500,
-                "error": "INTERNAL_SERVER_ERROR"
-              }
-            },
+            "description": "Internal Server Error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/InternalServerErrorDto"
                 }
               }
             }
@@ -420,86 +285,41 @@
             }
           },
           "400": {
-            "description": "User not found or invalid data",
-            "schema": {
-              "example": {
-                "message": "Invalid input data",
-                "statusCode": 400,
-                "error": "BAD_REQUEST"
-              }
-            },
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/BadRequestErrorDto"
                 }
               }
             }
           },
           "401": {
             "description": "Unauthorized",
-            "schema": {
-              "example": {
-                "message": "Missing or invalid token",
-                "statusCode": 401,
-                "error": "UNAUTHORIZED"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "schema": {
-              "example": {
-                "message": "You do not have permission to access this resource",
-                "statusCode": 403,
-                "error": "FORBIDDEN"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/UnauthorizedErrorDto"
                 }
               }
             }
           },
           "404": {
-            "description": "Resource not found",
-            "schema": {
-              "example": {
-                "message": "The requested resource was not found",
-                "statusCode": 404,
-                "error": "NOT_FOUND"
-              }
-            },
+            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/NotFoundErrorDto"
                 }
               }
             }
           },
           "500": {
-            "description": "Internal server error",
-            "schema": {
-              "example": {
-                "message": "An unexpected error occurred",
-                "statusCode": 500,
-                "error": "INTERNAL_SERVER_ERROR"
-              }
-            },
+            "description": "Internal Server Error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/InternalServerErrorDto"
                 }
               }
             }
@@ -542,86 +362,41 @@
             }
           },
           "400": {
-            "description": "User not found or could not be deleted",
-            "schema": {
-              "example": {
-                "message": "Invalid input data",
-                "statusCode": 400,
-                "error": "BAD_REQUEST"
-              }
-            },
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/BadRequestErrorDto"
                 }
               }
             }
           },
           "401": {
             "description": "Unauthorized",
-            "schema": {
-              "example": {
-                "message": "Missing or invalid token",
-                "statusCode": 401,
-                "error": "UNAUTHORIZED"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "schema": {
-              "example": {
-                "message": "You do not have permission to access this resource",
-                "statusCode": 403,
-                "error": "FORBIDDEN"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/UnauthorizedErrorDto"
                 }
               }
             }
           },
           "404": {
-            "description": "Resource not found",
-            "schema": {
-              "example": {
-                "message": "The requested resource was not found",
-                "statusCode": 404,
-                "error": "NOT_FOUND"
-              }
-            },
+            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/NotFoundErrorDto"
                 }
               }
             }
           },
           "500": {
-            "description": "Internal server error",
-            "schema": {
-              "example": {
-                "message": "An unexpected error occurred",
-                "statusCode": 500,
-                "error": "INTERNAL_SERVER_ERROR"
-              }
-            },
+            "description": "Internal Server Error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/InternalServerErrorDto"
                 }
               }
             }
@@ -665,86 +440,31 @@
             }
           },
           "400": {
-            "description": "User not logged in",
-            "schema": {
-              "example": {
-                "message": "Invalid input data",
-                "statusCode": 400,
-                "error": "BAD_REQUEST"
-              }
-            },
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "schema": {
-              "example": {
-                "message": "Missing or invalid token",
-                "statusCode": 401,
-                "error": "UNAUTHORIZED"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "schema": {
-              "example": {
-                "message": "You do not have permission to access this resource",
-                "statusCode": 403,
-                "error": "FORBIDDEN"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/BadRequestErrorDto"
                 }
               }
             }
           },
           "404": {
-            "description": "Resource not found",
-            "schema": {
-              "example": {
-                "message": "The requested resource was not found",
-                "statusCode": 404,
-                "error": "NOT_FOUND"
-              }
-            },
+            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/NotFoundErrorDto"
                 }
               }
             }
           },
           "500": {
-            "description": "Internal server error",
-            "schema": {
-              "example": {
-                "message": "An unexpected error occurred",
-                "statusCode": 500,
-                "error": "INTERNAL_SERVER_ERROR"
-              }
-            },
+            "description": "Internal Server Error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/InternalServerErrorDto"
                 }
               }
             }
@@ -783,86 +503,31 @@
             }
           },
           "400": {
-            "description": "User not registered in",
-            "schema": {
-              "example": {
-                "message": "Invalid input data",
-                "statusCode": 400,
-                "error": "BAD_REQUEST"
-              }
-            },
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "schema": {
-              "example": {
-                "message": "Missing or invalid token",
-                "statusCode": 401,
-                "error": "UNAUTHORIZED"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "schema": {
-              "example": {
-                "message": "You do not have permission to access this resource",
-                "statusCode": 403,
-                "error": "FORBIDDEN"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/BadRequestErrorDto"
                 }
               }
             }
           },
           "404": {
-            "description": "Resource not found",
-            "schema": {
-              "example": {
-                "message": "The requested resource was not found",
-                "statusCode": 404,
-                "error": "NOT_FOUND"
-              }
-            },
+            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/NotFoundErrorDto"
                 }
               }
             }
           },
           "500": {
-            "description": "Internal server error",
-            "schema": {
-              "example": {
-                "message": "An unexpected error occurred",
-                "statusCode": 500,
-                "error": "INTERNAL_SERVER_ERROR"
-              }
-            },
+            "description": "Internal Server Error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/InternalServerErrorDto"
                 }
               }
             }
@@ -891,86 +556,41 @@
             }
           },
           "400": {
-            "description": "Token is invalid",
-            "schema": {
-              "example": {
-                "message": "Invalid input data",
-                "statusCode": 400,
-                "error": "BAD_REQUEST"
-              }
-            },
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/BadRequestErrorDto"
                 }
               }
             }
           },
           "401": {
             "description": "Unauthorized",
-            "schema": {
-              "example": {
-                "message": "Missing or invalid token",
-                "statusCode": 401,
-                "error": "UNAUTHORIZED"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "schema": {
-              "example": {
-                "message": "You do not have permission to access this resource",
-                "statusCode": 403,
-                "error": "FORBIDDEN"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/UnauthorizedErrorDto"
                 }
               }
             }
           },
           "404": {
-            "description": "Resource not found",
-            "schema": {
-              "example": {
-                "message": "The requested resource was not found",
-                "statusCode": 404,
-                "error": "NOT_FOUND"
-              }
-            },
+            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/NotFoundErrorDto"
                 }
               }
             }
           },
           "500": {
-            "description": "Internal server error",
-            "schema": {
-              "example": {
-                "message": "An unexpected error occurred",
-                "statusCode": 500,
-                "error": "INTERNAL_SERVER_ERROR"
-              }
-            },
+            "description": "Internal Server Error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/InternalServerErrorDto"
                 }
               }
             }
@@ -1014,86 +634,41 @@
             }
           },
           "400": {
-            "description": "Invalid data",
-            "schema": {
-              "example": {
-                "message": "Invalid input data",
-                "statusCode": 400,
-                "error": "BAD_REQUEST"
-              }
-            },
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/BadRequestErrorDto"
                 }
               }
             }
           },
           "401": {
             "description": "Unauthorized",
-            "schema": {
-              "example": {
-                "message": "Missing or invalid token",
-                "statusCode": 401,
-                "error": "UNAUTHORIZED"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "schema": {
-              "example": {
-                "message": "You do not have permission to access this resource",
-                "statusCode": 403,
-                "error": "FORBIDDEN"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/UnauthorizedErrorDto"
                 }
               }
             }
           },
           "404": {
-            "description": "Resource not found",
-            "schema": {
-              "example": {
-                "message": "The requested resource was not found",
-                "statusCode": 404,
-                "error": "NOT_FOUND"
-              }
-            },
+            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/NotFoundErrorDto"
                 }
               }
             }
           },
           "500": {
-            "description": "Internal server error",
-            "schema": {
-              "example": {
-                "message": "An unexpected error occurred",
-                "statusCode": 500,
-                "error": "INTERNAL_SERVER_ERROR"
-              }
-            },
+            "description": "Internal Server Error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/InternalServerErrorDto"
                 }
               }
             }
@@ -1155,86 +730,41 @@
             }
           },
           "400": {
-            "description": "list error Audits",
-            "schema": {
-              "example": {
-                "message": "Invalid input data",
-                "statusCode": 400,
-                "error": "BAD_REQUEST"
-              }
-            },
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/BadRequestErrorDto"
                 }
               }
             }
           },
           "401": {
             "description": "Unauthorized",
-            "schema": {
-              "example": {
-                "message": "Missing or invalid token",
-                "statusCode": 401,
-                "error": "UNAUTHORIZED"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "schema": {
-              "example": {
-                "message": "You do not have permission to access this resource",
-                "statusCode": 403,
-                "error": "FORBIDDEN"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/UnauthorizedErrorDto"
                 }
               }
             }
           },
           "404": {
-            "description": "Resource not found",
-            "schema": {
-              "example": {
-                "message": "The requested resource was not found",
-                "statusCode": 404,
-                "error": "NOT_FOUND"
-              }
-            },
+            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/NotFoundErrorDto"
                 }
               }
             }
           },
           "500": {
-            "description": "Internal server error",
-            "schema": {
-              "example": {
-                "message": "An unexpected error occurred",
-                "statusCode": 500,
-                "error": "INTERNAL_SERVER_ERROR"
-              }
-            },
+            "description": "Internal Server Error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/InternalServerErrorDto"
                 }
               }
             }
@@ -1296,86 +826,41 @@
             }
           },
           "400": {
-            "description": "list error logs",
-            "schema": {
-              "example": {
-                "message": "Invalid input data",
-                "statusCode": 400,
-                "error": "BAD_REQUEST"
-              }
-            },
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/BadRequestErrorDto"
                 }
               }
             }
           },
           "401": {
             "description": "Unauthorized",
-            "schema": {
-              "example": {
-                "message": "Missing or invalid token",
-                "statusCode": 401,
-                "error": "UNAUTHORIZED"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "schema": {
-              "example": {
-                "message": "You do not have permission to access this resource",
-                "statusCode": 403,
-                "error": "FORBIDDEN"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/UnauthorizedErrorDto"
                 }
               }
             }
           },
           "404": {
-            "description": "Resource not found",
-            "schema": {
-              "example": {
-                "message": "The requested resource was not found",
-                "statusCode": 404,
-                "error": "NOT_FOUND"
-              }
-            },
+            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/NotFoundErrorDto"
                 }
               }
             }
           },
           "500": {
-            "description": "Internal server error",
-            "schema": {
-              "example": {
-                "message": "An unexpected error occurred",
-                "statusCode": 500,
-                "error": "INTERNAL_SERVER_ERROR"
-              }
-            },
+            "description": "Internal Server Error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
+                  "$ref": "#/components/schemas/InternalServerErrorDto"
                 }
               }
             }
@@ -1522,7 +1007,7 @@
           "deletedAt"
         ]
       },
-      "ErrorResponseDto": {
+      "BadRequestErrorDto": {
         "type": "object",
         "properties": {
           "message": {
@@ -1549,7 +1034,8 @@
                 "summary": "Internal Server Error",
                 "value": "An unexpected error occurred"
               }
-            }
+            },
+            "example": "Invalid input data"
           },
           "statusCode": {
             "type": "number",
@@ -1575,7 +1061,8 @@
                 "summary": "500",
                 "value": 500
               }
-            }
+            },
+            "example": 400
           },
           "error": {
             "type": "string",
@@ -1601,7 +1088,281 @@
                 "summary": "INTERNAL_SERVER_ERROR",
                 "value": "INTERNAL_SERVER_ERROR"
               }
-            }
+            },
+            "example": "BAD_REQUEST"
+          }
+        },
+        "required": [
+          "message",
+          "statusCode",
+          "error"
+        ]
+      },
+      "UnauthorizedErrorDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Detailed description of the error",
+            "examples": {
+              "BadRequest": {
+                "summary": "Bad Request",
+                "value": "Invalid input data"
+              },
+              "Unauthorized": {
+                "summary": "Unauthorized",
+                "value": "Missing or invalid token"
+              },
+              "Forbidden": {
+                "summary": "Forbidden",
+                "value": "You do not have permission to access this resource"
+              },
+              "NotFound": {
+                "summary": "Not Found",
+                "value": "The requested resource was not found"
+              },
+              "InternalServerError": {
+                "summary": "Internal Server Error",
+                "value": "An unexpected error occurred"
+              }
+            },
+            "example": "Missing or invalid token"
+          },
+          "statusCode": {
+            "type": "number",
+            "description": "HTTP status code of the error",
+            "examples": {
+              "BadRequest": {
+                "summary": "400",
+                "value": 400
+              },
+              "Unauthorized": {
+                "summary": "401",
+                "value": 401
+              },
+              "Forbidden": {
+                "summary": "403",
+                "value": 403
+              },
+              "NotFound": {
+                "summary": "404",
+                "value": 404
+              },
+              "InternalServerError": {
+                "summary": "500",
+                "value": 500
+              }
+            },
+            "example": 401
+          },
+          "error": {
+            "type": "string",
+            "description": "HTTP status message associated with the error",
+            "examples": {
+              "BadRequest": {
+                "summary": "BAD_REQUEST",
+                "value": "BAD_REQUEST"
+              },
+              "Unauthorized": {
+                "summary": "UNAUTHORIZED",
+                "value": "UNAUTHORIZED"
+              },
+              "Forbidden": {
+                "summary": "FORBIDDEN",
+                "value": "FORBIDDEN"
+              },
+              "NotFound": {
+                "summary": "NOT_FOUND",
+                "value": "NOT_FOUND"
+              },
+              "InternalServerError": {
+                "summary": "INTERNAL_SERVER_ERROR",
+                "value": "INTERNAL_SERVER_ERROR"
+              }
+            },
+            "example": "UNAUTHORIZED"
+          }
+        },
+        "required": [
+          "message",
+          "statusCode",
+          "error"
+        ]
+      },
+      "NotFoundErrorDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Detailed description of the error",
+            "examples": {
+              "BadRequest": {
+                "summary": "Bad Request",
+                "value": "Invalid input data"
+              },
+              "Unauthorized": {
+                "summary": "Unauthorized",
+                "value": "Missing or invalid token"
+              },
+              "Forbidden": {
+                "summary": "Forbidden",
+                "value": "You do not have permission to access this resource"
+              },
+              "NotFound": {
+                "summary": "Not Found",
+                "value": "The requested resource was not found"
+              },
+              "InternalServerError": {
+                "summary": "Internal Server Error",
+                "value": "An unexpected error occurred"
+              }
+            },
+            "example": "The requested resource was not found"
+          },
+          "statusCode": {
+            "type": "number",
+            "description": "HTTP status code of the error",
+            "examples": {
+              "BadRequest": {
+                "summary": "400",
+                "value": 400
+              },
+              "Unauthorized": {
+                "summary": "401",
+                "value": 401
+              },
+              "Forbidden": {
+                "summary": "403",
+                "value": 403
+              },
+              "NotFound": {
+                "summary": "404",
+                "value": 404
+              },
+              "InternalServerError": {
+                "summary": "500",
+                "value": 500
+              }
+            },
+            "example": 404
+          },
+          "error": {
+            "type": "string",
+            "description": "HTTP status message associated with the error",
+            "examples": {
+              "BadRequest": {
+                "summary": "BAD_REQUEST",
+                "value": "BAD_REQUEST"
+              },
+              "Unauthorized": {
+                "summary": "UNAUTHORIZED",
+                "value": "UNAUTHORIZED"
+              },
+              "Forbidden": {
+                "summary": "FORBIDDEN",
+                "value": "FORBIDDEN"
+              },
+              "NotFound": {
+                "summary": "NOT_FOUND",
+                "value": "NOT_FOUND"
+              },
+              "InternalServerError": {
+                "summary": "INTERNAL_SERVER_ERROR",
+                "value": "INTERNAL_SERVER_ERROR"
+              }
+            },
+            "example": "NOT_FOUND"
+          }
+        },
+        "required": [
+          "message",
+          "statusCode",
+          "error"
+        ]
+      },
+      "InternalServerErrorDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Detailed description of the error",
+            "examples": {
+              "BadRequest": {
+                "summary": "Bad Request",
+                "value": "Invalid input data"
+              },
+              "Unauthorized": {
+                "summary": "Unauthorized",
+                "value": "Missing or invalid token"
+              },
+              "Forbidden": {
+                "summary": "Forbidden",
+                "value": "You do not have permission to access this resource"
+              },
+              "NotFound": {
+                "summary": "Not Found",
+                "value": "The requested resource was not found"
+              },
+              "InternalServerError": {
+                "summary": "Internal Server Error",
+                "value": "An unexpected error occurred"
+              }
+            },
+            "example": "An unexpected error occurred"
+          },
+          "statusCode": {
+            "type": "number",
+            "description": "HTTP status code of the error",
+            "examples": {
+              "BadRequest": {
+                "summary": "400",
+                "value": 400
+              },
+              "Unauthorized": {
+                "summary": "401",
+                "value": 401
+              },
+              "Forbidden": {
+                "summary": "403",
+                "value": 403
+              },
+              "NotFound": {
+                "summary": "404",
+                "value": 404
+              },
+              "InternalServerError": {
+                "summary": "500",
+                "value": 500
+              }
+            },
+            "example": 500
+          },
+          "error": {
+            "type": "string",
+            "description": "HTTP status message associated with the error",
+            "examples": {
+              "BadRequest": {
+                "summary": "BAD_REQUEST",
+                "value": "BAD_REQUEST"
+              },
+              "Unauthorized": {
+                "summary": "UNAUTHORIZED",
+                "value": "UNAUTHORIZED"
+              },
+              "Forbidden": {
+                "summary": "FORBIDDEN",
+                "value": "FORBIDDEN"
+              },
+              "NotFound": {
+                "summary": "NOT_FOUND",
+                "value": "NOT_FOUND"
+              },
+              "InternalServerError": {
+                "summary": "INTERNAL_SERVER_ERROR",
+                "value": "INTERNAL_SERVER_ERROR"
+              }
+            },
+            "example": "INTERNAL_SERVER_ERROR"
           }
         },
         "required": [
@@ -1767,7 +1528,7 @@
           "email": {
             "type": "string",
             "description": "User email address",
-            "example": "example@example.com"
+            "example": "admin@admin.com"
           },
           "password": {
             "type": "string",

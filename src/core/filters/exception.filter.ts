@@ -67,7 +67,7 @@ export class BaseExceptionFilter implements ExceptionFilter {
     }
 
     try {
-      await this.prisma.logs.create({
+      await this.prisma.errorLog.create({
         data: {
           error: errorResponse.message,
           statusCode: errorResponse.statusCode,

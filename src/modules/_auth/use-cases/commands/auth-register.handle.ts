@@ -49,6 +49,7 @@ export class AuthRegisterHandler
         uuid: userData.uuid,
         name: userData.name,
         email: userData.email,
+        role: userData.roles ? userData.roles.type : null,
         createdAt: userData.createdAt,
         updatedAt: userData.updatedAt,
       } as ReadUserDto,

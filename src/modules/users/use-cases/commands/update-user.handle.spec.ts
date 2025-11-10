@@ -1,8 +1,8 @@
+import { PrismaService } from '@/core/database/prisma.service';
 import { RoleEnum } from '@/core/enums/role.enum';
 import { RolesService } from '@/modules/roles/services/roles.service';
 import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from 'prisma/prisma.service';
 import { UpdateUserDto } from '../../dtos/update-user.dto';
 import { UserService } from '../../services/user.service';
 import { UpdateUserCommand } from './update-user.command';
@@ -24,18 +24,18 @@ describe('UpdateUserHandler (integration)', () => {
     prisma = module.get<PrismaService>(PrismaService);
     handler = module.get<UpdateUserHandler>(UpdateUserHandler);
 
-    await prisma.users.deleteMany();
-    await prisma.roles.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.role.deleteMany();
 
-    const employeeRole = await prisma.roles.create({
+    const employeeRole = await prisma.role.create({
       data: { type: RoleEnum.employee, name: 'Employee' },
     });
 
-    await prisma.roles.create({
+    await prisma.role.create({
       data: { type: RoleEnum.admin, name: 'Admin' },
     });
 
-    const user = await prisma.users.create({
+    const user = await prisma.user.create({
       data: {
         name: 'Initial User',
         email: 'initial@example.com',
@@ -48,8 +48,8 @@ describe('UpdateUserHandler (integration)', () => {
   });
 
   afterAll(async () => {
-    await prisma.users.deleteMany();
-    await prisma.roles.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.role.deleteMany();
     await prisma.$disconnect();
   });
 
@@ -69,7 +69,7 @@ describe('UpdateUserHandler (integration)', () => {
     expect(result.email).toBe(updateUserDto.email);
     expect(result.role).toBe(updateUserDto.role);
 
-    const updatedDbUser = await prisma.users.findUnique({
+    const updatedDbUser = await prisma.user.findUnique({
       where: { uuid: createdUserUuid },
     });
     expect(updatedDbUser?.name).toBe(updateUserDto.name);
@@ -77,7 +77,7 @@ describe('UpdateUserHandler (integration)', () => {
   });
 
   it('should throw BadRequestException if user does not exist', async () => {
-    await prisma.users.deleteMany({ where: { uuid: createdUserUuid } });
+    await prisma.user.deleteMany({ where: { uuid: createdUserUuid } });
 
     const updateUserDto: UpdateUserDto = {
       name: 'Non existent',

@@ -1,6 +1,6 @@
 import { PrismaService } from '@/core/database/prisma.service';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { Audits, Prisma } from 'generated/prisma/client';
+import { Audit, Prisma } from 'generated/prisma/client';
 
 @Injectable()
 export class AuditsService {
@@ -13,7 +13,7 @@ export class AuditsService {
     dataPerPage: number,
     search?: string
   ): Promise<{
-    audits: Audits[];
+    audits: Audit[];
     total: number;
     totalPages: number;
     currentPage: number;
@@ -29,9 +29,9 @@ export class AuditsService {
           : Number(dataPerPage);
       const skip = (page - 1) * take;
 
-      const query = this.prisma.audits;
+      const query = this.prisma.audit;
 
-      const where: Prisma.AuditsWhereInput = search
+      const where: Prisma.AuditWhereInput = search
         ? {
             OR: [
               { entity: { contains: search, mode: 'insensitive' } },

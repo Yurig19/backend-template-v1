@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import { PrismaService } from '@/core/database/prisma.service';
 import { RoleEnum } from '@/core/enums/role.enum';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { Roles } from 'generated/prisma/client';
+import { Role } from 'generated/prisma/client';
 import { CreateRoleDto } from '../dtos/create-role.dto';
 
 @Injectable()
@@ -30,7 +30,7 @@ export class RolesService {
 
         if (rolesData && Array.isArray(rolesData)) {
           for (const role of rolesData) {
-            const existingRole = await this.prisma.roles.findUnique({
+            const existingRole = await this.prisma.role.findUnique({
               where: { type: role.type },
             });
 
@@ -57,7 +57,7 @@ export class RolesService {
 
   async findByType(type: RoleEnum): Promise<{ uuid: string }> {
     try {
-      return await this.prisma.roles.findUnique({
+      return await this.prisma.role.findUnique({
         where: { type },
         select: { uuid: true },
       });
@@ -67,9 +67,9 @@ export class RolesService {
     }
   }
 
-  async createRole(createRoleDto: CreateRoleDto): Promise<Roles> {
+  async createRole(createRoleDto: CreateRoleDto): Promise<Role> {
     try {
-      return await this.prisma.roles.create({
+      return await this.prisma.role.create({
         data: createRoleDto,
       });
     } catch (error) {

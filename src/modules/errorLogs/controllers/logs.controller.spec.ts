@@ -33,15 +33,15 @@ describe('LogsController (e2e)', () => {
 
     prisma = module.get<PrismaService>(PrismaService);
 
-    await prisma.logs.deleteMany();
-    await prisma.users.deleteMany();
-    await prisma.roles.deleteMany();
+    await prisma.errorLog.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.role.deleteMany();
 
-    const role = await prisma.roles.create({
+    const role = await prisma.role.create({
       data: { name: 'employee', type: RoleEnum.employee },
     });
 
-    const user = await prisma.users.create({
+    const user = await prisma.user.create({
       data: {
         name: 'Test User',
         email: 'testuser@example.com',
@@ -57,7 +57,7 @@ describe('LogsController (e2e)', () => {
 
     accessToken = loginResponse.body.accessToken;
 
-    await prisma.logs.createMany({
+    await prisma.errorLog.createMany({
       data: [
         {
           error: 'Failed to create user',
@@ -82,9 +82,9 @@ describe('LogsController (e2e)', () => {
   });
 
   afterAll(async () => {
-    await prisma.logs.deleteMany();
-    await prisma.users.deleteMany();
-    await prisma.roles.deleteMany();
+    await prisma.errorLog.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.role.deleteMany();
     await prisma.$disconnect();
     await app.close();
   });

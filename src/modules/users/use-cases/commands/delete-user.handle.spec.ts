@@ -1,10 +1,10 @@
 import { randomUUID } from 'node:crypto';
+import { PrismaService } from '@/core/database/prisma.service';
 import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
 import { RoleEnum } from '@/core/enums/role.enum';
 import { RolesModule } from '@/modules/roles/roles.module';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from 'prisma/prisma.service';
 import { UserService } from '../../services/user.service';
 import { UserModule } from '../../users.module';
 import { DeleteUserCommand } from './delete-user.command';
@@ -29,18 +29,18 @@ describe('DeleteUserHandler (integration)', () => {
     prisma = module.get(PrismaService);
     userService = module.get(UserService);
 
-    await prisma.audits.deleteMany();
-    await prisma.users.deleteMany();
-    await prisma.roles.deleteMany();
+    await prisma.audit.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.role.deleteMany();
 
-    const role = await prisma.roles.create({
+    const role = await prisma.role.create({
       data: {
         name: RoleEnum.admin,
         createdAt: new Date(),
       },
     });
 
-    const user = await prisma.users.create({
+    const user = await prisma.user.create({
       data: {
         name: 'User Test',
         email: 'usertest@example.com',
@@ -55,9 +55,9 @@ describe('DeleteUserHandler (integration)', () => {
   });
 
   afterAll(async () => {
-    await prisma.audits.deleteMany();
-    await prisma.users.deleteMany();
-    await prisma.roles.deleteMany();
+    await prisma.audit.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.role.deleteMany();
     await prisma.$disconnect();
   });
 
@@ -72,7 +72,7 @@ describe('DeleteUserHandler (integration)', () => {
       message: 'User deleted successfully!',
     });
 
-    const userInDb = await prisma.users.findUnique({
+    const userInDb = await prisma.user.findUnique({
       where: { uuid: existingUserUuid },
     });
     expect(userInDb).toBeNull();
@@ -91,8 +91,8 @@ describe('DeleteUserHandler (integration)', () => {
   it('should throw BadRequestException when delete fails internally', async () => {
     const fakeUuid = randomUUID();
 
-    const role = await prisma.roles.findFirst();
-    await prisma.users.create({
+    const role = await prisma.role.findFirst();
+    await prisma.user.create({
       data: {
         uuid: fakeUuid,
         name: 'User Error',

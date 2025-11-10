@@ -1,6 +1,6 @@
 import { PrismaService } from '@/core/database/prisma.service';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { Logs, Prisma } from 'generated/prisma/client';
+import { ErrorLog, Prisma } from 'generated/prisma/client';
 
 @Injectable()
 export class LogsService {
@@ -13,7 +13,7 @@ export class LogsService {
     dataPerPage: number,
     search?: string
   ): Promise<{
-    logs: Logs[];
+    logs: ErrorLog[];
     total: number;
     totalPages: number;
     currentPage: number;
@@ -28,9 +28,9 @@ export class LogsService {
           ? 10
           : Number(dataPerPage);
       const skip = (page - 1) * take;
-      const query = this.prisma.logs;
+      const query = this.prisma.errorLog;
 
-      const where: Prisma.LogsWhereInput = {};
+      const where: Prisma.ErrorLogWhereInput = {};
 
       if (search) {
         where.OR = [{ error: { contains: search, mode: 'insensitive' } }];

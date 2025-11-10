@@ -3,7 +3,7 @@ import { RoleEnum } from '@/core/enums/role.enum';
 import { generateHashPassword } from '@/core/utils/generatePassword';
 import { RolesService } from '@/modules/roles/services/roles.service';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { Prisma, Users } from 'generated/prisma/client';
+import { Prisma, Role, User } from 'generated/prisma/client';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { PatchUserDto } from '../dtos/patch-user.dto';
 import { UpdateUserDto } from '../dtos/update-user.dto';
@@ -17,7 +17,7 @@ export class UserService {
     private readonly rolesService: RolesService
   ) {}
 
-  private users = this.prisma.users;
+  private users = this.prisma.user;
 
   async initAdmin(): Promise<void> {
     const isAdminUser = await this.users.count({
@@ -56,11 +56,11 @@ export class UserService {
     return false;
   }
 
-  async create(createUserDto: CreateUserDto): Promise<Users> {
+  async create(createUserDto: CreateUserDto): Promise<User & { roles: Role }> {
     try {
       const { password, role, ...data } = createUserDto;
 
-      const roleExists = await this.prisma.roles.findFirst({
+      const roleExists = await this.prisma.role.findFirst({
         where: { type: role },
       });
 
@@ -78,6 +78,7 @@ export class UserService {
           },
           password: hashedPassword,
         },
+        include: { roles: true },
       });
     } catch (error) {
       this.logger.error('Failed to create user', error);
@@ -200,7 +201,7 @@ export class UserService {
     dataPerPage: number,
     search?: string
   ): Promise<{
-    users: (Users & {
+    users: (User & {
       roles: {
         name: string;
       };
@@ -220,9 +221,9 @@ export class UserService {
           : Number(dataPerPage);
       const skip = (page - 1) * take;
 
-      const query = this.prisma.users;
+      const query = this.prisma.user;
 
-      const where: Prisma.UsersWhereInput = search
+      const where: Prisma.UserWhereInput = search
         ? { name: { contains: search, mode: 'insensitive' } }
         : {};
 
@@ -264,7 +265,7 @@ export class UserService {
     uuid: string,
     data: PatchUserDto
   ): Promise<
-    Users & {
+    User & {
       roles: {
         name: string;
       };
@@ -294,7 +295,7 @@ export class UserService {
     uuid: string,
     data: UpdateUserDto
   ): Promise<
-    Users & {
+    User & {
       roles: {
         type: string;
       };
@@ -344,7 +345,7 @@ export class UserService {
 
   async softDelete(uuid: string): Promise<void> {
     try {
-      await this.prisma.users.update({
+      await this.users.update({
         where: { uuid },
         data: { deletedAt: new Date() },
       });

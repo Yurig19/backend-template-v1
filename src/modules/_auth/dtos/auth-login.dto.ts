@@ -6,7 +6,7 @@ export class AuthLoginDto {
     type: String,
     required: true,
     description: 'User email address',
-    example: 'example@example.com',
+    example: 'admin@admin.com',
   })
   @IsEmail()
   @IsString()

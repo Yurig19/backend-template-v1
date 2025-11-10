@@ -1,6 +1,7 @@
 import { ApiController } from '@/core/decorators/api-controller.decorator';
 import { ApiEndpoint } from '@/core/decorators/methods.decorator';
 import { GetUser } from '@/core/decorators/user-decorator';
+import { RoleEnum } from '@/core/enums/role.enum';
 import { Body } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ReadUserDto } from '../../users/dtos/read-user.dto';
@@ -12,10 +13,7 @@ import { AuthRegisterCommand } from '../use-cases/commands/auth-register.command
 
 @ApiController('auth')
 export class AuthController {
-  constructor(
-    private readonly commandBus: CommandBus,
-    private readonly queryBus: QueryBus
-  ) {}
+  constructor(private readonly commandBus: CommandBus) {}
 
   @ApiEndpoint({
     method: 'POST',
@@ -48,6 +46,7 @@ export class AuthController {
     successDescription: 'User registered in successfully',
     errorDescription: 'User not registered in',
     isAuth: false,
+    roles: [RoleEnum.admin],
   })
   async register(
     @Body() authRegisterDto: AuthRegisterDto

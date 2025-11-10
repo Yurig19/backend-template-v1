@@ -21,9 +21,19 @@ import {
   ApiOperation,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { ErrorResponseDto } from '../enums/errors/dtos/error.dto';
+import {
+  BadRequestErrorDto,
+  ErrorResponseDto,
+  ForbiddenErrorDto,
+  InternalServerErrorDto,
+  NotFoundErrorDto,
+  UnauthorizedErrorDto,
+} from '../enums/errors/dtos/error.dto';
 import { HttpStatusCodeEnum } from '../enums/errors/statusCodeErrors.enum';
+import { RoleEnum } from '../enums/role.enum';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { RolesGuard } from '../guards/role.guard';
+import { Roles } from './roles.decorator';
 
 interface ApiEndpointOptions {
   method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
@@ -39,6 +49,7 @@ interface ApiEndpointOptions {
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   bodyType?: any;
   isFile?: boolean;
+  roles?: RoleEnum[];
 }
 
 export function ApiEndpoint(opts: ApiEndpointOptions) {
@@ -57,6 +68,7 @@ export function ApiEndpoint(opts: ApiEndpointOptions) {
     isAuth,
     isFile,
     successDescription,
+    roles,
   } = opts;
 
   const successStatus =
@@ -90,71 +102,22 @@ export function ApiEndpoint(opts: ApiEndpointOptions) {
 
   decorators.push(
     ApiBadRequestResponse({
-      description: errorDesc,
-      type: ErrorResponseDto,
-      schema: {
-        example: {
-          message: 'Invalid input data',
-          statusCode: 400,
-          error: 'BAD_REQUEST',
-        },
-      },
-    })
-  );
-
-  decorators.push(
-    ApiUnauthorizedResponse({
-      description: 'Unauthorized',
-      type: ErrorResponseDto,
-      schema: {
-        example: {
-          message: 'Missing or invalid token',
-          statusCode: 401,
-          error: 'UNAUTHORIZED',
-        },
-      },
-    })
-  );
-
-  decorators.push(
-    ApiForbiddenResponse({
-      description: 'Forbidden',
-      type: ErrorResponseDto,
-      schema: {
-        example: {
-          message: 'You do not have permission to access this resource',
-          statusCode: 403,
-          error: 'FORBIDDEN',
-        },
-      },
+      description: 'Bad Request',
+      type: BadRequestErrorDto,
     })
   );
 
   decorators.push(
     ApiNotFoundResponse({
-      description: 'Resource not found',
-      type: ErrorResponseDto,
-      schema: {
-        example: {
-          message: 'The requested resource was not found',
-          statusCode: 404,
-          error: 'NOT_FOUND',
-        },
-      },
+      description: 'Not Found',
+      type: NotFoundErrorDto,
     })
   );
 
   decorators.push(
     ApiInternalServerErrorResponse({
-      description: 'Internal server error',
-      type: ErrorResponseDto,
-      schema: {
-        example: {
-          message: 'An unexpected error occurred',
-          statusCode: 500,
-          error: 'INTERNAL_SERVER_ERROR',
-        },
-      },
+      description: 'Internal Server Error',
+      type: InternalServerErrorDto,
     })
   );
 
@@ -192,19 +155,24 @@ export function ApiEndpoint(opts: ApiEndpointOptions) {
   }
 
   if (isAuth) {
-    decorators.push(UseGuards(JwtAuthGuard));
+    if (roles && roles.length > 0) {
+      decorators.push(UseGuards(JwtAuthGuard, RolesGuard));
+      decorators.push(Roles(...opts.roles));
+      decorators.push(
+        ApiForbiddenResponse({
+          description: 'Forbidden - User lacks required role',
+          type: ForbiddenErrorDto,
+        })
+      );
+    } else {
+      decorators.push(UseGuards(JwtAuthGuard));
+    }
+
     decorators.push(ApiBearerAuth());
     decorators.push(
       ApiUnauthorizedResponse({
         description: 'Unauthorized',
-        type: ErrorResponseDto,
-        schema: {
-          example: {
-            message: 'Missing or invalid token',
-            statusCode: 401,
-            error: 'UNAUTHORIZED',
-          },
-        },
+        type: UnauthorizedErrorDto,
       })
     );
   }

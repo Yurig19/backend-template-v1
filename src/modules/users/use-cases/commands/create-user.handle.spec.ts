@@ -1,8 +1,8 @@
+import { PrismaService } from '@/core/database/prisma.service';
 import { RoleEnum } from '@/core/enums/role.enum';
 import { RolesModule } from '@/modules/roles/roles.module';
 import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from 'prisma/prisma.service';
 import { CreateUserDto } from '../../dtos/create-user.dto';
 import { UserService } from '../../services/user.service';
 import { UserModule } from '../../users.module';
@@ -34,10 +34,10 @@ describe('CreateUserHandle (integration)', () => {
     userService = module.get<UserService>(UserService);
     prisma = module.get<PrismaService>(PrismaService);
 
-    await prisma.users.deleteMany();
-    await prisma.roles.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.role.deleteMany();
 
-    await prisma.roles.create({
+    await prisma.role.create({
       data: {
         type: RoleEnum.admin,
         name: 'admin',
@@ -46,8 +46,8 @@ describe('CreateUserHandle (integration)', () => {
   });
 
   afterAll(async () => {
-    await prisma.users.deleteMany();
-    await prisma.roles.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.role.deleteMany();
     await prisma.$disconnect();
   });
 
@@ -67,7 +67,7 @@ describe('CreateUserHandle (integration)', () => {
       deletedAt: null,
     });
 
-    const userInDb = await prisma.users.findUnique({
+    const userInDb = await prisma.user.findUnique({
       where: { email: mockDto.email },
     });
     expect(userInDb).toBeTruthy();

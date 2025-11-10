@@ -1,8 +1,8 @@
 import { randomUUID } from 'node:crypto';
+import { PrismaService } from '@/core/database/prisma.service';
 import { RoleEnum } from '@/core/enums/role.enum';
 import { RolesService } from '@/modules/roles/services/roles.service';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from 'prisma/prisma.service';
 import { ListUserDto } from '../../dtos/list-user.dto';
 import { UserService } from '../../services/user.service';
 import { ListUserHandle } from './list-user.handle';

@@ -2,7 +2,7 @@ import { PrismaService } from '@/core/database/prisma.service';
 import { checkPassword } from '@/core/utils/generatePassword';
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Users } from 'generated/prisma/client';
+import { Role, User } from 'generated/prisma/client';
 import { VerifyTokenDto } from '../dtos/verify-token.dto';
 
 @Injectable()
@@ -16,13 +16,14 @@ export class AuthService {
     private readonly prisma: PrismaService
   ) {}
 
-  private generateToken(user: Users): string {
+  private generateToken(user: User & { roles: Role }): string {
     try {
       return this.jwtService.sign(
         {
           userUuid: user.uuid,
           name: user.name,
           email: user.email,
+          role: user.roles?.type,
         },
         {
           subject: user.uuid,
@@ -61,8 +62,9 @@ export class AuthService {
   }
 
   async login(email: string, password: string): Promise<string> {
-    const user = await this.prisma.users.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: { email },
+      include: { roles: true },
     });
 
     if (!user) {
@@ -78,7 +80,7 @@ export class AuthService {
     return this.generateToken(user);
   }
 
-  async register(user: Users) {
+  async register(user: User & { roles: Role }) {
     return this.generateToken(user);
   }
 

@@ -41,7 +41,7 @@ export class AuditInterceptor implements NestInterceptor {
           action === 'PUT' || action === 'PATCH' || action === 'DELETE'
             ? responseData
             : null;
-        await this.prisma.audits.create({
+        await this.prisma.audit.create({
           data: {
             entity,
             method: action,
