@@ -1,5 +1,8 @@
 import { ApiParamDecorator } from '@/core/decorators/api-param.decorator';
 
+/**
+ * Data transfer object for reading a single user in a list.
+ */
 export class ReadUserListDto {
   @ApiParamDecorator({
     type: String,
@@ -74,6 +77,9 @@ export class ReadUserListDto {
   deletedAt: Date;
 }
 
+/**
+ * Data transfer object for listing users with pagination.
+ */
 export class ListUserDto {
   @ApiParamDecorator({
     type: [ReadUserListDto],

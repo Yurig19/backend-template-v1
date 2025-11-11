@@ -6,6 +6,11 @@ import { ListUsersQuery } from './list-user.query';
 @QueryHandler(ListUsersQuery)
 export class ListUserHandle implements IQueryHandler<ListUsersQuery> {
   constructor(private readonly userService: UserService) {}
+  /**
+   * Handles the list users query by retrieving a paginated list of users.
+   * @param query List users query containing pagination and search parameters
+   * @returns Paginated list of users
+   */
   async execute(query: ListUsersQuery): Promise<ListUserDto> {
     const { dataPerPage, page, search } = query;
 

@@ -14,7 +14,11 @@ export class RolesService {
 
   private nodeEnv = process.env.NODE_ENV;
 
-  async initRoles() {
+  /**
+   * Initializes roles from a JSON file if they don't already exist.
+   * Only runs in non-test environments.
+   */
+  async init() {
     try {
       if (this.nodeEnv !== 'test') {
         const filePath = path.resolve(
@@ -55,6 +59,11 @@ export class RolesService {
     }
   }
 
+  /**
+   * Finds a role by its type.
+   * @param type Role type enum value
+   * @returns Role UUID if found
+   */
   async findByType(type: RoleEnum): Promise<{ uuid: string }> {
     try {
       return await this.prisma.role.findUnique({
@@ -67,6 +76,11 @@ export class RolesService {
     }
   }
 
+  /**
+   * Creates a new role in the database.
+   * @param createRoleDto Role data to be created
+   * @returns Created role
+   */
   async createRole(createRoleDto: CreateRoleDto): Promise<Role> {
     try {
       return await this.prisma.role.create({

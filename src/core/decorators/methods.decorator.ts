@@ -12,6 +12,7 @@ import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
+  ApiConflictResponse,
   ApiConsumes,
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -25,6 +26,7 @@ import {
 } from '@nestjs/swagger';
 import {
   BadRequestErrorDto,
+  ConflictErrorDto,
   ForbiddenErrorDto,
   InternalServerErrorDto,
   NotFoundErrorDto,
@@ -107,6 +109,16 @@ export function ApiEndpoint(opts: ApiEndpointOptions) {
       type: BadRequestErrorDto,
     })
   );
+
+  if (['POST', 'PUT', 'PATCH'].includes(method)) {
+    decorators.push(
+      ApiConflictResponse({
+        description:
+          'Conflict - Resource already exists or violates unique constraint',
+        type: ConflictErrorDto,
+      })
+    );
+  }
 
   decorators.push(
     ApiNotFoundResponse({

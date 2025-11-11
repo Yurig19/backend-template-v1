@@ -8,6 +8,13 @@ export class AuditsService {
 
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * Lists audit records with pagination and optional search filtering.
+   * @param actualPage Current page number (defaults to 1 if invalid)
+   * @param dataPerPage Number of items per page (defaults to 10 if invalid)
+   * @param search Optional search term to filter audits by entity or method
+   * @returns Paginated list of audits with total count and pagination metadata
+   */
   async listWithPagination(
     actualPage: number,
     dataPerPage: number,

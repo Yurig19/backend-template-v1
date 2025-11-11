@@ -1,6 +1,9 @@
 import { ApiParamDecorator } from '@/core/decorators/api-param.decorator';
 import { RoleEnum } from '@/core/enums/role.enum';
 
+/**
+ * Data transfer object for reading user information.
+ */
 export class ReadUserDto {
   @ApiParamDecorator({
     type: String,

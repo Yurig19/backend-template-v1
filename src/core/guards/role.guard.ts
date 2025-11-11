@@ -10,6 +10,11 @@ import { Reflector } from '@nestjs/core';
 export class RolesGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
+  /**
+   * Validates if the user has the required role to access the resource.
+   * @param context Execution context containing the request
+   * @returns True if user has required role, throws ForbiddenException otherwise
+   */
   canActivate(context: ExecutionContext): boolean {
     const requiredRoles = this.reflector.get<string[]>(
       'roles',

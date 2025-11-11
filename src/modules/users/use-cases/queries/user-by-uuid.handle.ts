@@ -8,6 +8,11 @@ import { UserByUuidQuery } from './user-by-uuid.query';
 export class UserByUuidHandle implements IQueryHandler<UserByUuidQuery> {
   constructor(private readonly userService: UserService) {}
 
+  /**
+   * Handles the user by UUID query by retrieving a user by their UUID.
+   * @param query User by UUID query containing user UUID
+   * @returns User data if found
+   */
   async execute(query: UserByUuidQuery): Promise<ReadUserDto> {
     const { uuid } = query;
 

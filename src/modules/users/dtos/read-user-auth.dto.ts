@@ -1,5 +1,8 @@
 import { ApiParamDecorator } from '@/core/decorators/api-param.decorator';
 
+/**
+ * Data transfer object for reading user information for authentication purposes.
+ */
 export class ReadUserAuthDto {
   @ApiParamDecorator({
     type: String,

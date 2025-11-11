@@ -8,6 +8,9 @@ import {
   MinLength,
 } from 'class-validator';
 
+/**
+ * Data transfer object for updating a user (PUT operation).
+ */
 export class UpdateUserDto {
   @ApiParamDecorator({
     type: String,

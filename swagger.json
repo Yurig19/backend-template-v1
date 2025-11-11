@@ -57,6 +57,16 @@
               }
             }
           },
+          "409": {
+            "description": "Conflict - Resource already exists or violates unique constraint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConflictErrorDto"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Internal Server Error",
             "content": {
@@ -314,6 +324,16 @@
               }
             }
           },
+          "409": {
+            "description": "Conflict - Resource already exists or violates unique constraint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConflictErrorDto"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Internal Server Error",
             "content": {
@@ -459,6 +479,16 @@
               }
             }
           },
+          "409": {
+            "description": "Conflict - Resource already exists or violates unique constraint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConflictErrorDto"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Internal Server Error",
             "content": {
@@ -542,6 +572,16 @@
               }
             }
           },
+          "409": {
+            "description": "Conflict - Resource already exists or violates unique constraint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConflictErrorDto"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Internal Server Error",
             "content": {
@@ -559,6 +599,152 @@
           }
         ],
         "summary": "Register",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/forgot-password": {
+      "post": {
+        "description": "Sends a password recovery code to the user email.",
+        "operationId": "forgotPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Recovery email sent successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestErrorDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundErrorDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict - Resource already exists or violates unique constraint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConflictErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Forgot password",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/reset-password": {
+      "post": {
+        "description": "Resets user password using a recovery code.",
+        "operationId": "resetPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Password reset successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestErrorDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundErrorDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict - Resource already exists or violates unique constraint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConflictErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Reset password",
         "tags": [
           "Auth"
         ]
@@ -684,6 +870,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/NotFoundErrorDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict - Resource already exists or violates unique constraint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConflictErrorDto"
                 }
               }
             }
@@ -1423,6 +1619,121 @@
           "error"
         ]
       },
+      "ConflictErrorDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Detailed description of the error",
+            "examples": {
+              "BadRequest": {
+                "summary": "Bad Request",
+                "value": "Invalid input data"
+              },
+              "Unauthorized": {
+                "summary": "Unauthorized",
+                "value": "Missing or invalid token"
+              },
+              "Forbidden": {
+                "summary": "Forbidden",
+                "value": "You do not have permission to access this resource"
+              },
+              "NotFound": {
+                "summary": "Not Found",
+                "value": "The requested resource was not found"
+              },
+              "PayloadTooLarge": {
+                "summary": "Payload Too Large",
+                "value": "File size exceeds the allowed limit"
+              },
+              "UnsupportedMediaType": {
+                "summary": "Unsupported Media Type",
+                "value": "Invalid or unsupported file format"
+              },
+              "InternalServerError": {
+                "summary": "Internal Server Error",
+                "value": "An unexpected error occurred"
+              }
+            },
+            "example": "A resource with the provided data already exists"
+          },
+          "statusCode": {
+            "type": "number",
+            "description": "HTTP status code of the error",
+            "examples": {
+              "BadRequest": {
+                "summary": "400",
+                "value": 400
+              },
+              "Unauthorized": {
+                "summary": "401",
+                "value": 401
+              },
+              "Forbidden": {
+                "summary": "403",
+                "value": 403
+              },
+              "NotFound": {
+                "summary": "404",
+                "value": 404
+              },
+              "PayloadTooLarge": {
+                "summary": "413",
+                "value": 413
+              },
+              "UnsupportedMediaType": {
+                "summary": "415",
+                "value": 415
+              },
+              "InternalServerError": {
+                "summary": "500",
+                "value": 500
+              }
+            },
+            "example": 409
+          },
+          "error": {
+            "type": "string",
+            "description": "HTTP status message associated with the error",
+            "examples": {
+              "BadRequest": {
+                "summary": "BAD_REQUEST",
+                "value": "BAD_REQUEST"
+              },
+              "Unauthorized": {
+                "summary": "UNAUTHORIZED",
+                "value": "UNAUTHORIZED"
+              },
+              "Forbidden": {
+                "summary": "FORBIDDEN",
+                "value": "FORBIDDEN"
+              },
+              "NotFound": {
+                "summary": "NOT_FOUND",
+                "value": "NOT_FOUND"
+              },
+              "PayloadTooLarge": {
+                "summary": "PAYLOAD_TOO_LARGE",
+                "value": "PAYLOAD_TOO_LARGE"
+              },
+              "UnsupportedMediaType": {
+                "summary": "UNSUPPORTED_MEDIA_TYPE",
+                "value": "UNSUPPORTED_MEDIA_TYPE"
+              },
+              "InternalServerError": {
+                "summary": "INTERNAL_SERVER_ERROR",
+                "value": "INTERNAL_SERVER_ERROR"
+              }
+            },
+            "example": "CONFLICT"
+          }
+        },
+        "required": [
+          "message",
+          "statusCode",
+          "error"
+        ]
+      },
       "InternalServerErrorDto": {
         "type": "object",
         "properties": {
@@ -1878,6 +2189,38 @@
           "message",
           "statusCode",
           "error"
+        ]
+      },
+      "ForgotPasswordDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "user@example.com",
+            "description": "User email address"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "ResetPasswordDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "ABC123",
+            "description": "Password recovery code"
+          },
+          "newPassword": {
+            "type": "string",
+            "example": "newStrongPassword123",
+            "description": "New user password"
+          }
+        },
+        "required": [
+          "code",
+          "newPassword"
         ]
       },
       "CreateFileDto": {

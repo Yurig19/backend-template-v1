@@ -1,6 +1,15 @@
+import { randomBytes } from 'crypto';
 import { PrismaService } from '@/core/database/prisma.service';
-import { checkPassword } from '@/core/utils/generatePassword';
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  checkPassword,
+  generateHashPassword,
+} from '@/core/utils/generatePassword';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Role, User } from 'generated/prisma/client';
 import { VerifyTokenDto } from '../dtos/verify-token.dto';
@@ -16,6 +25,11 @@ export class AuthService {
     private readonly prisma: PrismaService
   ) {}
 
+  /**
+   * Generates a JWT token for a user with role information.
+   * @param user User object with role information
+   * @returns JWT token string
+   */
   private generateToken(user: User & { roles: Role }): string {
     try {
       return this.jwtService.sign(
@@ -40,6 +54,11 @@ export class AuthService {
     }
   }
 
+  /**
+   * Verifies and decodes a JWT token.
+   * @param token JWT token string to verify
+   * @returns Decoded token data
+   */
   checkToken(token: string): VerifyTokenDto {
     try {
       return this.jwtService.verify(token, {
@@ -52,6 +71,11 @@ export class AuthService {
     }
   }
 
+  /**
+   * Checks if a JWT token is valid without throwing an error.
+   * @param token JWT token string to validate
+   * @returns True if token is valid, false otherwise
+   */
   isValidToken(token: string): boolean {
     try {
       this.checkToken(token);
@@ -61,6 +85,12 @@ export class AuthService {
     }
   }
 
+  /**
+   * Authenticates a user with email and password.
+   * @param email User email address
+   * @param password User password
+   * @returns JWT token if authentication is successful
+   */
   async login(email: string, password: string): Promise<string> {
     const user = await this.prisma.user.findUnique({
       where: { email },
@@ -80,16 +110,74 @@ export class AuthService {
     return this.generateToken(user);
   }
 
+  /**
+   * Generates a JWT token for a newly registered user.
+   * @param user User object with role information
+   * @returns JWT token string
+   */
   async register(user: User & { roles: Role }) {
     return this.generateToken(user);
   }
 
-  async forgotPassword(email: string) {
-    console.log(email);
-    return true;
+  /**
+   * Generates and stores a password recovery code for a user.
+   * Returns the code and user data (to be used externally for sending email).
+   */
+  async forgotPassword(email: string): Promise<{
+    code: string;
+    name: string;
+    email: string;
+  }> {
+    const user = await this.prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      throw new NotFoundException('User not found with this email.');
+    }
+
+    const code = randomBytes(3).toString('hex').toUpperCase();
+
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 4);
+
+    await this.prisma.user.update({
+      where: { uuid: user.uuid },
+      data: { code, codeExpiresAt: expiresAt },
+    });
+
+    return {
+      code,
+      name: user.name || 'User',
+      email: user.email,
+    };
   }
 
-  async resetPassword(token: string): Promise<void> {
-    console.log(token);
+  /**
+   * Resets a user's password using a valid reset code.
+   */
+  async resetPassword(
+    code: string,
+    newPassword: string
+  ): Promise<{ message: string }> {
+    const user = await this.prisma.user.findFirst({ where: { code } });
+
+    if (!user) {
+      throw new NotFoundException('Invalid or expired reset code.');
+    }
+
+    if (!user.codeExpiresAt || new Date() > user.codeExpiresAt) {
+      throw new NotFoundException('This reset code has expired.');
+    }
+
+    const encryptedPassword = generateHashPassword(newPassword);
+
+    await this.prisma.user.update({
+      where: { uuid: user.uuid },
+      data: {
+        password: encryptedPassword,
+        code: null,
+      },
+    });
+
+    return { message: 'Password successfully reset.' };
   }
 }

@@ -1,5 +1,8 @@
 import { ApiParamDecorator } from '@/core/decorators/api-param.decorator';
 
+/**
+ * Data transfer object for reading a single audit entry in a list.
+ */
 export class ReadAuditsListDto {
   @ApiParamDecorator({
     type: String,
@@ -82,6 +85,9 @@ export class ReadAuditsListDto {
   createdAt: Date;
 }
 
+/**
+ * Data transfer object for listing audits with pagination.
+ */
 export class ListAuditsDto {
   @ApiParamDecorator({
     type: [ReadAuditsListDto],

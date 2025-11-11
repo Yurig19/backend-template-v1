@@ -20,6 +20,11 @@ export class AuthRegisterHandler
     private readonly userService: UserService
   ) {}
 
+  /**
+   * Handles the authentication register command by creating a new user and generating a token.
+   * @param command Auth register command containing user registration data
+   * @returns Authentication response with access token and user data
+   */
   async execute(command: AuthRegisterCommand): Promise<AuthLoginResponseDto> {
     const { authRegisterDto } = command;
 

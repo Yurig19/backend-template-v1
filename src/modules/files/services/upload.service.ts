@@ -42,10 +42,21 @@ export class UploadService {
     });
   }
 
+  /**
+   * Sanitizes a file name by replacing invalid characters with underscores.
+   * @param name Original file name to sanitize
+   * @returns Sanitized file name
+   */
   private sanitizeFileName(name: string): string {
     return name.replace(/[^\w.-]+/g, '_');
   }
 
+  /**
+   * Uploads a single file to S3 storage.
+   * @param file File to upload (Express Multer file object)
+   * @param isPublic Whether the file should be publicly accessible (default: true)
+   * @returns Object containing fileKey and fileUrl
+   */
   async uploadFile(file: Express.Multer.File, isPublic = true) {
     try {
       if (!file) {
@@ -89,6 +100,12 @@ export class UploadService {
     }
   }
 
+  /**
+   * Uploads multiple files to S3 storage in parallel.
+   * @param files Array of files to upload (Express Multer file objects)
+   * @param isPublic Whether the files should be publicly accessible (default: true)
+   * @returns Array of objects containing fileKey and fileUrl for each file
+   */
   async uploadFiles(files: Express.Multer.File[], isPublic = true) {
     try {
       if (!files || files.length === 0) {
@@ -108,6 +125,11 @@ export class UploadService {
     }
   }
 
+  /**
+   * Generates a presigned URL for accessing a private file.
+   * @param fileKey S3 key of the file
+   * @returns Presigned URL that expires in 1 hour
+   */
   async generateSignedUrl(fileKey: string): Promise<string> {
     try {
       const command = new GetObjectCommand({
@@ -126,6 +148,11 @@ export class UploadService {
     }
   }
 
+  /**
+   * Deletes a file from S3 storage.
+   * @param fileKey S3 key of the file to delete
+   * @returns Object containing success message and fileKey
+   */
   async deleteFile(fileKey: string) {
     try {
       if (!fileKey) {

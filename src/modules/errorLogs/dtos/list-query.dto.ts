@@ -2,6 +2,9 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsInt, IsOptional, IsPositive, IsString } from 'class-validator';
 
+/**
+ * Data transfer object for querying error log lists with pagination and search.
+ */
 export class ListErrorLogsQueryDto {
   @ApiPropertyOptional({ example: 1, description: 'Page number (default: 1)' })
   @Type(() => Number)

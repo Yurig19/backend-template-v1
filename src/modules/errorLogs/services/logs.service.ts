@@ -8,6 +8,13 @@ export class LogsService {
 
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * Lists error logs with pagination and optional search filtering.
+   * @param actualPage Current page number (defaults to 1 if invalid)
+   * @param dataPerPage Number of items per page (defaults to 10 if invalid)
+   * @param search Optional search term to filter logs by error message
+   * @returns Paginated list of error logs with total count and pagination metadata
+   */
   async listWithPagination(
     actualPage: number,
     dataPerPage: number,

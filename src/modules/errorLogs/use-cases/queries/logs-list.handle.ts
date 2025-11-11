@@ -7,6 +7,11 @@ import { LogsListQuery } from './logs-list.query';
 export class LogsListHandler implements IQueryHandler<LogsListQuery> {
   constructor(private readonly logsService: LogsService) {}
 
+  /**
+   * Handles the logs list query by retrieving a paginated list of error logs.
+   * @param query Logs list query containing pagination and search parameters
+   * @returns Paginated list of error logs
+   */
   async execute(query: LogsListQuery): Promise<ListLogsDto> {
     const { dataPerPage, page, search } = query.params;
 

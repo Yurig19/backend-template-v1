@@ -1,5 +1,8 @@
 import { ApiParamDecorator } from '@/core/decorators/api-param.decorator';
 
+/**
+ * Data transfer object for reading file information.
+ */
 export class ReadFileDto {
   @ApiParamDecorator({
     type: String,

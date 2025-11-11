@@ -11,6 +11,11 @@ export class DeleteUserHandler implements ICommandHandler<DeleteUserCommand> {
 
   constructor(private readonly userService: UserService) {}
 
+  /**
+   * Handles the delete user command by permanently deleting a user.
+   * @param command Delete user command containing user UUID
+   * @returns Delete operation response with status and message
+   */
   async execute(command: DeleteUserCommand): Promise<DeleteDto> {
     const { uuid } = command;
 

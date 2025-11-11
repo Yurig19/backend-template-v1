@@ -1,5 +1,8 @@
 import { ApiParamDecorator } from '@/core/decorators/api-param.decorator';
 
+/**
+ * Data transfer object for reading a single error log entry in a list.
+ */
 export class ReadListLogsDto {
   @ApiParamDecorator({
     description: 'Unique identifier of the log entry',
@@ -74,6 +77,9 @@ export class ReadListLogsDto {
   createdAt: Date;
 }
 
+/**
+ * Data transfer object for listing error logs with pagination.
+ */
 export class ListLogsDto {
   @ApiParamDecorator({
     description: 'List of log entries',

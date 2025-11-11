@@ -7,6 +7,11 @@ import { ListAuditsQuery } from './list-audits-query';
 export class AuditsListHandler implements IQueryHandler<ListAuditsQuery> {
   constructor(private readonly auditsService: AuditsService) {}
 
+  /**
+   * Handles the list audits query by retrieving a paginated list of audit records.
+   * @param query List audits query containing pagination and search parameters
+   * @returns Paginated list of audit records
+   */
   async execute(query: ListAuditsQuery): Promise<ListAuditsDto> {
     const { dataPerPage, page, search } = query.params;
 

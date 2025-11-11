@@ -1,6 +1,9 @@
 import { ApiParamDecorator } from '@/core/decorators/api-param.decorator';
 import { IsEmail, IsString, IsStrongPassword } from 'class-validator';
 
+/**
+ * Data transfer object for user login authentication.
+ */
 export class AuthLoginDto {
   @ApiParamDecorator({
     type: String,

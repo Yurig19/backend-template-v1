@@ -1,0 +1,36 @@
+[
+    {
+      "name": "ForgotPassword",
+      "subject": "Recuperação de senha",
+      "bodyHtml": "<h3>Olá, {{name}}!</h3><p>Você solicitou a recuperação de senha. Utilize o código abaixo para redefinir sua senha:</p><h2>{{code}}</h2><p>O código é válido por 4 horas. Caso não tenha solicitado, ignore este e-mail.</p>",
+      "bodyText": "Olá, {{name}}! Use o código {{code}} para redefinir sua senha. Ele é válido por 4 horas.",
+      "variables": ["name", "code"],
+      "category": "Account",
+      "description": "E-mail enviado quando o usuário solicita a redefinição de senha.",
+      "isActive": true,
+      "version": 1
+    },
+    {
+      "name": "WelcomeEmail",
+      "subject": "Boas-vindas ao nosso sistema!",
+      "bodyHtml": "<h1>Bem-vindo, {{name}} 👋</h1><p>Estamos muito felizes em tê-lo conosco!</p><p>Para começar, acesse sua conta clicando no link abaixo:</p><a href='{{loginLink}}'>Acessar conta</a><br><br><p>Se precisar de ajuda, estamos à disposição.</p>",
+      "bodyText": "Bem-vindo, {{name}}! Acesse sua conta: {{loginLink}}",
+      "variables": ["name", "loginLink"],
+      "category": "User Engagement",
+      "description": "E-mail enviado após o registro de um novo usuário para dar boas-vindas.",
+      "isActive": true,
+      "version": 1
+    },
+    {
+      "name": "ConfirmEmail",
+      "subject": "Confirmação de e-mail",
+      "bodyHtml": "<h2>Olá, {{name}}!</h2><p>Obrigado por se registrar! Para confirmar seu endereço de e-mail, clique no link abaixo:</p><a href='{{confirmationLink}}'>Confirmar e-mail</a><p>Ou copie o código abaixo e cole na tela de verificação:</p><h3>{{code}}</h3>",
+      "bodyText": "Olá, {{name}}! Confirme seu e-mail clicando em {{confirmationLink}} ou use o código {{code}}.",
+      "variables": ["name", "confirmationLink", "code"],
+      "category": "Account",
+      "description": "E-mail enviado para confirmar o endereço de e-mail do usuário após o cadastro.",
+      "isActive": true,
+      "version": 1
+    }
+  ]
+  

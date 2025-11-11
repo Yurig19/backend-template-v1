@@ -8,8 +8,12 @@ import { ReadUserDto } from '../../users/dtos/read-user.dto';
 import { AuthLoginResponseDto } from '../dtos/auth-login-response.dto';
 import { AuthLoginDto } from '../dtos/auth-login.dto';
 import { AuthRegisterDto } from '../dtos/auth-register.dto';
+import { ForgotPasswordDto } from '../dtos/forgot-password.dto';
+import { ResetPasswordDto } from '../dtos/reset-password.dto';
+import { AuthForgotPasswordCommand } from '../use-cases/commands/auth-forgot-password.command';
 import { CreateUserCommand } from '../use-cases/commands/auth-login.command';
 import { AuthRegisterCommand } from '../use-cases/commands/auth-register.command';
+import { AuthResetPasswordCommand } from '../use-cases/commands/auth-reset-password.command';
 
 @ApiController('auth')
 export class AuthController {
@@ -52,6 +56,40 @@ export class AuthController {
     return await this.commandBus.execute(
       new AuthRegisterCommand(authRegisterDto)
     );
+  }
+
+  @ApiEndpoint({
+    method: 'POST',
+    bodyType: ForgotPasswordDto,
+    responseType: Object,
+    path: '/forgot-password',
+    summary: 'Forgot password',
+    description: 'Sends a password recovery code to the user email.',
+    operationId: 'forgotPassword',
+    successDescription: 'Recovery email sent successfully',
+  })
+  async forgotPassword(
+    @Body() body: ForgotPasswordDto
+  ): Promise<{ message: string }> {
+    return await this.commandBus.execute(
+      new AuthForgotPasswordCommand(body.email)
+    );
+  }
+
+  @ApiEndpoint({
+    method: 'POST',
+    bodyType: ResetPasswordDto,
+    responseType: Object,
+    path: '/reset-password',
+    summary: 'Reset password',
+    description: 'Resets user password using a recovery code.',
+    operationId: 'resetPassword',
+    successDescription: 'Password reset successfully',
+  })
+  async resetPassword(
+    @Body() body: ResetPasswordDto
+  ): Promise<{ message: string }> {
+    return await this.commandBus.execute(new AuthResetPasswordCommand(body));
   }
 
   @ApiEndpoint({

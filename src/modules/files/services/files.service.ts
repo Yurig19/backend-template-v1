@@ -10,6 +10,11 @@ export class FilesService {
 
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * Creates a new file record in the database.
+   * @param file File data to be created
+   * @returns Created file record
+   */
   async create(file: CreateFileDto): Promise<File> {
     try {
       return await this.prisma.file.create({
@@ -21,6 +26,11 @@ export class FilesService {
     }
   }
 
+  /**
+   * Retrieves a file by its UUID.
+   * @param uuid Unique identifier of the file
+   * @returns File record if found
+   */
   async getByUuid(uuid: string): Promise<File> {
     try {
       return await this.prisma.file.findUnique({
@@ -34,6 +44,11 @@ export class FilesService {
     }
   }
 
+  /**
+   * Performs a soft delete on a file by setting its deletedAt timestamp.
+   * @param uuid Unique identifier of the file to soft delete
+   * @returns Updated file record with deletedAt set
+   */
   async softDelete(uuid: string): Promise<File> {
     try {
       return await this.prisma.file.update({
@@ -50,6 +65,11 @@ export class FilesService {
     }
   }
 
+  /**
+   * Permanently deletes a file from the database.
+   * @param uuid Unique identifier of the file to delete
+   * @returns Success response with status code and message
+   */
   async delete(uuid: string): Promise<DeleteDto> {
     try {
       await this.prisma.file.delete({

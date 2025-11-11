@@ -1,6 +1,9 @@
 import { ApiParamDecorator } from '@/core/decorators/api-param.decorator';
 import { ReadUserDto } from '@/modules/users/dtos/read-user.dto';
 
+/**
+ * Data transfer object for authentication login response.
+ */
 export class AuthLoginResponseDto {
   @ApiParamDecorator({
     type: String,

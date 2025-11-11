@@ -8,6 +8,9 @@ import {
   MinLength,
 } from 'class-validator';
 
+/**
+ * Data transfer object for creating a new user.
+ */
 export class CreateUserDto {
   @ApiParamDecorator({
     type: String,

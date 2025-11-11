@@ -1,4 +1,4 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, ConflictException } from '@nestjs/common';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
 import type { ReadUserDto } from '../../dtos/read-user.dto';
 import { UserService } from '../../services/user.service';
@@ -8,11 +8,16 @@ import { CreateUserCommand } from './create-user.command';
 export class CreateUserHandle implements ICommandHandler<CreateUserCommand> {
   constructor(private readonly userService: UserService) {}
 
+  /**
+   * Handles the create user command by validating email uniqueness and creating a new user.
+   * @param command Create user command containing user data
+   * @returns Created user data
+   */
   async execute(command: CreateUserCommand): Promise<ReadUserDto> {
     const { createUserDto } = command;
 
     if (await this.userService.checkEmail(createUserDto.email)) {
-      throw new BadRequestException('User already exists with this email.');
+      throw new ConflictException('User already exists with this email.');
     }
 
     const user = await this.userService.create(createUserDto);

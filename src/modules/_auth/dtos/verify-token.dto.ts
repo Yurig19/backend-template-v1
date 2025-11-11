@@ -1,5 +1,8 @@
 import { ApiParamDecorator } from '@/core/decorators/api-param.decorator';
 
+/**
+ * Data transfer object for verified JWT token payload.
+ */
 export class VerifyTokenDto {
   @ApiParamDecorator({
     type: String,

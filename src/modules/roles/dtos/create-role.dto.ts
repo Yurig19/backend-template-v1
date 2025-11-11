@@ -1,5 +1,8 @@
 import { ApiParamDecorator } from '@/core/decorators/api-param.decorator';
 
+/**
+ * Data transfer object for creating a new role.
+ */
 export class CreateRoleDto {
   @ApiParamDecorator({
     type: String,

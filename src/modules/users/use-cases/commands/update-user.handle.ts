@@ -8,6 +8,11 @@ import { UpdateUserCommand } from './update-user.command';
 export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand> {
   constructor(private readonly userService: UserService) {}
 
+  /**
+   * Handles the update user command by updating user information.
+   * @param command Update user command containing user UUID and update data
+   * @returns Updated user data
+   */
   async execute(command: UpdateUserCommand): Promise<ReadUserDto> {
     const { uuid, updateUserDto } = command;
 

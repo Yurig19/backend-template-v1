@@ -14,6 +14,11 @@ export class AuthLoginHandler implements ICommandHandler<CreateUserCommand> {
     private readonly userService: UserService
   ) {}
 
+  /**
+   * Handles the authentication login command by validating credentials and generating a token.
+   * @param command Auth login command containing email and password
+   * @returns Authentication response with access token and user data
+   */
   async execute(command: CreateUserCommand): Promise<AuthLoginResponseDto> {
     const { authLoginDto } = command;
     const { email, password } = authLoginDto;

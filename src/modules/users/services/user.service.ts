@@ -3,6 +3,7 @@ import { RoleEnum } from '@/core/enums/role.enum';
 import { generateHashPassword } from '@/core/utils/generatePassword';
 import { RolesService } from '@/modules/roles/services/roles.service';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Prisma, Role, User } from 'generated/prisma/client';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { PatchUserDto } from '../dtos/patch-user.dto';
@@ -14,26 +15,39 @@ export class UserService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly rolesService: RolesService
+    private readonly rolesService: RolesService,
+    private readonly configService: ConfigService
   ) {}
 
   private users = this.prisma.user;
 
-  async initAdmin(): Promise<void> {
+  /**
+   * Initializes an admin user if no admin exists in the database.
+   * Uses environment variables for admin credentials.
+   */
+  async init(): Promise<void> {
+    const adminName = this.configService.get<string>('ADMIN_NAME');
+    const adminEmail = this.configService.get<string>('ADMIN_EMAIL');
+    const adminPassword = this.configService.get<string>('ADMIN_PASSWORD');
     const isAdminUser = await this.users.count({
       where: { deletedAt: null, roles: { type: 'ADMIN' } },
     });
 
     if (!isAdminUser) {
       await this.create({
-        name: process.env.ADMIN_NAME,
-        email: process.env.ADMIN_EMAIL,
-        password: process.env.ADMIN_PASSWORD,
+        name: adminName,
+        email: adminEmail,
+        password: adminPassword,
         role: RoleEnum.admin,
       });
     }
   }
 
+  /**
+   * Checks if an email address already exists in the database.
+   * @param email Email address to check
+   * @returns True if email exists, false otherwise
+   */
   async checkEmail(email: string): Promise<boolean> {
     const checkEmail = await this.users.count({
       where: { deletedAt: null, email: email },
@@ -45,6 +59,11 @@ export class UserService {
     return false;
   }
 
+  /**
+   * Checks if a user UUID already exists in the database.
+   * @param uuid User UUID to check
+   * @returns True if UUID exists, false otherwise
+   */
   async checkUuid(uuid: string): Promise<boolean> {
     const checkUuid = await this.users.count({
       where: { deletedAt: null, uuid: uuid },
@@ -56,6 +75,11 @@ export class UserService {
     return false;
   }
 
+  /**
+   * Creates a new user with hashed password and associated role.
+   * @param createUserDto User data to be created
+   * @returns Created user with role information
+   */
   async create(createUserDto: CreateUserDto): Promise<User & { roles: Role }> {
     try {
       const { password, role, ...data } = createUserDto;
@@ -88,6 +112,11 @@ export class UserService {
     }
   }
 
+  /**
+   * Finds a user by UUID with role name information.
+   * @param uuid User UUID to search for
+   * @returns User data with role name
+   */
   async findByUuid(uuid: string): Promise<{
     uuid: string;
     name: string;
@@ -124,6 +153,11 @@ export class UserService {
     }
   }
 
+  /**
+   * Finds a user by UUID for authentication purposes with role type.
+   * @param uuid User UUID to search for
+   * @returns User data with role type for authentication
+   */
   async findAuthByUuid(uuid: string): Promise<{
     uuid: string;
     name: string;
@@ -160,6 +194,11 @@ export class UserService {
     }
   }
 
+  /**
+   * Finds a user by email address with role name information.
+   * @param email Email address to search for
+   * @returns User data with role name
+   */
   async findByEmail(email: string): Promise<{
     uuid: string;
     name: string;
@@ -196,6 +235,13 @@ export class UserService {
     }
   }
 
+  /**
+   * Lists users with pagination and optional search filtering.
+   * @param actualPage Current page number (defaults to 1 if invalid)
+   * @param dataPerPage Number of items per page (defaults to 10 if invalid)
+   * @param search Optional search term to filter users by name
+   * @returns Paginated list of users with total count and pagination metadata
+   */
   async listWithPagination(
     actualPage: number,
     dataPerPage: number,
@@ -261,6 +307,12 @@ export class UserService {
     }
   }
 
+  /**
+   * Partially updates a user by UUID (PATCH operation).
+   * @param uuid User UUID to update
+   * @param data Partial user data to update
+   * @returns Updated user with role name
+   */
   async patch(
     uuid: string,
     data: PatchUserDto
@@ -291,6 +343,12 @@ export class UserService {
     }
   }
 
+  /**
+   * Updates a user by UUID with role assignment (PUT operation).
+   * @param uuid User UUID to update
+   * @param data User data to update including role
+   * @returns Updated user with role type
+   */
   async update(
     uuid: string,
     data: UpdateUserDto
@@ -332,6 +390,10 @@ export class UserService {
     }
   }
 
+  /**
+   * Permanently deletes a user from the database.
+   * @param uuid User UUID to delete
+   */
   async delete(uuid: string): Promise<void> {
     try {
       await this.users.delete({
@@ -343,6 +405,10 @@ export class UserService {
     }
   }
 
+  /**
+   * Performs a soft delete on a user by setting its deletedAt timestamp.
+   * @param uuid User UUID to soft delete
+   */
   async softDelete(uuid: string): Promise<void> {
     try {
       await this.users.update({

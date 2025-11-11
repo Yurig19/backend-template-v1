@@ -15,6 +15,11 @@ export class CreateFileHandler implements ICommandHandler<CreateFileCommand> {
     private readonly uploadService: UploadService
   ) {}
 
+  /**
+   * Handles the create file command by uploading a file to S3 and creating a file record.
+   * @param command Create file command containing file data
+   * @returns Created file data with upload information
+   */
   async execute(command: CreateFileCommand): Promise<ReadFileDto> {
     try {
       const filePath = await this.uploadService.uploadFile(command.file);

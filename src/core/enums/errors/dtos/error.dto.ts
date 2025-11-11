@@ -134,6 +134,9 @@ export class PayloadTooLargeErrorDto extends ErrorResponseDto {
   error = 'PAYLOAD_TOO_LARGE';
 }
 
+/**
+ * Data transfer object for unsupported media type errors (415).
+ */
 export class UnsupportedMediaTypeErrorDto extends ErrorResponseDto {
   @ApiProperty({ example: 'Invalid or unsupported file format' })
   message = 'Invalid or unsupported file format';
@@ -145,6 +148,9 @@ export class UnsupportedMediaTypeErrorDto extends ErrorResponseDto {
   error = 'UNSUPPORTED_MEDIA_TYPE';
 }
 
+/**
+ * Data transfer object for internal server errors (500).
+ */
 export class InternalServerErrorDto extends ErrorResponseDto {
   @ApiProperty({ example: 'An unexpected error occurred' })
   message = 'An unexpected error occurred';
@@ -154,4 +160,17 @@ export class InternalServerErrorDto extends ErrorResponseDto {
 
   @ApiProperty({ example: 'INTERNAL_SERVER_ERROR' })
   error = 'INTERNAL_SERVER_ERROR';
+}
+
+export class ConflictErrorDto extends ErrorResponseDto {
+  @ApiProperty({
+    example: 'A resource with the provided data already exists',
+  })
+  message = 'A resource with the provided data already exists';
+
+  @ApiProperty({ example: 409 })
+  statusCode = 409;
+
+  @ApiProperty({ example: 'CONFLICT' })
+  error = 'CONFLICT';
 }

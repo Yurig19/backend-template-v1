@@ -3,12 +3,11 @@ import * as CryptoJS from 'crypto-js';
 
 const logger = new Logger('GeneratePassword');
 
+const secretKey = process.env.CRYPTO_SECRET_KEY;
+
 export const generateHashPassword = (password: string): string => {
   try {
-    return CryptoJS.AES.encrypt(
-      password,
-      process.env.CRYPTO_SECRET_KEY
-    ).toString();
+    return CryptoJS.AES.encrypt(password, secretKey).toString();
   } catch (error) {
     logger.error('Failed to generate hash password', error);
     throw new UnauthorizedException('Failed to encrypt password.');
@@ -22,7 +21,7 @@ export const checkPassword = async (
   try {
     const passwordDecrypted = CryptoJS.AES.decrypt(
       passwordEncrypted,
-      process.env.CRYPTO_SECRET_KEY
+      secretKey
     );
 
     const originalPassword = passwordDecrypted.toString(CryptoJS.enc.Utf8);
@@ -39,10 +38,7 @@ export const checkPassword = async (
 
 export const decryptHashPassword = (password: string): string => {
   try {
-    return CryptoJS.AES.decrypt(
-      password,
-      process.env.CRYPTO_SECRET_KEY
-    ).toString();
+    return CryptoJS.AES.decrypt(password, secretKey).toString();
   } catch (error) {
     logger.error('Failed to decrypt hash password', error);
     throw new UnauthorizedException('Failed to decrypt password.');

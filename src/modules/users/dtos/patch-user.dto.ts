@@ -8,6 +8,9 @@ import {
   MinLength,
 } from 'class-validator';
 
+/**
+ * Data transfer object for partially updating a user (PATCH operation).
+ */
 export class PatchUserDto {
   @ApiParamDecorator({
     type: String,

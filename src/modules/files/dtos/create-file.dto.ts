@@ -1,5 +1,8 @@
 import { ApiParamDecorator } from '@/core/decorators/api-param.decorator';
 
+/**
+ * Data transfer object for creating a file record.
+ */
 export class CreateFileDto {
   @ApiParamDecorator({
     type: String,
