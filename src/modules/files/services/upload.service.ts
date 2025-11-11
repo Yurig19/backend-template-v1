@@ -1,4 +1,5 @@
 import {
+  DeleteObjectCommand,
   GetObjectCommand,
   ObjectCannedACL,
   PutObjectCommand,
@@ -10,6 +11,7 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
@@ -121,6 +123,42 @@ export class UploadService {
       throw new InternalServerErrorException(
         'Error generating temporary download URL.'
       );
+    }
+  }
+
+  async deleteFile(fileKey: string) {
+    try {
+      if (!fileKey) {
+        throw new BadRequestException('File key must be provided.');
+      }
+
+      const deleteParams = {
+        Bucket: this.bucketName,
+        Key: fileKey,
+      };
+
+      await this.s3Client.send(new DeleteObjectCommand(deleteParams));
+
+      this.logger.log(`File deleted successfully: ${fileKey}`);
+
+      return {
+        message: 'File deleted successfully.',
+        fileKey,
+      };
+    } catch (error) {
+      this.logger.error(`Error deleting file: ${error.message}`, error.stack);
+
+      if (error.name === 'NoSuchKey') {
+        throw new NotFoundException('The specified file does not exist.');
+      }
+
+      if (error.name === 'CredentialsError' || error.name === 'AccessDenied') {
+        throw new InternalServerErrorException(
+          'S3 access credentials failure.'
+        );
+      }
+
+      throw new InternalServerErrorException('Error deleting file.');
     }
   }
 }

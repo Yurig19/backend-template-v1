@@ -23,12 +23,13 @@ export class LogsService {
         Number.isNaN(Number(actualPage)) || Number(actualPage) < 1
           ? 1
           : Number(actualPage);
+
       const take =
         Number.isNaN(Number(dataPerPage)) || Number(dataPerPage) < 1
           ? 10
           : Number(dataPerPage);
+
       const skip = (page - 1) * take;
-      const query = this.prisma.errorLog;
 
       const where: Prisma.ErrorLogWhereInput = {};
 
@@ -36,25 +37,22 @@ export class LogsService {
         where.OR = [{ error: { contains: search, mode: 'insensitive' } }];
       }
 
-      const data = await query.findMany({
-        where,
-        skip,
-        take,
-        orderBy: [
-          {
-            createdAt: 'desc',
-          },
-        ],
-      });
+      const [logs, total] = await this.prisma.$transaction([
+        this.prisma.errorLog.findMany({
+          where,
+          skip,
+          take,
+          orderBy: { createdAt: 'desc' },
+        }),
+        this.prisma.errorLog.count({ where }),
+      ]);
 
-      const totalLogs = await query.count({ where });
-
-      const totalPages = Math.max(Math.ceil(totalLogs / take), 1);
+      const totalPages = Math.max(Math.ceil(total / take), 1);
 
       return {
-        logs: data,
-        total: totalLogs,
-        totalPages: totalPages,
+        logs,
+        total,
+        totalPages,
         currentPage: page,
       };
     } catch (error) {

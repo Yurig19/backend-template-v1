@@ -25,7 +25,6 @@ export class AuthController {
       'Authenticates a user and returns an access token if credentials are valid.',
     operationId: 'login',
     successDescription: 'User logged in successfully',
-    errorDescription: 'User not logged in',
     isAuth: false,
   })
   async login(
@@ -44,8 +43,7 @@ export class AuthController {
       'Registers a new user and returns an access token upon successful registration.',
     operationId: 'register',
     successDescription: 'User registered in successfully',
-    errorDescription: 'User not registered in',
-    isAuth: false,
+    isAuth: true,
     roles: [RoleEnum.admin],
   })
   async register(
@@ -65,7 +63,6 @@ export class AuthController {
       'Checks if the provided authentication token is valid and returns user data.',
     operationId: 'checkToken',
     successDescription: 'Token is valid',
-    errorDescription: 'Token is invalid',
     isAuth: true,
   })
   async verifyToken(@GetUser() user: ReadUserDto): Promise<ReadUserDto> {

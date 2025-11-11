@@ -3,7 +3,7 @@ import { UserService } from '@/modules/users/services/user.service';
 import { UnauthorizedException } from '@nestjs/common';
 import { AuthService } from '../../service/auth.service';
 import { CreateUserCommand } from './auth-login.command';
-import { AuthLoginHandler } from './auth-login.query';
+import { AuthLoginHandler } from './auth-login.handle';
 
 describe('AuthLoginHandler', () => {
   let handler: AuthLoginHandler;

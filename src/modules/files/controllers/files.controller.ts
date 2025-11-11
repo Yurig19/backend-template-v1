@@ -20,7 +20,6 @@ export class FilesController {
     responseType: ReadFileDto,
     bodyType: CreateFileDto,
     successDescription: 'File successfully created',
-    errorDescription: 'Invalid data',
     isAuth: true,
     isFile: true,
   })

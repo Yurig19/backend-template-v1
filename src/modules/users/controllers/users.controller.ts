@@ -31,7 +31,6 @@ export class UsersController {
       'Accepts user data and creates a new user record in the system.',
     operationId: 'createUser',
     successDescription: 'User successfully created',
-    errorDescription: 'Invalid data',
     isAuth: true,
   })
   async create(@Body() createUserDto: CreateUserDto) {
@@ -46,7 +45,6 @@ export class UsersController {
     description: 'Retrieves a user based on the provided UUID parameter.',
     operationId: 'getByUserUuid',
     successDescription: 'User successfully found',
-    errorDescription: 'User not found',
     isAuth: true,
   })
   @ApiQuery({ name: 'uuid', type: String, required: true })
@@ -68,7 +66,6 @@ export class UsersController {
     responseType: ListUserDto,
     isAuth: true,
     successDescription: 'Users successfully listed',
-    errorDescription: 'Could not list users',
   })
   @ApiQuery({ name: 'page', type: Number, required: true })
   @ApiQuery({ name: 'dataPerPage', type: Number, required: true })
@@ -92,7 +89,6 @@ export class UsersController {
     bodyType: UpdateUserDto,
     responseType: ReadUserDto,
     successDescription: 'User successfully updated',
-    errorDescription: 'User not found or invalid data',
     isAuth: true,
   })
   @ApiQuery({ name: 'uuid', type: String, required: true })
@@ -113,7 +109,6 @@ export class UsersController {
     responseType: DeleteDto,
     isAuth: true,
     successDescription: 'User successfully deleted',
-    errorDescription: 'User not found or could not be deleted',
   })
   @ApiQuery({ name: 'uuid', type: String, required: true })
   async delete(@Query('uuid', ParseUUIDPipe) uuid: string): Promise<DeleteDto> {

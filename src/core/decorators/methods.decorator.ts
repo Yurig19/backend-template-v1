@@ -19,21 +19,25 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiPayloadTooLargeResponse,
   ApiUnauthorizedResponse,
+  ApiUnsupportedMediaTypeResponse,
 } from '@nestjs/swagger';
 import {
   BadRequestErrorDto,
-  ErrorResponseDto,
   ForbiddenErrorDto,
   InternalServerErrorDto,
   NotFoundErrorDto,
+  PayloadTooLargeErrorDto,
   UnauthorizedErrorDto,
+  UnsupportedMediaTypeErrorDto,
 } from '../enums/errors/dtos/error.dto';
 import { HttpStatusCodeEnum } from '../enums/errors/statusCodeErrors.enum';
 import { RoleEnum } from '../enums/role.enum';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { RolesGuard } from '../guards/role.guard';
 import { Roles } from './roles.decorator';
+import { AnyFileUpload, AudioUpload, VideoUpload } from './upload.decorator';
 
 interface ApiEndpointOptions {
   method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
@@ -44,11 +48,10 @@ interface ApiEndpointOptions {
   description: string;
   operationId: string;
   successDescription?: string;
-  errorDescription?: string;
   isAuth?: boolean;
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   bodyType?: any;
-  isFile?: boolean;
+  isFile?: boolean | 'audio' | 'video' | 'any';
   roles?: RoleEnum[];
 }
 
@@ -64,7 +67,6 @@ export function ApiEndpoint(opts: ApiEndpointOptions) {
     responseType,
     summary,
     bodyType,
-    errorDescription,
     isAuth,
     isFile,
     successDescription,
@@ -74,7 +76,6 @@ export function ApiEndpoint(opts: ApiEndpointOptions) {
   const successStatus =
     method === 'POST' ? HttpStatusCodeEnum.CREATED : HttpStatusCodeEnum.OK;
   const successDesc = successDescription ?? 'Operation completed successfully';
-  const errorDesc = errorDescription ?? 'An error occurred';
 
   decorators.push(
     ApiOperation({
@@ -124,14 +125,25 @@ export function ApiEndpoint(opts: ApiEndpointOptions) {
   if (bodyType && ['POST', 'PUT', 'PATCH'].includes(method)) {
     decorators.push(ApiBody({ type: bodyType }));
   }
-
   if (isFile) {
-    decorators.push(ApiConsumes('multipart/form-data'));
-    decorators.push(UseInterceptors(FileInterceptor('file')));
-
-    if (bodyType) {
-      decorators.push(ApiBody({ type: bodyType }));
+    switch (isFile) {
+      case 'audio':
+        decorators.push(AudioUpload());
+        break;
+      case 'video':
+        decorators.push(VideoUpload());
+        break;
+      default:
+        decorators.push(AnyFileUpload());
+        break;
     }
+
+    decorators.push(
+      ApiPayloadTooLargeResponse({
+        description: 'Payload Too Large - File size exceeds allowed limit',
+        type: PayloadTooLargeErrorDto,
+      })
+    );
   }
 
   switch (method) {
@@ -157,6 +169,7 @@ export function ApiEndpoint(opts: ApiEndpointOptions) {
   if (isAuth) {
     if (roles && roles.length > 0) {
       decorators.push(UseGuards(JwtAuthGuard, RolesGuard));
+      console.log(roles);
       decorators.push(Roles(...opts.roles));
       decorators.push(
         ApiForbiddenResponse({

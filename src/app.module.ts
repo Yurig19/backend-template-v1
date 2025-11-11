@@ -10,6 +10,7 @@ import { InitModule } from './modules/_init/init.module';
 import { AuditsModule } from './modules/audits/audits.module';
 import { LogsModule } from './modules/errorLogs/logs.module';
 import { FileModule } from './modules/files/files.module';
+import { TemplateEmailModule } from './modules/templateEmails/modules/templateEmail.module';
 import { UserModule } from './modules/users/users.module';
 
 @Module({
@@ -23,13 +24,12 @@ import { UserModule } from './modules/users/users.module';
     InitModule,
 
     //
+    UserModule,
     AuthModule,
 
     //
-    UserModule,
-
-    //
     FileModule,
+    TemplateEmailModule,
 
     //
     AuditsModule,

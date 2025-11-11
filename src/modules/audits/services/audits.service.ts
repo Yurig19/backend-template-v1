@@ -23,42 +23,39 @@ export class AuditsService {
         Number.isNaN(Number(actualPage)) || Number(actualPage) < 1
           ? 1
           : Number(actualPage);
+
       const take =
         Number.isNaN(Number(dataPerPage)) || Number(dataPerPage) < 1
           ? 10
           : Number(dataPerPage);
+
       const skip = (page - 1) * take;
 
-      const query = this.prisma.audit;
+      const where: Prisma.AuditWhereInput = {};
 
-      const where: Prisma.AuditWhereInput = search
-        ? {
-            OR: [
-              { entity: { contains: search, mode: 'insensitive' } },
-              { method: { contains: search, mode: 'insensitive' } },
-            ],
-          }
-        : {};
+      if (search) {
+        where.OR = [
+          { entity: { contains: search, mode: 'insensitive' } },
+          { method: { contains: search, mode: 'insensitive' } },
+        ];
+      }
 
-      const data = await query.findMany({
-        where,
-        skip,
-        take,
-        orderBy: [
-          {
-            createdAt: 'desc',
-          },
-        ],
-      });
+      const [audits, total] = await this.prisma.$transaction([
+        this.prisma.audit.findMany({
+          where,
+          skip,
+          take,
+          orderBy: { createdAt: 'desc' },
+        }),
+        this.prisma.audit.count({ where }),
+      ]);
 
-      const totalAudits = await query.count({ where });
-
-      const totalPages = Math.max(Math.ceil(totalAudits / take), 1);
+      const totalPages = Math.max(Math.ceil(total / take), 1);
 
       return {
-        audits: data,
-        total: totalAudits,
-        totalPages: totalPages,
+        audits,
+        total,
+        totalPages,
         currentPage: page,
       };
     } catch (error) {

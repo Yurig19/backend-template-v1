@@ -7,7 +7,7 @@ import { PassportModule } from '@nestjs/passport';
 import { UserModule } from '../users/users.module';
 import { AuthController } from './controllers/auth.controller';
 import { AuthService } from './service/auth.service';
-import { AuthLoginHandler } from './use-cases/commands/auth-login.query';
+import { AuthLoginHandler } from './use-cases/commands/auth-login.handle';
 import { AuthRegisterHandler } from './use-cases/commands/auth-register.handle';
 
 const handlers = [AuthLoginHandler, AuthRegisterHandler];

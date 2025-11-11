@@ -34,18 +34,18 @@ describe('AuditsController (e2e)', () => {
 
     prisma = module.get<PrismaService>(PrismaService);
 
-    await prisma.audits.deleteMany();
-    await prisma.users.deleteMany();
-    await prisma.roles.deleteMany();
+    await prisma.audit.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.role.deleteMany();
 
-    const role = await prisma.roles.create({
+    const role = await prisma.role.create({
       data: {
         name: 'employee',
         type: RoleEnum.employee,
       },
     });
 
-    const user = await prisma.users.create({
+    const user = await prisma.user.create({
       data: {
         name: 'Test User',
         email: 'testuser@example.com',
@@ -62,7 +62,7 @@ describe('AuditsController (e2e)', () => {
 
     accessToken = loginResponse.body.accessToken;
 
-    await prisma.audits.createMany({
+    await prisma.audit.createMany({
       data: [
         {
           entity: 'User',
@@ -89,9 +89,9 @@ describe('AuditsController (e2e)', () => {
   });
 
   afterAll(async () => {
-    await prisma.audits.deleteMany();
-    await prisma.users.deleteMany();
-    await prisma.roles.deleteMany();
+    await prisma.audit.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.role.deleteMany();
     await prisma.$disconnect();
     await app.close();
   });

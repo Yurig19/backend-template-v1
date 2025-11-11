@@ -133,7 +133,7 @@ export class UserService {
     updatedAt: Date;
     deletedAt: Date;
     roles: {
-      name: string;
+      type: string;
     };
   }> {
     try {
@@ -149,7 +149,7 @@ export class UserService {
           deletedAt: true,
           roles: {
             select: {
-              name: true,
+              type: true,
             },
           },
         },

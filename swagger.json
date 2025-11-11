@@ -512,6 +512,26 @@
               }
             }
           },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User lacks required role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenErrorDto"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not Found",
             "content": {
@@ -533,6 +553,11 @@
             }
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
         "summary": "Register",
         "tags": [
           "Auth"
@@ -663,6 +688,26 @@
               }
             }
           },
+          "413": {
+            "description": "Payload Too Large - File size exceeds allowed limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayloadTooLargeErrorDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported Media Type - Invalid or unsupported file format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnsupportedMediaTypeErrorDto"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Internal Server Error",
             "content": {
@@ -692,8 +737,9 @@
         "parameters": [
           {
             "name": "page",
-            "required": true,
+            "required": false,
             "in": "query",
+            "description": "Page number (default: 1)",
             "schema": {
               "example": 1,
               "type": "number"
@@ -701,8 +747,9 @@
           },
           {
             "name": "dataPerPage",
-            "required": true,
+            "required": false,
             "in": "query",
+            "description": "Number of records per page (default: 10)",
             "schema": {
               "example": 10,
               "type": "number"
@@ -712,8 +759,9 @@
             "name": "search",
             "required": false,
             "in": "query",
+            "description": "Filter audits by entity or method",
             "schema": {
-              "example": "search",
+              "example": "search term",
               "type": "string"
             }
           }
@@ -745,6 +793,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UnauthorizedErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User lacks required role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenErrorDto"
                 }
               }
             }
@@ -788,8 +846,9 @@
         "parameters": [
           {
             "name": "page",
-            "required": true,
+            "required": false,
             "in": "query",
+            "description": "Page number (default: 1)",
             "schema": {
               "example": 1,
               "type": "number"
@@ -797,8 +856,9 @@
           },
           {
             "name": "dataPerPage",
-            "required": true,
+            "required": false,
             "in": "query",
+            "description": "Number of records per page (default: 10)",
             "schema": {
               "example": 10,
               "type": "number"
@@ -808,8 +868,9 @@
             "name": "search",
             "required": false,
             "in": "query",
+            "description": "Filter audits by entity or method",
             "schema": {
-              "example": "search",
+              "example": "search term",
               "type": "string"
             }
           }
@@ -841,6 +902,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UnauthorizedErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User lacks required role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenErrorDto"
                 }
               }
             }
@@ -1030,6 +1101,14 @@
                 "summary": "Not Found",
                 "value": "The requested resource was not found"
               },
+              "PayloadTooLarge": {
+                "summary": "Payload Too Large",
+                "value": "File size exceeds the allowed limit"
+              },
+              "UnsupportedMediaType": {
+                "summary": "Unsupported Media Type",
+                "value": "Invalid or unsupported file format"
+              },
               "InternalServerError": {
                 "summary": "Internal Server Error",
                 "value": "An unexpected error occurred"
@@ -1057,6 +1136,14 @@
                 "summary": "404",
                 "value": 404
               },
+              "PayloadTooLarge": {
+                "summary": "413",
+                "value": 413
+              },
+              "UnsupportedMediaType": {
+                "summary": "415",
+                "value": 415
+              },
               "InternalServerError": {
                 "summary": "500",
                 "value": 500
@@ -1083,6 +1170,14 @@
               "NotFound": {
                 "summary": "NOT_FOUND",
                 "value": "NOT_FOUND"
+              },
+              "PayloadTooLarge": {
+                "summary": "PAYLOAD_TOO_LARGE",
+                "value": "PAYLOAD_TOO_LARGE"
+              },
+              "UnsupportedMediaType": {
+                "summary": "UNSUPPORTED_MEDIA_TYPE",
+                "value": "UNSUPPORTED_MEDIA_TYPE"
               },
               "InternalServerError": {
                 "summary": "INTERNAL_SERVER_ERROR",
@@ -1121,6 +1216,14 @@
                 "summary": "Not Found",
                 "value": "The requested resource was not found"
               },
+              "PayloadTooLarge": {
+                "summary": "Payload Too Large",
+                "value": "File size exceeds the allowed limit"
+              },
+              "UnsupportedMediaType": {
+                "summary": "Unsupported Media Type",
+                "value": "Invalid or unsupported file format"
+              },
               "InternalServerError": {
                 "summary": "Internal Server Error",
                 "value": "An unexpected error occurred"
@@ -1148,6 +1251,14 @@
                 "summary": "404",
                 "value": 404
               },
+              "PayloadTooLarge": {
+                "summary": "413",
+                "value": 413
+              },
+              "UnsupportedMediaType": {
+                "summary": "415",
+                "value": 415
+              },
               "InternalServerError": {
                 "summary": "500",
                 "value": 500
@@ -1174,6 +1285,14 @@
               "NotFound": {
                 "summary": "NOT_FOUND",
                 "value": "NOT_FOUND"
+              },
+              "PayloadTooLarge": {
+                "summary": "PAYLOAD_TOO_LARGE",
+                "value": "PAYLOAD_TOO_LARGE"
+              },
+              "UnsupportedMediaType": {
+                "summary": "UNSUPPORTED_MEDIA_TYPE",
+                "value": "UNSUPPORTED_MEDIA_TYPE"
               },
               "InternalServerError": {
                 "summary": "INTERNAL_SERVER_ERROR",
@@ -1212,6 +1331,14 @@
                 "summary": "Not Found",
                 "value": "The requested resource was not found"
               },
+              "PayloadTooLarge": {
+                "summary": "Payload Too Large",
+                "value": "File size exceeds the allowed limit"
+              },
+              "UnsupportedMediaType": {
+                "summary": "Unsupported Media Type",
+                "value": "Invalid or unsupported file format"
+              },
               "InternalServerError": {
                 "summary": "Internal Server Error",
                 "value": "An unexpected error occurred"
@@ -1239,6 +1366,14 @@
                 "summary": "404",
                 "value": 404
               },
+              "PayloadTooLarge": {
+                "summary": "413",
+                "value": 413
+              },
+              "UnsupportedMediaType": {
+                "summary": "415",
+                "value": 415
+              },
               "InternalServerError": {
                 "summary": "500",
                 "value": 500
@@ -1265,6 +1400,14 @@
               "NotFound": {
                 "summary": "NOT_FOUND",
                 "value": "NOT_FOUND"
+              },
+              "PayloadTooLarge": {
+                "summary": "PAYLOAD_TOO_LARGE",
+                "value": "PAYLOAD_TOO_LARGE"
+              },
+              "UnsupportedMediaType": {
+                "summary": "UNSUPPORTED_MEDIA_TYPE",
+                "value": "UNSUPPORTED_MEDIA_TYPE"
               },
               "InternalServerError": {
                 "summary": "INTERNAL_SERVER_ERROR",
@@ -1303,6 +1446,14 @@
                 "summary": "Not Found",
                 "value": "The requested resource was not found"
               },
+              "PayloadTooLarge": {
+                "summary": "Payload Too Large",
+                "value": "File size exceeds the allowed limit"
+              },
+              "UnsupportedMediaType": {
+                "summary": "Unsupported Media Type",
+                "value": "Invalid or unsupported file format"
+              },
               "InternalServerError": {
                 "summary": "Internal Server Error",
                 "value": "An unexpected error occurred"
@@ -1330,6 +1481,14 @@
                 "summary": "404",
                 "value": 404
               },
+              "PayloadTooLarge": {
+                "summary": "413",
+                "value": 413
+              },
+              "UnsupportedMediaType": {
+                "summary": "415",
+                "value": 415
+              },
               "InternalServerError": {
                 "summary": "500",
                 "value": 500
@@ -1356,6 +1515,14 @@
               "NotFound": {
                 "summary": "NOT_FOUND",
                 "value": "NOT_FOUND"
+              },
+              "PayloadTooLarge": {
+                "summary": "PAYLOAD_TOO_LARGE",
+                "value": "PAYLOAD_TOO_LARGE"
+              },
+              "UnsupportedMediaType": {
+                "summary": "UNSUPPORTED_MEDIA_TYPE",
+                "value": "UNSUPPORTED_MEDIA_TYPE"
               },
               "InternalServerError": {
                 "summary": "INTERNAL_SERVER_ERROR",
@@ -1598,6 +1765,121 @@
           "role"
         ]
       },
+      "ForbiddenErrorDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Detailed description of the error",
+            "examples": {
+              "BadRequest": {
+                "summary": "Bad Request",
+                "value": "Invalid input data"
+              },
+              "Unauthorized": {
+                "summary": "Unauthorized",
+                "value": "Missing or invalid token"
+              },
+              "Forbidden": {
+                "summary": "Forbidden",
+                "value": "You do not have permission to access this resource"
+              },
+              "NotFound": {
+                "summary": "Not Found",
+                "value": "The requested resource was not found"
+              },
+              "PayloadTooLarge": {
+                "summary": "Payload Too Large",
+                "value": "File size exceeds the allowed limit"
+              },
+              "UnsupportedMediaType": {
+                "summary": "Unsupported Media Type",
+                "value": "Invalid or unsupported file format"
+              },
+              "InternalServerError": {
+                "summary": "Internal Server Error",
+                "value": "An unexpected error occurred"
+              }
+            },
+            "example": "You do not have permission to access this resource"
+          },
+          "statusCode": {
+            "type": "number",
+            "description": "HTTP status code of the error",
+            "examples": {
+              "BadRequest": {
+                "summary": "400",
+                "value": 400
+              },
+              "Unauthorized": {
+                "summary": "401",
+                "value": 401
+              },
+              "Forbidden": {
+                "summary": "403",
+                "value": 403
+              },
+              "NotFound": {
+                "summary": "404",
+                "value": 404
+              },
+              "PayloadTooLarge": {
+                "summary": "413",
+                "value": 413
+              },
+              "UnsupportedMediaType": {
+                "summary": "415",
+                "value": 415
+              },
+              "InternalServerError": {
+                "summary": "500",
+                "value": 500
+              }
+            },
+            "example": 403
+          },
+          "error": {
+            "type": "string",
+            "description": "HTTP status message associated with the error",
+            "examples": {
+              "BadRequest": {
+                "summary": "BAD_REQUEST",
+                "value": "BAD_REQUEST"
+              },
+              "Unauthorized": {
+                "summary": "UNAUTHORIZED",
+                "value": "UNAUTHORIZED"
+              },
+              "Forbidden": {
+                "summary": "FORBIDDEN",
+                "value": "FORBIDDEN"
+              },
+              "NotFound": {
+                "summary": "NOT_FOUND",
+                "value": "NOT_FOUND"
+              },
+              "PayloadTooLarge": {
+                "summary": "PAYLOAD_TOO_LARGE",
+                "value": "PAYLOAD_TOO_LARGE"
+              },
+              "UnsupportedMediaType": {
+                "summary": "UNSUPPORTED_MEDIA_TYPE",
+                "value": "UNSUPPORTED_MEDIA_TYPE"
+              },
+              "InternalServerError": {
+                "summary": "INTERNAL_SERVER_ERROR",
+                "value": "INTERNAL_SERVER_ERROR"
+              }
+            },
+            "example": "FORBIDDEN"
+          }
+        },
+        "required": [
+          "message",
+          "statusCode",
+          "error"
+        ]
+      },
       "CreateFileDto": {
         "type": "object",
         "properties": {
@@ -1674,6 +1956,236 @@
           "uuid",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "PayloadTooLargeErrorDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Detailed description of the error",
+            "examples": {
+              "BadRequest": {
+                "summary": "Bad Request",
+                "value": "Invalid input data"
+              },
+              "Unauthorized": {
+                "summary": "Unauthorized",
+                "value": "Missing or invalid token"
+              },
+              "Forbidden": {
+                "summary": "Forbidden",
+                "value": "You do not have permission to access this resource"
+              },
+              "NotFound": {
+                "summary": "Not Found",
+                "value": "The requested resource was not found"
+              },
+              "PayloadTooLarge": {
+                "summary": "Payload Too Large",
+                "value": "File size exceeds the allowed limit"
+              },
+              "UnsupportedMediaType": {
+                "summary": "Unsupported Media Type",
+                "value": "Invalid or unsupported file format"
+              },
+              "InternalServerError": {
+                "summary": "Internal Server Error",
+                "value": "An unexpected error occurred"
+              }
+            },
+            "example": "File size exceeds the allowed limit"
+          },
+          "statusCode": {
+            "type": "number",
+            "description": "HTTP status code of the error",
+            "examples": {
+              "BadRequest": {
+                "summary": "400",
+                "value": 400
+              },
+              "Unauthorized": {
+                "summary": "401",
+                "value": 401
+              },
+              "Forbidden": {
+                "summary": "403",
+                "value": 403
+              },
+              "NotFound": {
+                "summary": "404",
+                "value": 404
+              },
+              "PayloadTooLarge": {
+                "summary": "413",
+                "value": 413
+              },
+              "UnsupportedMediaType": {
+                "summary": "415",
+                "value": 415
+              },
+              "InternalServerError": {
+                "summary": "500",
+                "value": 500
+              }
+            },
+            "example": 413
+          },
+          "error": {
+            "type": "string",
+            "description": "HTTP status message associated with the error",
+            "examples": {
+              "BadRequest": {
+                "summary": "BAD_REQUEST",
+                "value": "BAD_REQUEST"
+              },
+              "Unauthorized": {
+                "summary": "UNAUTHORIZED",
+                "value": "UNAUTHORIZED"
+              },
+              "Forbidden": {
+                "summary": "FORBIDDEN",
+                "value": "FORBIDDEN"
+              },
+              "NotFound": {
+                "summary": "NOT_FOUND",
+                "value": "NOT_FOUND"
+              },
+              "PayloadTooLarge": {
+                "summary": "PAYLOAD_TOO_LARGE",
+                "value": "PAYLOAD_TOO_LARGE"
+              },
+              "UnsupportedMediaType": {
+                "summary": "UNSUPPORTED_MEDIA_TYPE",
+                "value": "UNSUPPORTED_MEDIA_TYPE"
+              },
+              "InternalServerError": {
+                "summary": "INTERNAL_SERVER_ERROR",
+                "value": "INTERNAL_SERVER_ERROR"
+              }
+            },
+            "example": "PAYLOAD_TOO_LARGE"
+          }
+        },
+        "required": [
+          "message",
+          "statusCode",
+          "error"
+        ]
+      },
+      "UnsupportedMediaTypeErrorDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Detailed description of the error",
+            "examples": {
+              "BadRequest": {
+                "summary": "Bad Request",
+                "value": "Invalid input data"
+              },
+              "Unauthorized": {
+                "summary": "Unauthorized",
+                "value": "Missing or invalid token"
+              },
+              "Forbidden": {
+                "summary": "Forbidden",
+                "value": "You do not have permission to access this resource"
+              },
+              "NotFound": {
+                "summary": "Not Found",
+                "value": "The requested resource was not found"
+              },
+              "PayloadTooLarge": {
+                "summary": "Payload Too Large",
+                "value": "File size exceeds the allowed limit"
+              },
+              "UnsupportedMediaType": {
+                "summary": "Unsupported Media Type",
+                "value": "Invalid or unsupported file format"
+              },
+              "InternalServerError": {
+                "summary": "Internal Server Error",
+                "value": "An unexpected error occurred"
+              }
+            },
+            "example": "Invalid or unsupported file format"
+          },
+          "statusCode": {
+            "type": "number",
+            "description": "HTTP status code of the error",
+            "examples": {
+              "BadRequest": {
+                "summary": "400",
+                "value": 400
+              },
+              "Unauthorized": {
+                "summary": "401",
+                "value": 401
+              },
+              "Forbidden": {
+                "summary": "403",
+                "value": 403
+              },
+              "NotFound": {
+                "summary": "404",
+                "value": 404
+              },
+              "PayloadTooLarge": {
+                "summary": "413",
+                "value": 413
+              },
+              "UnsupportedMediaType": {
+                "summary": "415",
+                "value": 415
+              },
+              "InternalServerError": {
+                "summary": "500",
+                "value": 500
+              }
+            },
+            "example": 415
+          },
+          "error": {
+            "type": "string",
+            "description": "HTTP status message associated with the error",
+            "examples": {
+              "BadRequest": {
+                "summary": "BAD_REQUEST",
+                "value": "BAD_REQUEST"
+              },
+              "Unauthorized": {
+                "summary": "UNAUTHORIZED",
+                "value": "UNAUTHORIZED"
+              },
+              "Forbidden": {
+                "summary": "FORBIDDEN",
+                "value": "FORBIDDEN"
+              },
+              "NotFound": {
+                "summary": "NOT_FOUND",
+                "value": "NOT_FOUND"
+              },
+              "PayloadTooLarge": {
+                "summary": "PAYLOAD_TOO_LARGE",
+                "value": "PAYLOAD_TOO_LARGE"
+              },
+              "UnsupportedMediaType": {
+                "summary": "UNSUPPORTED_MEDIA_TYPE",
+                "value": "UNSUPPORTED_MEDIA_TYPE"
+              },
+              "InternalServerError": {
+                "summary": "INTERNAL_SERVER_ERROR",
+                "value": "INTERNAL_SERVER_ERROR"
+              }
+            },
+            "example": "UNSUPPORTED_MEDIA_TYPE"
+          }
+        },
+        "required": [
+          "message",
+          "statusCode",
+          "error"
         ]
       },
       "ReadAuditsListDto": {
