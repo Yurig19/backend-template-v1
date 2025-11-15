@@ -31,6 +31,14 @@ export class ReadFileDto {
   @ApiParamDecorator({
     type: String,
     required: false,
+    description: 'Storage key used in buckets or external providers',
+    example: 'uploads/2025/01/15/document.pdf',
+  })
+  key?: string;
+
+  @ApiParamDecorator({
+    type: String,
+    required: false,
     description: 'Path where the file is stored',
     example: '/uploads/document.pdf',
   })
@@ -43,6 +51,30 @@ export class ReadFileDto {
     example: 204800,
   })
   size?: number;
+
+  @ApiParamDecorator({
+    type: Boolean,
+    required: false,
+    description: 'Indicates whether the file is private',
+    example: false,
+  })
+  isPrivate?: boolean;
+
+  @ApiParamDecorator({
+    type: String,
+    required: false,
+    description: 'Storage provider (e.g., local, s3, gcs)',
+    example: 'local',
+  })
+  storage?: string;
+
+  @ApiParamDecorator({
+    type: String,
+    required: false,
+    description: 'UUID of the user who owns the file',
+    example: 'b123ea1c-3e11-4b8d-aa72-889a8cc9c102',
+  })
+  userUuid?: string;
 
   @ApiParamDecorator({
     type: Date,

@@ -117,11 +117,11 @@ model ErrorLog {
 
 model File {
   uuid     String  @id @default(uuid())
-  filename String?
-  mimetype String?
+  filename String? @db.Text()
+  mimetype String? @db.Text()
   key      String? @db.VarChar(255)
-  path     String?
-  size     Int?
+  path     String? @db.Text()
+  size     Int?    @db.Integer()
 
   isPrivate Boolean @default(false)
   storage   String? @db.VarChar(50)

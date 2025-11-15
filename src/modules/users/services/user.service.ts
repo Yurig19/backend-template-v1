@@ -29,6 +29,7 @@ export class UserService {
     const adminName = this.configService.get<string>('ADMIN_NAME');
     const adminEmail = this.configService.get<string>('ADMIN_EMAIL');
     const adminPassword = this.configService.get<string>('ADMIN_PASSWORD');
+
     const isAdminUser = await this.users.count({
       where: { deletedAt: null, roles: { type: 'ADMIN' } },
     });
@@ -248,57 +249,48 @@ export class UserService {
     search?: string
   ): Promise<{
     users: (User & {
-      roles: {
-        name: string;
-      };
+      roles: { name: string };
     })[];
     total: number;
     totalPages: number;
     currentPage: number;
   }> {
     try {
-      const page =
-        Number.isNaN(Number(actualPage)) || Number(actualPage) < 1
-          ? 1
-          : Number(actualPage);
-      const take =
-        Number.isNaN(Number(dataPerPage)) || Number(dataPerPage) < 1
-          ? 10
-          : Number(dataPerPage);
+      const page = actualPage;
+      const take = dataPerPage;
       const skip = (page - 1) * take;
 
-      const query = this.prisma.user;
+      const where: Prisma.UserWhereInput = {};
 
-      const where: Prisma.UserWhereInput = search
-        ? { name: { contains: search, mode: 'insensitive' } }
-        : {};
+      if (search) {
+        where.name = {
+          contains: search,
+          mode: 'insensitive',
+        };
+      }
 
-      const data = await query.findMany({
-        where,
-        skip,
-        take,
-        include: {
-          roles: {
-            select: {
-              name: true,
+      const [users, total] = await this.prisma.$transaction([
+        this.prisma.user.findMany({
+          where,
+          skip,
+          take,
+          include: {
+            roles: {
+              select: { name: true },
             },
           },
-        },
-        orderBy: [
-          {
-            createdAt: 'desc',
-          },
-        ],
-      });
+          orderBy: [{ createdAt: 'desc' }],
+        }),
 
-      const total = await query.count({ where });
+        this.prisma.user.count({ where }),
+      ]);
 
       const totalPages = Math.max(Math.ceil(total / take), 1);
 
       return {
-        users: data,
-        total: total,
-        totalPages: totalPages,
+        users,
+        total,
+        totalPages,
         currentPage: page,
       };
     } catch (error) {

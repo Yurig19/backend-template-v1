@@ -26,16 +26,8 @@ export class AuditsService {
     currentPage: number;
   }> {
     try {
-      const page =
-        Number.isNaN(Number(actualPage)) || Number(actualPage) < 1
-          ? 1
-          : Number(actualPage);
-
-      const take =
-        Number.isNaN(Number(dataPerPage)) || Number(dataPerPage) < 1
-          ? 10
-          : Number(dataPerPage);
-
+      const page = actualPage;
+      const take = dataPerPage;
       const skip = (page - 1) * take;
 
       const where: Prisma.AuditWhereInput = {};

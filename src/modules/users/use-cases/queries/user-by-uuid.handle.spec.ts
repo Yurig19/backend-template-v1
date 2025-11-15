@@ -24,11 +24,11 @@ describe('UserByUuidHandle (integration)', () => {
     prisma = module.get<PrismaService>(PrismaService);
     handler = module.get<UserByUuidHandle>(UserByUuidHandle);
 
-    await prisma.users.deleteMany();
-    await prisma.roles.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.role.deleteMany();
 
     roleUuid = randomUUID();
-    await prisma.roles.create({
+    await prisma.role.create({
       data: {
         uuid: roleUuid,
         type: RoleEnum.manager,
@@ -39,13 +39,13 @@ describe('UserByUuidHandle (integration)', () => {
   });
 
   afterAll(async () => {
-    await prisma.users.deleteMany();
-    await prisma.roles.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.role.deleteMany();
     await prisma.$disconnect();
   });
 
   it('should return user data when found', async () => {
-    const createdUser = await prisma.users.create({
+    const createdUser = await prisma.user.create({
       data: {
         uuid: randomUUID(),
         name: 'Jane Doe',

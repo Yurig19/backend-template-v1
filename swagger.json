@@ -1986,13 +1986,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "name",
-          "email",
-          "password",
-          "role"
-        ]
+        }
       },
       "DeleteDto": {
         "type": "object",
@@ -2257,6 +2251,11 @@
             "description": "MIME type of the file",
             "example": "application/pdf"
           },
+          "key": {
+            "type": "string",
+            "description": "Storage key used in buckets or external providers",
+            "example": "uploads/2025/01/15/document.pdf"
+          },
           "path": {
             "type": "string",
             "description": "Path where the file is stored",
@@ -2266,6 +2265,21 @@
             "type": "number",
             "description": "Size of the file in bytes",
             "example": 204800
+          },
+          "isPrivate": {
+            "type": "boolean",
+            "description": "Indicates whether the file is private",
+            "example": false
+          },
+          "storage": {
+            "type": "string",
+            "description": "Storage provider (e.g., local, s3, gcs)",
+            "example": "local"
+          },
+          "userUuid": {
+            "type": "string",
+            "description": "UUID of the user who owns the file",
+            "example": "b123ea1c-3e11-4b8d-aa72-889a8cc9c102"
           },
           "createdAt": {
             "type": "string",

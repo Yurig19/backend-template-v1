@@ -33,14 +33,14 @@ describe('ListUserHandle (integration)', () => {
     handler = module.get<ListUserHandle>(ListUserHandle);
     prisma = module.get<PrismaService>(PrismaService);
 
-    await prisma.users.deleteMany();
-    await prisma.roles.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.role.deleteMany();
 
-    const role = await prisma.roles.create({
+    const role = await prisma.role.create({
       data: { uuid: randomUUID(), name: 'Employee', type: RoleEnum.employee },
     });
 
-    await prisma.users.create({
+    await prisma.user.create({
       data: {
         ...mockUser,
         roleUuid: role.uuid,
@@ -49,8 +49,8 @@ describe('ListUserHandle (integration)', () => {
   });
 
   afterEach(async () => {
-    await prisma.users.deleteMany();
-    await prisma.roles.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.role.deleteMany();
   });
 
   afterAll(async () => {
@@ -58,11 +58,11 @@ describe('ListUserHandle (integration)', () => {
   });
 
   it('should return paginated users list', async () => {
-    const role = await prisma.roles.create({
+    const role = await prisma.role.create({
       data: { uuid: randomUUID(), name: 'Admin', type: RoleEnum.admin },
     });
 
-    const user = await prisma.users.create({
+    const user = await prisma.user.create({
       data: {
         uuid: randomUUID(),
         name: 'Jane Smith',
@@ -98,7 +98,7 @@ describe('ListUserHandle (integration)', () => {
   });
 
   it('should return empty data when no users found', async () => {
-    await prisma.users.deleteMany();
+    await prisma.user.deleteMany();
 
     const query = new ListUsersQuery(1, 10);
 

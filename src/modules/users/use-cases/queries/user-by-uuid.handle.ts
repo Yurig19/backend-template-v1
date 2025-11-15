@@ -22,7 +22,7 @@ export class UserByUuidHandle implements IQueryHandler<UserByUuidQuery> {
       throw new NotFoundException('User not found.');
     }
 
-    return {
+    return <ReadUserDto>{
       uuid: user.uuid,
       name: user.name,
       email: user.email,
@@ -31,6 +31,6 @@ export class UserByUuidHandle implements IQueryHandler<UserByUuidQuery> {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       deletedAt: user.deletedAt,
-    } as ReadUserDto;
+    };
   }
 }

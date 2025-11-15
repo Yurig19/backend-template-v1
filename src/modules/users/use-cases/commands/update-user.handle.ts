@@ -1,4 +1,4 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ReadUserDto } from '../../dtos/read-user.dto';
 import { UserService } from '../../services/user.service';
@@ -15,6 +15,10 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand> {
    */
   async execute(command: UpdateUserCommand): Promise<ReadUserDto> {
     const { uuid, updateUserDto } = command;
+
+    if (!(await this.userService.checkUuid(uuid))) {
+      throw new NotFoundException('User not found');
+    }
 
     const user = await this.userService.update(uuid, updateUserDto);
 
