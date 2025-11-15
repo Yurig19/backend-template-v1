@@ -3,6 +3,7 @@ import {
   MaxFileSizeValidator,
   ParseFilePipe,
   ParseFilePipeBuilder,
+  UnsupportedMediaTypeException,
   UseInterceptors,
   UsePipes,
   applyDecorators,
@@ -30,15 +31,24 @@ export function FileUploadDecorator(
   exampleMime: string,
   fieldName = 'file'
 ) {
-  const fileValidationPipe = new ParseFilePipeBuilder()
-    .addValidator(new FileTypeValidator({ fileType: fileTypeRegex }))
-    .build({
-      errorHttpStatusCode: 415,
-    });
   return applyDecorators(
-    UseInterceptors(FileInterceptor(fieldName)),
+    UseInterceptors(
+      FileInterceptor(fieldName, {
+        limits: { fileSize: MAX_FILE_SIZE },
+        fileFilter: (req, file, callback) => {
+          if (!file.originalname.match(fileTypeRegex)) {
+            return callback(
+              new UnsupportedMediaTypeException(
+                'Invalid or unsupported file format'
+              ),
+              false
+            );
+          }
+          callback(null, true);
+        },
+      })
+    ),
     ApiConsumes('multipart/form-data'),
-    UsePipes(fileValidationPipe),
     ApiBody({
       schema: {
         type: 'object',

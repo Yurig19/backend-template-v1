@@ -1,9 +1,9 @@
 import { ApiController } from '@/core/decorators/api-controller.decorator';
 import { ApiEndpoint } from '@/core/decorators/methods.decorator';
-import { UploadedFile, UseInterceptors } from '@nestjs/common';
+import { GetUser } from '@/core/decorators/user-decorator';
+import { ReadUserAuthDto } from '@/modules/users/dtos/read-user-auth.dto';
+import { ParseBoolPipe, Query, UploadedFile } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { CreateFileDto } from '../dtos/create-file.dto';
 import { ReadFileDto } from '../dtos/read-file.dto';
 import { CreateFileCommand } from '../use-cases/commands/create-file.command';
 
@@ -15,16 +15,21 @@ export class FilesController {
     method: 'POST',
     path: '/create',
     summary: 'Create a file',
-    description: 'Uploads a file and creates a new file record in the system.',
+    description:
+      'Uploads a file and creates a new file record in the system. Supports both public and private uploads.',
     operationId: 'createFile',
     responseType: ReadFileDto,
-    bodyType: CreateFileDto,
     successDescription: 'File successfully created',
     isAuth: true,
-    isFile: true,
+    isFile: 'any',
   })
-  @UseInterceptors(FileInterceptor('file'))
-  async createFile(@UploadedFile() file: Express.Multer.File) {
-    return this.commandBus.execute(new CreateFileCommand(file));
+  async createFile(
+    @GetUser() userData: ReadUserAuthDto,
+    @UploadedFile() file: Express.Multer.File,
+    @Query('isPrivate', ParseBoolPipe) isPrivate?: boolean
+  ): Promise<ReadFileDto> {
+    return this.commandBus.execute(
+      new CreateFileCommand(userData, file, isPrivate)
+    );
   }
 }

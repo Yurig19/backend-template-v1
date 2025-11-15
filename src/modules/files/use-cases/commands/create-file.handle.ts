@@ -22,27 +22,55 @@ export class CreateFileHandler implements ICommandHandler<CreateFileCommand> {
    */
   async execute(command: CreateFileCommand): Promise<ReadFileDto> {
     try {
-      const filePath = await this.uploadService.uploadFile(command.file);
+      const { userData, file, isPrivate } = command;
 
-      const createFileDto: CreateFileDto = {
-        filename: command.file.originalname,
-        mimetype: command.file.mimetype,
-        path: filePath.fileUrl,
-        size: command.file.size,
-      };
+      const { uuid } = userData ?? {};
 
-      const savedFile = await this.fileService.create(createFileDto);
+      if (uuid) {
+        if (!file) {
+          throw new BadRequestException(
+            'No file was uploaded. Please make sure you include a file in the form-data with the correct field name.'
+          );
+        }
 
-      return {
-        uuid: savedFile.uuid,
-        filename: savedFile.filename,
-        mimetype: savedFile.mimetype,
-        path: savedFile.path,
-        size: savedFile.size,
-        createdAt: savedFile.createdAt,
-        updatedAt: savedFile.updatedAt,
-        deletedAt: savedFile.deletedAt,
-      };
+        const filePath = await this.uploadService.uploadFile(file, isPrivate);
+
+        const { fileUrl, fileKey } = filePath ?? {};
+
+        if (fileUrl && fileKey) {
+          const createFileDto: CreateFileDto = {
+            filename: file.originalname,
+            mimetype: file.mimetype,
+            path: fileUrl,
+            size: file.size,
+            key: fileKey,
+            isPrivate,
+            storage: 's3',
+          };
+
+          const savedFile = await this.fileService.create(createFileDto);
+
+          return {
+            uuid: savedFile.uuid,
+            filename: savedFile.filename,
+            mimetype: savedFile.mimetype,
+            path: savedFile.path,
+            size: savedFile.size,
+            createdAt: savedFile.createdAt,
+            updatedAt: savedFile.updatedAt,
+            deletedAt: savedFile.deletedAt,
+          };
+        }
+      } else {
+        this.logger.error('Failed to upload file: missing user UUID.');
+      }
+
+      this.logger.error(
+        'Failed to upload file to S3: missing file URL or key.'
+      );
+      throw new BadRequestException(
+        'File upload failed. Unable to store on S3.'
+      );
     } catch (error) {
       this.logger.error('Failed to create file', error);
       throw new BadRequestException('Failed to create file.');

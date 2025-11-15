@@ -3,26 +3,21 @@ import {
   HttpCode,
   Patch,
   UseGuards,
-  UseInterceptors,
   applyDecorators,
 } from '@nestjs/common';
 import { Delete, Get, Post, Put } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
   ApiConflictResponse,
-  ApiConsumes,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiPayloadTooLargeResponse,
   ApiUnauthorizedResponse,
-  ApiUnsupportedMediaTypeResponse,
 } from '@nestjs/swagger';
 import {
   BadRequestErrorDto,
@@ -30,9 +25,7 @@ import {
   ForbiddenErrorDto,
   InternalServerErrorDto,
   NotFoundErrorDto,
-  PayloadTooLargeErrorDto,
   UnauthorizedErrorDto,
-  UnsupportedMediaTypeErrorDto,
 } from '../enums/errors/dtos/error.dto';
 import { HttpStatusCodeEnum } from '../enums/errors/statusCodeErrors.enum';
 import { RoleEnum } from '../enums/role.enum';
@@ -149,13 +142,6 @@ export function ApiEndpoint(opts: ApiEndpointOptions) {
         decorators.push(AnyFileUpload());
         break;
     }
-
-    decorators.push(
-      ApiPayloadTooLargeResponse({
-        description: 'Payload Too Large - File size exceeds allowed limit',
-        type: PayloadTooLargeErrorDto,
-      })
-    );
   }
 
   switch (method) {

@@ -1,7 +1,7 @@
 import { ApiController } from '@/core/decorators/api-controller.decorator';
 import { ApiEndpoint } from '@/core/decorators/methods.decorator';
 import { DeleteDto } from '@/core/dtos/delete.dto';
-import { Body, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Body, ParseIntPipe, ParseUUIDPipe, Query } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiQuery } from '@nestjs/swagger';
 import { CreateUserDto } from '../dtos/create-user.dto';
@@ -71,8 +71,8 @@ export class UsersController {
   @ApiQuery({ name: 'dataPerPage', type: Number, required: true })
   @ApiQuery({ name: 'search', type: String, required: false })
   async list(
-    @Query('page') page: number,
-    @Query('dataPerPage') dataPerPage: number,
+    @Query('page', ParseIntPipe) page: number,
+    @Query('dataPerPage', ParseIntPipe) dataPerPage: number,
     @Query('search') search?: string
   ) {
     return this.queryBus.execute<ListUsersQuery, ListUserDto>(

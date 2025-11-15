@@ -820,15 +820,31 @@
     },
     "/api/v1/files/create": {
       "post": {
-        "description": "Uploads a file and creates a new file record in the system.",
+        "description": "Uploads a file and creates a new file record in the system. Supports both public and private uploads.",
         "operationId": "createFile",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "isPrivate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/CreateFileDto"
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Upload file (PDF, DOC, DOCX, XLSX, TXT, PNG, JPG, GIF, ZIP, RAR, CSV, JSON files)"
+                  }
+                }
               }
             }
           }
@@ -2222,31 +2238,6 @@
           "code",
           "newPassword"
         ]
-      },
-      "CreateFileDto": {
-        "type": "object",
-        "properties": {
-          "filename": {
-            "type": "string",
-            "description": "Original name of the uploaded file",
-            "example": "document.pdf"
-          },
-          "mimetype": {
-            "type": "string",
-            "description": "MIME type of the file",
-            "example": "application/pdf"
-          },
-          "path": {
-            "type": "string",
-            "description": "Path where the file is stored",
-            "example": "/uploads/document.pdf"
-          },
-          "size": {
-            "type": "number",
-            "description": "Size of the file in bytes",
-            "example": 204800
-          }
-        }
       },
       "ReadFileDto": {
         "type": "object",

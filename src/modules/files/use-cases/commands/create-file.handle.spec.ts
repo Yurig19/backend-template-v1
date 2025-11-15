@@ -1,22 +1,55 @@
 import { PrismaService } from '@/core/database/prisma.service';
+import { RoleEnum } from '@/core/enums/role.enum';
 import { FilesService } from '@/modules/files/services/files.service';
-import { BadRequestException } from '@nestjs/common';
+import { UploadService } from '@/modules/files/services/upload.service';
+import { CreateFileCommand } from '@/modules/files/use-cases/commands/create-file.command';
+import { CreateFileHandler } from '@/modules/files/use-cases/commands/create-file.handle';
+import { ReadUserAuthDto } from '@/modules/users/dtos/read-user-auth.dto';
+import { BadRequestException, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { UploadService } from '../../services/upload.service';
-import { CreateFileCommand } from './create-file.command';
-import { CreateFileHandler } from './create-file.handle';
 
-describe('CreateFileHandler (integration)', () => {
-  let handler: CreateFileHandler;
+describe('CreateFileHandler (REAL INTEGRATION)', () => {
+  let app: INestApplication;
   let prisma: PrismaService;
-  let uploadService: UploadService;
+  let handler: CreateFileHandler;
 
-  const mockFile = {
-    originalname: 'test.txt',
+  const mockUser: ReadUserAuthDto = {
+    uuid: 'user-test-uuid',
+    name: 'Test User',
+    password: 'Teste@123',
+    email: 'test@example.com',
+    role: RoleEnum.admin,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: new Date(),
+  };
+
+  const mockFile: Express.Multer.File = {
+    originalname: 'real-test.txt',
     mimetype: 'text/plain',
-    buffer: Buffer.from('test content'),
-    size: 20,
-  } as Express.Multer.File;
+    buffer: Buffer.from('testing content'),
+    size: 17,
+    fieldname: 'file',
+    encoding: '7bit',
+    stream: null,
+    destination: null,
+    filename: null,
+    path: null,
+  };
+
+  const cleanDatabase = async () => {
+    const tables = await prisma.$queryRaw<
+      Array<{ tablename: string }>
+    >`SELECT tablename FROM pg_tables WHERE schemaname='public'`;
+
+    for (const t of tables) {
+      if (t.tablename === '_prisma_migrations') continue;
+
+      await prisma.$executeRawUnsafe(
+        `TRUNCATE TABLE "public"."${t.tablename}" RESTART IDENTITY CASCADE;`
+      );
+    }
+  };
 
   beforeAll(async () => {
     process.env.NODE_ENV = 'test';
@@ -24,31 +57,30 @@ describe('CreateFileHandler (integration)', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        CreateFileHandler,
+        PrismaService,
         FilesService,
         UploadService,
-        PrismaService,
+        CreateFileHandler,
       ],
     }).compile();
 
-    handler = module.get<CreateFileHandler>(CreateFileHandler);
-    prisma = module.get<PrismaService>(PrismaService);
-    uploadService = module.get<UploadService>(UploadService);
+    app = module.createNestApplication();
+    prisma = module.get(PrismaService);
+    handler = module.get(CreateFileHandler);
 
-    await prisma.file.deleteMany();
+    await app.init();
 
-    (uploadService.uploadFile as unknown as jest.Mock).mockResolvedValue(
-      'https://example.com/uploads/test.txt'
-    );
+    await cleanDatabase();
   });
 
   afterAll(async () => {
-    await prisma.file.deleteMany();
-    await prisma.$disconnect();
+    await cleanDatabase();
+    await app.close();
   });
 
-  it('should create a file and persist in database', async () => {
-    const command = new CreateFileCommand(mockFile);
+  it('should upload file and persist in database (REAL)', async () => {
+    const command = new CreateFileCommand(mockUser, mockFile, false);
+
     const result = await handler.execute(command);
 
     expect(result).toHaveProperty('uuid');
@@ -59,21 +91,16 @@ describe('CreateFileHandler (integration)', () => {
     const dbRecord = await prisma.file.findUnique({
       where: { uuid: result.uuid },
     });
-    expect(dbRecord).toBeTruthy();
-    expect(dbRecord?.path).toBe('https://example.com/uploads/test.txt');
+
+    expect(dbRecord).not.toBeNull();
+    expect(dbRecord?.filename).toBe('real-test.txt');
+    expect(dbRecord?.path).toBeDefined();
+    expect(dbRecord?.key).toBeDefined();
   });
 
-  it('should throw BadRequestException when an error occurs in handler', async () => {
-    const spy = (
-      uploadService.uploadFile as unknown as jest.Mock
-    ).mockRejectedValueOnce(new Error('upload failed'));
+  it('should throw BadRequestException when file is missing', async () => {
+    const command = new CreateFileCommand(mockUser, undefined, false);
 
-    const command = new CreateFileCommand(mockFile);
     await expect(handler.execute(command)).rejects.toThrow(BadRequestException);
-    await expect(handler.execute(command)).rejects.toThrow(
-      'Failed to create file.'
-    );
-
-    spy.mockRestore();
   });
 });

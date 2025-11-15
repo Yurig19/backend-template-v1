@@ -1,10 +1,11 @@
 import { PrismaService } from '@/core/database/prisma.service';
 import { DeleteDto } from '@/core/dtos/delete.dto';
 import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
-import { BadRequestException, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { File } from 'generated/prisma/client';
 import { CreateFileDto } from '../dtos/create-file.dto';
 
+@Injectable()
 export class FilesService {
   private readonly logger = new Logger(FilesService.name);
 
@@ -17,8 +18,16 @@ export class FilesService {
    */
   async create(file: CreateFileDto): Promise<File> {
     try {
+      const { userUuid, ...data } = file;
       return await this.prisma.file.create({
-        data: file,
+        data: {
+          ...data,
+          ...(userUuid
+            ? {
+                user: { connect: { uuid: userUuid } },
+              }
+            : {}),
+        },
       });
     } catch (error) {
       this.logger.error('Failed to create file', error);

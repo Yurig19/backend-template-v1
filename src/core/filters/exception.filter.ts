@@ -49,9 +49,12 @@ export class BaseExceptionFilter implements ExceptionFilter {
       const message =
         typeof res === 'string'
           ? res
-          : Array.isArray((res as any)?.message)
-            ? (res as any).message.join(', ')
-            : (res as any)?.message || exception.message;
+          : // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+            Array.isArray((res as any)?.message)
+            ? // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+              (res as any).message.join(', ')
+            : // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+              (res as any)?.message || exception.message;
 
       errorResponse = {
         message,
@@ -98,10 +101,14 @@ export class BaseExceptionFilter implements ExceptionFilter {
     let message: string;
     if (typeof res === 'string') {
       message = res;
+      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     } else if (typeof res === 'object' && (res as any).message) {
+      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
       message = Array.isArray((res as any).message)
-        ? (res as any).message.join(', ')
-        : (res as any).message;
+        ? // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+          (res as any).message.join(', ')
+        : // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+          (res as any).message;
     } else {
       message = exception.message;
     }
