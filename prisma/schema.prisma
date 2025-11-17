@@ -92,7 +92,8 @@ model Role {
   deletedAt DateTime?
 
   //
-  userData User[]
+  userData        User[]
+  rolePermissions RolePermission[]
 
   @@map("roles")
 }
@@ -133,5 +134,37 @@ model File {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  @@map("file")
+  @@map("files")
+}
+
+model Permission {
+  uuid        String  @id @default(uuid())
+  name        String  @unique @db.VarChar(150)
+  description String? @db.Text()
+
+  action String @db.VarChar(150)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  roles RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  uuid String @id @default(uuid())
+
+  roleUuid String
+  role     Role   @relation(fields: [roleUuid], references: [uuid])
+
+  permissionUuid String
+  permission     Permission @relation(fields: [permissionUuid], references: [uuid])
+
+  assignedAt DateTime @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("rolePermissions")
 }

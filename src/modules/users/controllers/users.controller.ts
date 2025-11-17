@@ -3,7 +3,6 @@ import { ApiEndpoint } from '@/core/decorators/methods.decorator';
 import { DeleteDto } from '@/core/dtos/delete.dto';
 import { Body, ParseIntPipe, ParseUUIDPipe, Query } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiQuery } from '@nestjs/swagger';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { ListUserDto } from '../dtos/list-user.dto';
 import { ReadUserDto } from '../dtos/read-user.dto';
@@ -46,8 +45,10 @@ export class UsersController {
     operationId: 'getByUserUuid',
     successDescription: 'User successfully found',
     isAuth: true,
+    queries: [
+      { name: 'uuid', type: String, required: true, description: 'User UUID' },
+    ],
   })
-  @ApiQuery({ name: 'uuid', type: String, required: true })
   async getByUuid(
     @Query('uuid', ParseUUIDPipe) uuid: string
   ): Promise<ReadUserDto> {
@@ -66,10 +67,27 @@ export class UsersController {
     responseType: ListUserDto,
     isAuth: true,
     successDescription: 'Users successfully listed',
+    queries: [
+      {
+        name: 'page',
+        type: Number,
+        required: true,
+        description: 'Page number',
+      },
+      {
+        name: 'dataPerPage',
+        type: Number,
+        required: true,
+        description: 'Items per page',
+      },
+      {
+        name: 'search',
+        type: String,
+        required: false,
+        description: 'Optional search term',
+      },
+    ],
   })
-  @ApiQuery({ name: 'page', type: Number, required: true })
-  @ApiQuery({ name: 'dataPerPage', type: Number, required: true })
-  @ApiQuery({ name: 'search', type: String, required: false })
   async list(
     @Query('page', ParseIntPipe) page: number,
     @Query('dataPerPage', ParseIntPipe) dataPerPage: number,
@@ -90,8 +108,10 @@ export class UsersController {
     responseType: ReadUserDto,
     successDescription: 'User successfully updated',
     isAuth: true,
+    queries: [
+      { name: 'uuid', type: String, required: true, description: 'User UUID' },
+    ],
   })
-  @ApiQuery({ name: 'uuid', type: String, required: true })
   async update(
     @Query('uuid', ParseUUIDPipe) uuid: string,
     @Body() updateUserDto: UpdateUserDto
@@ -109,9 +129,11 @@ export class UsersController {
     responseType: DeleteDto,
     isAuth: true,
     successDescription: 'User successfully deleted',
+    queries: [
+      { name: 'uuid', type: String, required: true, description: 'User UUID' },
+    ],
   })
-  @ApiQuery({ name: 'uuid', type: String, required: true })
   async delete(@Query('uuid', ParseUUIDPipe) uuid: string): Promise<DeleteDto> {
-    return await this.commandBus.execute(new DeleteUserCommand(uuid));
+    return this.commandBus.execute(new DeleteUserCommand(uuid));
   }
 }

@@ -17,6 +17,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import {
@@ -34,6 +35,14 @@ import { RolesGuard } from '../guards/role.guard';
 import { Roles } from './roles.decorator';
 import { AnyFileUpload, AudioUpload, VideoUpload } from './upload.decorator';
 
+interface QueryOption {
+  name: string;
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  type: any;
+  required?: boolean;
+  description?: string;
+}
+
 interface ApiEndpointOptions {
   method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
   path: string;
@@ -48,6 +57,7 @@ interface ApiEndpointOptions {
   bodyType?: any;
   isFile?: boolean | 'audio' | 'video' | 'any';
   roles?: RoleEnum[];
+  queries?: QueryOption[];
 }
 
 export function ApiEndpoint(opts: ApiEndpointOptions) {
@@ -66,6 +76,7 @@ export function ApiEndpoint(opts: ApiEndpointOptions) {
     isFile,
     successDescription,
     roles,
+    queries,
   } = opts;
 
   const successStatus =
@@ -77,6 +88,9 @@ export function ApiEndpoint(opts: ApiEndpointOptions) {
       summary,
       operationId,
       description,
+      ...(isAuth && {
+        security: [{ 'access-token': [] }],
+      }),
     })
   );
 
@@ -141,6 +155,19 @@ export function ApiEndpoint(opts: ApiEndpointOptions) {
       default:
         decorators.push(AnyFileUpload());
         break;
+    }
+  }
+
+  if (queries && queries.length > 0) {
+    for (const q of opts.queries) {
+      decorators.push(
+        ApiQuery({
+          name: q.name,
+          type: q.type,
+          required: q.required ?? false,
+          description: q.description,
+        })
+      );
     }
   }
 

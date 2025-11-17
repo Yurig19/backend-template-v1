@@ -9,7 +9,7 @@ describe('FilesController (E2E) - Real Login', () => {
   let app: INestApplication;
   let prisma: PrismaService;
 
-  let jwtToken: string; // token real
+  let jwtToken: string;
 
   beforeAll(async () => {
     process.env.NODE_ENV = 'test';
@@ -31,9 +31,6 @@ describe('FilesController (E2E) - Real Login', () => {
 
     await app.init();
 
-    //
-    // 💥 LIMPA TODO BANCO antes do teste
-    //
     const tables = await prisma.$queryRaw<
       Array<{ tablename: string }>
     >`SELECT tablename FROM pg_tables WHERE schemaname='public'`;
@@ -44,9 +41,6 @@ describe('FilesController (E2E) - Real Login', () => {
       );
     }
 
-    //
-    // 🧪 LOGIN REAL (usuário deve existir no seed)
-    //
     const login = await request(app.getHttpServer()).post('/auth/login').send({
       email: 'admin@example.com',
       password: 'admin123',
@@ -59,9 +53,6 @@ describe('FilesController (E2E) - Real Login', () => {
   });
 
   afterAll(async () => {
-    //
-    // 💥 LIMPA TODO BANCO depois dos testes
-    //
     const tables = await prisma.$queryRaw<
       Array<{ tablename: string }>
     >`SELECT tablename FROM pg_tables WHERE schemaname='public'`;
@@ -75,7 +66,7 @@ describe('FilesController (E2E) - Real Login', () => {
     await app.close();
   });
 
-  it('POST /files/create → deve criar arquivo real', async () => {
+  it('POST /files/create → should create a real file', async () => {
     const filePath = path.join(__dirname, 'mock.txt');
 
     const res = await request(app.getHttpServer())
@@ -87,7 +78,6 @@ describe('FilesController (E2E) - Real Login', () => {
     expect(res.body).toHaveProperty('uuid');
     expect(res.body.filename).toBe('mock.txt');
 
-    // validação no banco
     const dbFile = await prisma.file.findUnique({
       where: { uuid: res.body.uuid },
     });
@@ -97,7 +87,7 @@ describe('FilesController (E2E) - Real Login', () => {
     expect(dbFile?.path).toBeDefined();
   });
 
-  it('POST /files/create → erro se faltar arquivo', async () => {
+  it('POST /files/create → should return error if file is missing', async () => {
     const res = await request(app.getHttpServer())
       .post('/files/create')
       .set('Authorization', `Bearer ${jwtToken}`);

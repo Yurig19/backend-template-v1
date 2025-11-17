@@ -80,7 +80,7 @@
         },
         "security": [
           {
-            "bearer": []
+            "access-token": []
           }
         ],
         "summary": "Create a new user",
@@ -98,6 +98,7 @@
             "name": "uuid",
             "required": true,
             "in": "query",
+            "description": "User UUID",
             "schema": {
               "type": "string"
             }
@@ -157,7 +158,7 @@
         },
         "security": [
           {
-            "bearer": []
+            "access-token": []
           }
         ],
         "summary": "Find a user by UUID",
@@ -175,6 +176,7 @@
             "name": "page",
             "required": true,
             "in": "query",
+            "description": "Page number",
             "schema": {
               "type": "number"
             }
@@ -183,6 +185,7 @@
             "name": "dataPerPage",
             "required": true,
             "in": "query",
+            "description": "Items per page",
             "schema": {
               "type": "number"
             }
@@ -191,6 +194,7 @@
             "name": "search",
             "required": false,
             "in": "query",
+            "description": "Optional search term",
             "schema": {
               "type": "string"
             }
@@ -250,7 +254,7 @@
         },
         "security": [
           {
-            "bearer": []
+            "access-token": []
           }
         ],
         "summary": "List users with pagination and search",
@@ -268,6 +272,7 @@
             "name": "uuid",
             "required": true,
             "in": "query",
+            "description": "User UUID",
             "schema": {
               "type": "string"
             }
@@ -347,7 +352,7 @@
         },
         "security": [
           {
-            "bearer": []
+            "access-token": []
           }
         ],
         "summary": "Update a user by UUID",
@@ -365,6 +370,7 @@
             "name": "uuid",
             "required": true,
             "in": "query",
+            "description": "User UUID",
             "schema": {
               "type": "string"
             }
@@ -424,7 +430,7 @@
         },
         "security": [
           {
-            "bearer": []
+            "access-token": []
           }
         ],
         "summary": "Delete a user by UUID",
@@ -595,7 +601,7 @@
         },
         "security": [
           {
-            "bearer": []
+            "access-token": []
           }
         ],
         "summary": "Register",
@@ -625,7 +631,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/MessageDto"
                 }
               }
             }
@@ -698,7 +704,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/MessageDto"
                 }
               }
             }
@@ -809,7 +815,7 @@
         },
         "security": [
           {
-            "bearer": []
+            "access-token": []
           }
         ],
         "summary": "Verify token",
@@ -933,7 +939,7 @@
         },
         "security": [
           {
-            "bearer": []
+            "access-token": []
           }
         ],
         "summary": "Create a file",
@@ -949,21 +955,17 @@
         "parameters": [
           {
             "name": "page",
-            "required": false,
+            "required": true,
             "in": "query",
-            "description": "Page number (default: 1)",
             "schema": {
-              "example": 1,
               "type": "number"
             }
           },
           {
             "name": "dataPerPage",
-            "required": false,
+            "required": true,
             "in": "query",
-            "description": "Number of records per page (default: 10)",
             "schema": {
-              "example": 10,
               "type": "number"
             }
           },
@@ -971,9 +973,7 @@
             "name": "search",
             "required": false,
             "in": "query",
-            "description": "Filter audits by entity or method",
             "schema": {
-              "example": "search term",
               "type": "string"
             }
           }
@@ -1042,7 +1042,7 @@
         },
         "security": [
           {
-            "bearer": []
+            "access-token": []
           }
         ],
         "summary": "List Audits",
@@ -1058,21 +1058,17 @@
         "parameters": [
           {
             "name": "page",
-            "required": false,
+            "required": true,
             "in": "query",
-            "description": "Page number (default: 1)",
             "schema": {
-              "example": 1,
               "type": "number"
             }
           },
           {
             "name": "dataPerPage",
-            "required": false,
+            "required": true,
             "in": "query",
-            "description": "Number of records per page (default: 10)",
             "schema": {
-              "example": 10,
               "type": "number"
             }
           },
@@ -1080,9 +1076,7 @@
             "name": "search",
             "required": false,
             "in": "query",
-            "description": "Filter audits by entity or method",
             "schema": {
-              "example": "search term",
               "type": "string"
             }
           }
@@ -1151,7 +1145,7 @@
         },
         "security": [
           {
-            "bearer": []
+            "access-token": []
           }
         ],
         "summary": "List logs",
@@ -2206,12 +2200,25 @@
         "properties": {
           "email": {
             "type": "string",
-            "example": "user@example.com",
-            "description": "User email address"
+            "description": "User email address",
+            "example": "user@example.com"
           }
         },
         "required": [
           "email"
+        ]
+      },
+      "MessageDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Detailed response message",
+            "example": "Operation completed successfully"
+          }
+        },
+        "required": [
+          "message"
         ]
       },
       "ResetPasswordDto": {
@@ -2219,13 +2226,13 @@
         "properties": {
           "code": {
             "type": "string",
-            "example": "ABC123",
-            "description": "Password recovery code"
+            "description": "Password recovery code",
+            "example": "ABC123"
           },
           "newPassword": {
             "type": "string",
-            "example": "newStrongPassword123",
-            "description": "New user password"
+            "description": "New user password",
+            "example": "newStrongPassword123"
           }
         },
         "required": [

@@ -1,6 +1,9 @@
 import { IQuery } from '@nestjs/cqrs';
-import { ListAuditsQueryDto } from '../../dtos/list-query.dto';
 
 export class ListAuditsQuery implements IQuery {
-  constructor(public readonly params: ListAuditsQueryDto) {}
+  constructor(
+    public readonly page: number,
+    public readonly dataPerPage: number,
+    public readonly search?: string
+  ) {}
 }

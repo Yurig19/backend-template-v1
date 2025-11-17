@@ -13,7 +13,7 @@ export class AuditsListHandler implements IQueryHandler<ListAuditsQuery> {
    * @returns Paginated list of audit records
    */
   async execute(query: ListAuditsQuery): Promise<ListAuditsDto> {
-    const { dataPerPage, page, search } = query.params;
+    const { dataPerPage, page, search } = query;
 
     const data = await this.auditsService.listWithPagination(
       page,

@@ -44,7 +44,6 @@ async function bootstrap() {
     }
   }
 
-  // 🚀 Recria o app com HTTPS se necessário
   if (Object.keys(httpsOptions).length > 0) {
     await app.close();
     const httpsApp = await NestFactory.create(AppModule, httpsOptions);

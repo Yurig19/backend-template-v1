@@ -1,6 +1,7 @@
 import { ApiController } from '@/core/decorators/api-controller.decorator';
 import { ApiEndpoint } from '@/core/decorators/methods.decorator';
 import { GetUser } from '@/core/decorators/user-decorator';
+import { MessageDto } from '@/core/dtos/message.dto';
 import { RoleEnum } from '@/core/enums/role.enum';
 import { Body } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -61,16 +62,14 @@ export class AuthController {
   @ApiEndpoint({
     method: 'POST',
     bodyType: ForgotPasswordDto,
-    responseType: Object,
+    responseType: MessageDto,
     path: '/forgot-password',
     summary: 'Forgot password',
     description: 'Sends a password recovery code to the user email.',
     operationId: 'forgotPassword',
     successDescription: 'Recovery email sent successfully',
   })
-  async forgotPassword(
-    @Body() body: ForgotPasswordDto
-  ): Promise<{ message: string }> {
+  async forgotPassword(@Body() body: ForgotPasswordDto): Promise<MessageDto> {
     return await this.commandBus.execute(
       new AuthForgotPasswordCommand(body.email)
     );
@@ -79,16 +78,14 @@ export class AuthController {
   @ApiEndpoint({
     method: 'POST',
     bodyType: ResetPasswordDto,
-    responseType: Object,
+    responseType: MessageDto,
     path: '/reset-password',
     summary: 'Reset password',
     description: 'Resets user password using a recovery code.',
     operationId: 'resetPassword',
     successDescription: 'Password reset successfully',
   })
-  async resetPassword(
-    @Body() body: ResetPasswordDto
-  ): Promise<{ message: string }> {
+  async resetPassword(@Body() body: ResetPasswordDto): Promise<MessageDto> {
     return await this.commandBus.execute(new AuthResetPasswordCommand(body));
   }
 

@@ -1,17 +1,19 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { ApiParamDecorator } from '@/core/decorators/api-param.decorator';
+import { MinLength } from 'class-validator';
 
 export class ResetPasswordDto {
-  @ApiProperty({ example: 'ABC123', description: 'Password recovery code' })
-  @IsString()
-  @IsNotEmpty()
+  @ApiParamDecorator({
+    type: String,
+    description: 'Password recovery code',
+    example: 'ABC123',
+  })
   code: string;
 
-  @ApiProperty({
-    example: 'newStrongPassword123',
+  @ApiParamDecorator({
+    type: String,
     description: 'New user password',
+    example: 'newStrongPassword123',
   })
-  @IsString()
   @MinLength(6)
   newPassword: string;
 }

@@ -35,9 +35,9 @@ export class AuthLoginHandler implements ICommandHandler<CreateUserCommand> {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    return {
+    return <AuthLoginResponseDto>{
       accessToken: login,
-      user: {
+      user: <ReadUserDto>{
         uuid: user.uuid,
         name: user.name,
         email: user.email,
@@ -46,7 +46,7 @@ export class AuthLoginHandler implements ICommandHandler<CreateUserCommand> {
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
         deletedAt: user.deletedAt,
-      } as ReadUserDto,
-    } as AuthLoginResponseDto;
+      },
+    };
   }
 }

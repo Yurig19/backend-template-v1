@@ -153,6 +153,8 @@ function mapTsType(prismaType: string) {
  */
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 function generateDtoCreate(entity: string, fields: any[]) {
+  const lower = camelCase(entity);
+
   const lines = fields
     .filter(
       (f) =>
@@ -160,51 +162,38 @@ function generateDtoCreate(entity: string, fields: any[]) {
     )
     .map((f) => {
       const tsType = mapTsType(f.type);
+      const jsType =
+        tsType === 'string'
+          ? 'String'
+          : tsType === 'number'
+            ? 'Number'
+            : tsType === 'boolean'
+              ? 'Boolean'
+              : tsType === 'Date'
+                ? 'Date'
+                : 'String';
 
-      const finalType = ['string', 'number', 'boolean', 'Date', 'any'].includes(
-        tsType
-      )
-        ? tsType
-        : 'string';
+      const isUuid = /uuid$/i.test(f.name);
 
-      // Decorators de validação conforme tipo
-      const validator = (() => {
-        switch (finalType) {
-          case 'string':
-            return '@IsString()';
-          case 'number':
-            return '@IsNumber()';
-          case 'boolean':
-            return '@IsBoolean()';
-          case 'Date':
-            return '@IsDate()';
-          default:
-            return '@IsString()'; // relações -> uuid string
-        }
-      })();
+      return `  @ApiParamDecorator({
+      type: ${jsType},
+      required: ${f.optional ? 'false' : 'true'},
+      description: '${f.name} field of the ${entity} model',
+      example: ${generateExample(tsType)},
+      isUuid: ${isUuid},
+    })
+    ${f.name}${f.optional ? '?:' : ':'} ${tsType};`;
+    })
+    .join('\n\n');
 
-      return `  @ApiProperty({
-        example: ${generateExample(finalType)},
-        description: '${f.name} field of the ${entity} model',
-        required: ${
-          // biome-ignore lint/complexity/noUselessTernary: <explanation>
-          f.optional ? false : true
-        },
-      })
-      ${validator}
-      @IsOptional()
-      ${f.name}${f.optional ? '?:' : ':'} ${finalType};`;
-    });
-
-  return `import { ApiProperty } from '@nestjs/swagger';
-  import { IsOptional, IsString, IsNumber, IsBoolean, IsDate } from 'class-validator';
+  return `import { ApiParamDecorator } from '@/core/decorators/api-param.decorator';
   
   /**
    * Create DTO for ${entity}.
    * Used for POST operations.
    */
   export class Create${entity}Dto {
-  ${lines.length ? lines.join('\n\n') : '  // no writable fields detected'}
+  ${lines.length ? lines : '  // no writable fields detected'}
   }
   `;
 }
@@ -240,30 +229,45 @@ function generateDtoUpdate(entity: string) {
  * Includes examples and descriptions.
  */
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 function generateDtoRead(entity: string, fields: any[]) {
-  const lines = fields.map((f) => {
-    const tsType = mapTsType(f.type);
-    const finalType = ['string', 'number', 'boolean', 'Date', 'any'].includes(
-      tsType
-    )
-      ? tsType
-      : 'any';
+  const lower = camelCase(entity);
 
-    return `  @ApiProperty({
-      example: ${generateExample(finalType)},
+  const lines = fields
+    .map((f) => {
+      const tsType = mapTsType(f.type);
+      const jsType =
+        tsType === 'string'
+          ? 'String'
+          : tsType === 'number'
+            ? 'Number'
+            : tsType === 'boolean'
+              ? 'Boolean'
+              : tsType === 'Date'
+                ? 'Date'
+                : 'String';
+
+      const isUuid = /uuid$/i.test(f.name);
+
+      return `  @ApiParamDecorator({
+      type: ${jsType},
+      required: true,
       description: '${f.name} field of the ${entity} model',
+      example: ${generateExample(tsType)},
+      isUuid: ${isUuid},
     })
-    ${f.name}: ${finalType};`;
-  });
+    ${f.name}: ${tsType};`;
+    })
+    .join('\n\n');
 
-  return `import { ApiProperty } from '@nestjs/swagger';
+  return `import { ApiParamDecorator } from '@/core/decorators/api-param.decorator';
   
   /**
    * Read DTO for ${entity}.
    * Used when returning an entity from the API.
    */
   export class Read${entity}Dto {
-  ${lines.join('\n\n')}
+  ${lines}
   }
   `;
 }
@@ -276,31 +280,53 @@ function generateDtoRead(entity: string, fields: any[]) {
  */
 function generateDtoList(entity: string) {
   const lower = camelCase(entity);
-  return `import { ApiProperty } from '@nestjs/swagger';
-  import { Read${entity}Dto } from './read-${lower}.dto';
+
+  return `import { ApiParamDecorator } from '@/core/decorators/api-param.decorator';
+    import { Read${entity}Dto } from './read-${lower}.dto';
+    
+    /**
+     * Represents a single item in the ${entity} list.
+     */
+    export class Read${entity}ListDto extends Read${entity}Dto {}
+    
+    /**
+     * Paginated list DTO for ${entity}.
+     */
+    export class List${entity}Dto {
   
-  /**
-   * Represents a single item in the ${entity} list.
-   */
-  export class Read${entity}ListDto extends Read${entity}Dto {}
-  
-  /**
-   * Paginated list DTO for ${entity}.
-   */
-  export class List${entity}Dto {
-    @ApiProperty({ type: [Read${entity}ListDto] })
-    data: Read${entity}ListDto[];
-  
-    @ApiProperty({ example: 1, description: 'Current page number' })
-    actualPage: number;
-  
-    @ApiProperty({ example: 20, description: 'Total number of records found' })
-    total: number;
-  
-    @ApiProperty({ example: 2, description: 'Total number of available pages' })
-    totalPages: number;
-  }
-  `;
+      @ApiParamDecorator({
+        type: Array,
+        required: true,
+        description: 'List of ${entity} records',
+        example: [],
+      })
+      data: Read${entity}ListDto[];
+    
+      @ApiParamDecorator({
+        type: Number,
+        required: true,
+        description: 'Current page number',
+        example: 1,
+      })
+      actualPage: number;
+    
+      @ApiParamDecorator({
+        type: Number,
+        required: true,
+        description: 'Total number of records found',
+        example: 20,
+      })
+      total: number;
+    
+      @ApiParamDecorator({
+        type: Number,
+        required: true,
+        description: 'Total number of available pages',
+        example: 2,
+      })
+      totalPages: number;
+    }
+    `;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -309,30 +335,6 @@ function generateDtoList(entity: string) {
 /**
  * Shared Delete response DTO.
  */
-function generateDtoDelete(entity: string) {
-  return `import { ApiProperty } from '@nestjs/swagger';
-  
-  /**
-   * Standard delete response DTO.
-   */
-  export class DeleteDto {
-    @ApiProperty({ example: true, description: 'Indicates if deletion succeeded' })
-    success: boolean;
-  
-    @ApiProperty({
-      example: 'Record successfully deleted.',
-      description: 'Descriptive message about the delete action',
-    })
-    message: string;
-  
-    @ApiProperty({
-      example: 200,
-      description: 'HTTP status code returned by the operation',
-    })
-    statusCode?: number;
-  }
-  `;
-}
 
 /* -------------------------------------------------------------------------- */
 /*                         Helper: Generate Example                             */
@@ -366,112 +368,145 @@ function generateService(entity: string, fields: any[]) {
   const entityImport = prismaType;
 
   return `import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-  import { PrismaService } from '@/core/database/prisma.service';
-  import { Prisma, ${entityImport} } from 'generated/prisma/client';
-  import { Create${entity}Dto } from '../dtos/create-${lower}.dto';
-  import { Update${entity}Dto } from '../dtos/update-${lower}.dto';
+    import { PrismaService } from '@/core/database/prisma.service';
+    import { Prisma, ${entityImport} } from 'generated/prisma/client';
+    import { Create${entity}Dto } from '../dtos/create-${lower}.dto';
+    import { Update${entity}Dto } from '../dtos/update-${lower}.dto';
+    
+    /**
+     * ${entity}Service - typed service using Prisma client
+     */
+    @Injectable()
+    export class ${entity}Service {
+      private readonly logger = new Logger(${entity}Service.name);
+    
+      constructor(private readonly prisma: PrismaService) {}
+    
+      private ${lower}s = this.prisma.${lower};
   
-  /**
-   * ${entity}Service - typed service using Prisma client
-   */
-  @Injectable()
-  export class ${entity}Service {
-    private readonly logger = new Logger(${entity}Service.name);
-  
-    constructor(private readonly prisma: PrismaService) {}
-  
-    private ${lower}s = this.prisma.${lower};
-
-    async checkUuid(uuid: string): Promise<boolean> {
-      try {
-        const count = await this.${lower}s.count({
-          where: { deletedAt: null, uuid },
-        });
-        return count > 0;
-      } catch (error) {
-        this.logger.error(\`Failed to check uuid for ${entity}: \${uuid}\`, error);
-        throw new BadRequestException('Failed to validate uuid.');
-      }
-    }
-  
-    async create(createDto: Create${entity}Dto): Promise<${entityImport}> {
-      try {
-        return await this.${lower}s.create({
-          data: createDto,
-        });
-      } catch (error) {
-        this.logger.error('Failed to create ${entity}', error);
-        throw new BadRequestException('Failed to create ${entity}.');
-      }
-    }
-  
-    async update(uuid: string, updateDto: Update${entity}Dto): Promise<${entityImport}> {
-      try {
-        return await this.${lower}s.update({
-          where: { uuid },
-          data: updateDto,
-        });
-      } catch (error) {
-        this.logger.error(\`Failed to update ${entity}: \${uuid}\`, error);
-        throw new BadRequestException('Failed to update ${entity}.');
-      }
-    }
-  
-    async delete(uuid: string): Promise<void> {
-      try {
-        await this.${lower}s.delete({ where: { uuid } });
-      } catch (error) {
-        this.logger.error(\`Failed to delete ${entity}: \${uuid}\`, error);
-        throw new BadRequestException('Failed to delete ${entity}.');
-      }
-    }
-  
-    async findByUuid(uuid: string): Promise<${entityImport} | null> {
-      try {
-        return await this.${lower}s.findUnique({ where: { uuid } });
-      } catch (error) {
-        this.logger.error(\`Failed to find ${entity} by uuid: \${uuid}\`, error);
-        throw new BadRequestException('Failed to retrieve ${entity}.');
-      }
-    }
-  
-    async listWithPagination(
-      page = 1,
-      dataPerPage = 10,
-      search?: string
-    ): Promise<{
-      data: ${entityImport}[];
-      total: number;
-      totalPages: number;
-      actualPage: number;
-    }> {
-      try {
-        const take = dataPerPage;
-        const skip = (page - 1) * take;
-  
-        const where: Prisma.${prismaType}WhereInput = {};
-  
-        ${
-          fields.some((f) => f.name === 'name')
-            ? "if (search) { where['name'] = { contains: search, mode: 'insensitive' }; }"
-            : "if (search) { where['uuid'] = { contains: search, mode: 'insensitive' }; }"
+      /**
+       * Checks whether a ${lower} with the provided UUID exists.
+       * @param uuid UUID to validate
+       * @returns True if UUID exists and is not deleted
+       */
+      async checkUuid(uuid: string): Promise<boolean> {
+        try {
+          const count = await this.${lower}s.count({
+            where: { deletedAt: null, uuid },
+          });
+          return count > 0;
+        } catch (error) {
+          this.logger.error(\`Failed to check uuid for ${entity}: \${uuid}\`, error);
+          throw new BadRequestException('Failed to validate uuid.');
         }
-  
-        const [data, total] = await this.prisma.$transaction([
-          this.${lower}s.findMany({ where, skip, take, orderBy: [{ createdAt: 'desc' }] }),
-          this.${lower}s.count({ where }),
-        ]);
-  
-        const totalPages = Math.max(Math.ceil(total / take), 1);
-  
-        return { data, total, totalPages, actualPage: page };
-      } catch (error) {
-        this.logger.error('Failed to list ${entity}', error);
-        throw new BadRequestException('Failed to retrieve ${entity} list.');
+      }
+    
+      /**
+       * Creates a new ${lower}.
+       * @param createDto DTO containing ${lower} creation data
+       * @returns The created ${lower}
+       */
+      async create(createDto: Create${entity}Dto): Promise<${entityImport}> {
+        try {
+          return await this.${lower}s.create({
+            data: createDto,
+          });
+        } catch (error) {
+          this.logger.error('Failed to create ${entity}', error);
+          throw new BadRequestException('Failed to create ${entity}.');
+        }
+      }
+    
+      /**
+       * Updates an existing ${lower}.
+       * @param uuid UUID of the record to update
+       * @param updateDto DTO containing updated data
+       * @returns Updated ${lower} data
+       */
+      async update(uuid: string, updateDto: Update${entity}Dto): Promise<${entityImport}> {
+        try {
+          return await this.${lower}s.update({
+            where: { uuid },
+            data: updateDto,
+          });
+        } catch (error) {
+          this.logger.error(\`Failed to update ${entity}: \${uuid}\`, error);
+          throw new BadRequestException('Failed to update ${entity}.');
+        }
+      }
+    
+      /**
+       * Deletes a ${lower} by its UUID.
+       * @param uuid UUID of the record to delete
+       */
+      async delete(uuid: string): Promise<void> {
+        try {
+          await this.${lower}s.delete({ where: { uuid } });
+        } catch (error) {
+          this.logger.error(\`Failed to delete ${entity}: \${uuid}\`, error);
+          throw new BadRequestException('Failed to delete ${entity}.');
+        }
+      }
+    
+      /**
+       * Retrieves a ${lower} by UUID.
+       * @param uuid UUID of the record
+       * @returns The found ${lower} or null
+       */
+      async findByUuid(uuid: string): Promise<${entityImport} | null> {
+        try {
+          return await this.${lower}s.findUnique({ where: { uuid } });
+        } catch (error) {
+          this.logger.error(\`Failed to find ${entity} by uuid: \${uuid}\`, error);
+          throw new BadRequestException('Failed to retrieve ${entity}.');
+        }
+      }
+    
+      /**
+       * Retrieves a paginated list of ${lower} records.
+       * Applies optional search filtering.
+       * @param page Page number
+       * @param dataPerPage Items per page
+       * @param search Optional search text
+       * @returns Paginated result containing data, total count and page info
+       */
+      async listWithPagination(
+        page = 1,
+        dataPerPage = 10,
+        search?: string
+      ): Promise<{
+        data: ${entityImport}[];
+        total: number;
+        totalPages: number;
+        actualPage: number;
+      }> {
+        try {
+          const take = dataPerPage;
+          const skip = (page - 1) * take;
+    
+          const where: Prisma.${prismaType}WhereInput = {};
+    
+          ${
+            fields.some((f) => f.name === 'name')
+              ? "if (search) { where['name'] = { contains: search, mode: 'insensitive' }; }"
+              : "if (search) { where['uuid'] = { contains: search, mode: 'insensitive' }; }"
+          }
+    
+          const [data, total] = await this.prisma.$transaction([
+            this.${lower}s.findMany({ where, skip, take, orderBy: [{ createdAt: 'desc' }] }),
+            this.${lower}s.count({ where }),
+          ]);
+    
+          const totalPages = Math.max(Math.ceil(total / take), 1);
+    
+          return { data, total, totalPages, actualPage: page };
+        } catch (error) {
+          this.logger.error('Failed to list ${entity}', error);
+          throw new BadRequestException('Failed to retrieve ${entity} list.');
+        }
       }
     }
-  }
-  `;
+    `;
 }
 
 /* ===========================================================
@@ -623,32 +658,40 @@ function generateHandlerUpdate(entity: string, fields: any[]) {
 
 function generateHandlerDelete(entity: string) {
   const lower = camelCase(entity);
+
   return `import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Delete${entity}Command } from './delete-${lower}.command';
-import { ${entity}Service } from '../../services/${lower}.service';
-import { DeleteDto } from '../../dtos/delete-${lower}.dto';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
-
-@CommandHandler(Delete${entity}Command)
-export class Delete${entity}Handler implements ICommandHandler<Delete${entity}Command> {
-  constructor(private readonly service: ${entity}Service) {}
-
-  async execute(command: Delete${entity}Command): Promise<DeleteDto> {
-    const { uuid } = command;
-    try {
-      // If not found - service returns null or throws; we attempt delete (service.delete throws if error)
-      await this.service.delete(uuid);
-      return {
-        success: true,
-        message: '${entity} deleted successfully!',
-        statusCode: 200,
-      };
-    } catch (error) {
-      throw new BadRequestException('Failed to delete ${entity}.');
+  import { Delete${entity}Command } from './delete-${lower}.command';
+  import { ${entity}Service } from '../../services/${lower}.service';
+  import { DeleteDto } from '@/core/dtos/delete.dto';
+  import { BadRequestException, NotFoundException } from '@nestjs/common';
+  
+  @CommandHandler(Delete${entity}Command)
+  export class Delete${entity}Handler implements ICommandHandler<Delete${entity}Command> {
+    constructor(private readonly service: ${entity}Service) {}
+  
+    async execute(command: Delete${entity}Command): Promise<DeleteDto> {
+      const { uuid } = command;
+  
+      try {
+        // Check existence before deletion
+        if (!(await this.service.checkUuid(uuid))) {
+          throw new NotFoundException('${entity} not found');
+        }
+  
+        await this.service.delete(uuid);
+  
+        return {
+          success: true,
+          message: '${entity} deleted successfully!',
+          statusCode: 200,
+        };
+  
+      } catch (error) {
+        throw new BadRequestException('Failed to delete ${entity}.');
+      }
     }
   }
-}
-`;
+  `;
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
@@ -748,117 +791,127 @@ function generateController(entity: string) {
   const op = (name: string) => `${name}${entity}`;
 
   return `import { ApiController } from '@/core/decorators/api-controller.decorator';
-import { ApiEndpoint } from '@/core/decorators/methods.decorator';
-import { ApiQuery } from '@nestjs/swagger';
-import { Body, ParseIntPipe, ParseUUIDPipe, Query } from '@nestjs/common';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
+  import { ApiEndpoint } from '@/core/decorators/methods.decorator';
+  import { Body, ParseIntPipe, ParseUUIDPipe, Query } from '@nestjs/common';
+  import { CommandBus, QueryBus } from '@nestjs/cqrs';
+  
+  import { Create${entity}Dto } from '../dtos/create-${lower}.dto';
+  import { Update${entity}Dto } from '../dtos/update-${lower}.dto';
+  import { Read${entity}Dto } from '../dtos/read-${lower}.dto';
+  import { List${entity}Dto } from '../dtos/list-${lower}.dto';
+  import { DeleteDto } from '@/core/dtos/delete.dto';
 
-import { Create${entity}Dto } from '../dtos/create-${lower}.dto';
-import { Update${entity}Dto } from '../dtos/update-${lower}.dto';
-import { Read${entity}Dto } from '../dtos/read-${lower}.dto';
-import { List${entity}Dto } from '../dtos/list-${lower}.dto';
-import { DeleteDto } from '../dtos/delete-${lower}.dto';
-
-import { Create${entity}Command } from '../use-cases/commands/create-${lower}.command';
-import { Update${entity}Command } from '../use-cases/commands/update-${lower}.command';
-import { Delete${entity}Command } from '../use-cases/commands/delete-${lower}.command';
-
-import { ${entity}ByUuidQuery } from '../use-cases/queries/${lower}-by-uuid.query';
-import { List${entity}Query } from '../use-cases/queries/list-${lower}.query';
-
-@ApiController('${lower}')
-export class ${entity}Controller {
-  constructor(
-    private readonly commandBus: CommandBus,
-    private readonly queryBus: QueryBus
-  ) {}
-
-  @ApiEndpoint({
-    isAuth: true,
-    method: 'POST',
-    path: '/create',
-    summary: 'Create ${entity}',
-    description: 'Creates a new ${entity}.',
-    operationId: '${op('create')}',
-    bodyType: Create${entity}Dto,
-    responseType: Read${entity}Dto,
-    successDescription: '${entity} successfully created',
-  })
-  async create(@Body() createDto: Create${entity}Dto): Promise<Read${entity}Dto> {
-    return this.commandBus.execute(new Create${entity}Command(createDto));
+  
+  import { Create${entity}Command } from '../use-cases/commands/create-${lower}.command';
+  import { Update${entity}Command } from '../use-cases/commands/update-${lower}.command';
+  import { Delete${entity}Command } from '../use-cases/commands/delete-${lower}.command';
+  
+  import { ${entity}ByUuidQuery } from '../use-cases/queries/${lower}-by-uuid.query';
+  import { List${entity}Query } from '../use-cases/queries/list-${lower}.query';
+  
+  @ApiController('${lower}')
+  export class ${entity}Controller {
+    constructor(
+      private readonly commandBus: CommandBus,
+      private readonly queryBus: QueryBus
+    ) {}
+  
+    @ApiEndpoint({
+      isAuth: true,
+      method: 'POST',
+      path: '/create',
+      summary: 'Create ${entity}',
+      description: 'Creates a new ${entity}.',
+      operationId: '${op('create')}',
+      bodyType: Create${entity}Dto,
+      responseType: Read${entity}Dto,
+      successDescription: '${entity} successfully created',
+    })
+    async create(@Body() createDto: Create${entity}Dto): Promise<Read${entity}Dto> {
+      return this.commandBus.execute(new Create${entity}Command(createDto));
+    }
+  
+    @ApiEndpoint({
+      isAuth: true,
+      method: 'GET',
+      path: '/find-by-uuid',
+      summary: 'Find ${entity} by UUID',
+      description: 'Retrieves a ${entity} by UUID.',
+      operationId: '${op('findByUuid')}',
+      responseType: Read${entity}Dto,
+      successDescription: '${entity} successfully found',
+      queries: [
+        { name: 'uuid', type: String, required: true, description: '${entity} UUID' }
+      ],
+    })
+    async getByUuid(
+      @Query('uuid', ParseUUIDPipe) uuid: string
+    ): Promise<Read${entity}Dto> {
+      return this.queryBus.execute(new ${entity}ByUuidQuery(uuid));
+    }
+  
+    @ApiEndpoint({
+      isAuth: true,
+      method: 'GET',
+      path: '/list',
+      summary: 'List ${entity}',
+      description: 'List ${entity} with pagination and optional search.',
+      operationId: '${op('list')}',
+      responseType: List${entity}Dto,
+      successDescription: '${entity} list retrieved',
+      queries: [
+        { name: 'page', type: Number, required: true, description: 'Page number' },
+        { name: 'dataPerPage', type: Number, required: true, description: 'Items per page' },
+        { name: 'search', type: String, required: false, description: 'Optional search term' },
+      ],
+    })
+    async list(
+      @Query('page', ParseIntPipe) page: number,
+      @Query('dataPerPage', ParseIntPipe) dataPerPage: number,
+      @Query('search') search?: string
+    ): Promise<List${entity}Dto> {
+      return this.queryBus.execute(new List${entity}Query(page, dataPerPage, search));
+    }
+  
+    @ApiEndpoint({
+      isAuth: true,
+      method: 'PUT',
+      path: '/update',
+      summary: 'Update ${entity}',
+      description: 'Update an existing ${entity}.',
+      operationId: '${op('update')}',
+      bodyType: Update${entity}Dto,
+      responseType: Read${entity}Dto,
+      successDescription: '${entity} successfully updated',
+      queries: [
+        { name: 'uuid', type: String, required: true, description: '${entity} UUID' }
+      ],
+    })
+    async update(
+      @Query('uuid', ParseUUIDPipe) uuid: string,
+      @Body() updateDto: Update${entity}Dto
+    ): Promise<Read${entity}Dto> {
+      return this.commandBus.execute(new Update${entity}Command(uuid, updateDto));
+    }
+  
+    @ApiEndpoint({
+      isAuth: true,
+      method: 'DELETE',
+      path: '/delete',
+      summary: 'Delete ${entity}',
+      description: 'Deletes the ${entity} associated with the given UUID.',
+      operationId: '${op('delete')}',
+      responseType: DeleteDto,
+      successDescription: '${entity} successfully deleted',
+      queries: [
+        { name: 'uuid', type: String, required: true, description: '${entity} UUID' }
+      ],
+    })
+    async delete(@Query('uuid', ParseUUIDPipe) uuid: string): Promise<DeleteDto> {
+      return this.commandBus.execute(new Delete${entity}Command(uuid));
+    }
   }
-
-  @ApiEndpoint({
-    isAuth: true,
-    method: 'GET',
-    path: '/find-by-uuid',
-    summary: 'Find ${entity} by UUID',
-    description: 'Retrieves a ${entity} by UUID.',
-    operationId: '${op('findByUuid')}',
-    responseType: Read${entity}Dto,
-    successDescription: '${entity} successfully found',
-  })
-  @ApiQuery({ name: 'uuid', type: String, required: true })
-  async getByUuid(@Query('uuid', ParseUUIDPipe) uuid: string): Promise<Read${entity}Dto> {
-    return this.queryBus.execute(new ${entity}ByUuidQuery(uuid));
-  }
-
-  @ApiEndpoint({
-    isAuth: true,
-    method: 'GET',
-    path: '/list',
-    summary: 'List ${entity}',
-    description: 'List ${entity} with pagination and optional search.',
-    operationId: '${op('list')}',
-    responseType: List${entity}Dto,
-    successDescription: '${entity} list retrieved',
-  })
-  @ApiQuery({ name: 'page', type: Number, required: true })
-  @ApiQuery({ name: 'dataPerPage', type: Number, required: true })
-  @ApiQuery({ name: 'search', type: String, required: false })
-  async list(
-    @Query('page', ParseIntPipe) page: number,
-    @Query('dataPerPage', ParseIntPipe) dataPerPage: number,
-    @Query('search') search?: string
-  ): Promise<List${entity}Dto> {
-    return this.queryBus.execute(new List${entity}Query(page, dataPerPage, search));
-  }
-
-  @ApiEndpoint({
-    isAuth: true,
-    method: 'PUT',
-    path: '/update',
-    summary: 'Update ${entity}',
-    description: 'Update an existing ${entity}.',
-    operationId: '${op('update')}',
-    bodyType: Update${entity}Dto,
-    responseType: Read${entity}Dto,
-    successDescription: '${entity} successfully updated',
-  })
-  @ApiQuery({ name: 'uuid', type: String, required: true })
-  async update(
-    @Query('uuid', ParseUUIDPipe) uuid: string,
-    @Body() updateDto: Update${entity}Dto
-  ): Promise<Read${entity}Dto> {
-    return this.commandBus.execute(new Update${entity}Command(uuid, updateDto));
-  }
-
-  @ApiEndpoint({
-    isAuth: true,
-    method: 'DELETE',
-    path: '/delete',
-    summary: 'Delete ${entity}',
-    description: 'Deletes the ${entity} associated with the given UUID.',
-    operationId: '${op('delete')}',
-    responseType: DeleteDto,
-    successDescription: '${entity} successfully deleted',
-  })
-  @ApiQuery({ name: 'uuid', type: String, required: true })
-  async delete(@Query('uuid', ParseUUIDPipe) uuid: string): Promise<DeleteDto> {
-    return this.commandBus.execute(new Delete${entity}Command(uuid));
-  }
-}
-`;
+  `;
 }
 
 /* ===========================================================
@@ -889,7 +942,6 @@ const handlers = [
   List${entity}Handler,
 ];
 
-@Global()
 @Module({
   imports: [CqrsModule],
   controllers: [${entity}Controller],
@@ -942,10 +994,6 @@ writeFile(
 writeFile(
   path.join(base, 'dtos', `list-${lower}.dto.ts`),
   generateDtoList(entity)
-);
-writeFile(
-  path.join(base, 'dtos', `delete-${lower}.dto.ts`),
-  generateDtoDelete(entity)
 );
 
 /* Service */

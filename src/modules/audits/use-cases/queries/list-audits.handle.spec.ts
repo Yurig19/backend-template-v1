@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
+import { PrismaService } from '@/core/database/prisma.service';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from 'prisma/prisma.service';
 import { ListAuditsDto } from '../../dtos/list-audits.dto';
 import { AuditsService } from '../../services/audits.service';
 import { ListAuditsQuery } from './list-audits-query';
@@ -36,9 +36,9 @@ describe('AuditsListHandler (integration)', () => {
     auditsService = module.get<AuditsService>(AuditsService);
     prisma = module.get<PrismaService>(PrismaService);
 
-    await prisma.audits.deleteMany();
+    await prisma.audit.deleteMany();
 
-    await prisma.users.create({
+    await prisma.user.create({
       data: {
         uuid: mockAudit.userUuid,
         name: 'User Test',
@@ -48,12 +48,12 @@ describe('AuditsListHandler (integration)', () => {
       },
     });
 
-    await prisma.audits.create({ data: mockAudit });
+    await prisma.audit.create({ data: mockAudit });
   });
 
   afterEach(async () => {
-    await prisma.audits.deleteMany();
-    await prisma.users.deleteMany();
+    await prisma.audit.deleteMany();
+    await prisma.user.deleteMany();
   });
 
   afterAll(async () => {
@@ -87,7 +87,7 @@ describe('AuditsListHandler (integration)', () => {
   });
 
   it('should return empty data when no audits found', async () => {
-    await prisma.audits.deleteMany();
+    await prisma.audit.deleteMany();
 
     const query = new ListAuditsQuery(1, 10);
 

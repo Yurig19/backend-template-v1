@@ -13,7 +13,7 @@ export class LogsListHandler implements IQueryHandler<LogsListQuery> {
    * @returns Paginated list of error logs
    */
   async execute(query: LogsListQuery): Promise<ListLogsDto> {
-    const { dataPerPage, page, search } = query.params;
+    const { dataPerPage, page, search } = query;
 
     const data = await this.logsService.listWithPagination(
       page,

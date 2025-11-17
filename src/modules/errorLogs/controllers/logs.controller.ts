@@ -1,10 +1,9 @@
 import { ApiController } from '@/core/decorators/api-controller.decorator';
 import { ApiEndpoint } from '@/core/decorators/methods.decorator';
 import { RoleEnum } from '@/core/enums/role.enum';
-import { Query } from '@nestjs/common';
+import { ParseIntPipe, Query } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
 import { ListLogsDto } from '../dtos/list-logs.dto';
-import { ListErrorLogsQueryDto } from '../dtos/list-query.dto';
 import { LogsListQuery } from '../use-cases/queries/logs-list.query';
 
 @ApiController('logs')
@@ -22,8 +21,19 @@ export class LogsController {
     isAuth: true,
     successDescription: 'list error logs successfully',
     roles: [RoleEnum.admin],
+    queries: [
+      { name: 'page', type: Number, required: true },
+      { name: 'dataPerPage', type: Number, required: true },
+      { name: 'search', type: String, required: false },
+    ],
   })
-  async list(@Query() query: ListErrorLogsQueryDto): Promise<ListLogsDto> {
-    return await this.queryBus.execute(new LogsListQuery(query));
+  async list(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('dataPerPage', ParseIntPipe) dataPerPage: number,
+    @Query('search') search?: string
+  ): Promise<ListLogsDto> {
+    return await this.queryBus.execute(
+      new LogsListQuery(page, dataPerPage, search)
+    );
   }
 }

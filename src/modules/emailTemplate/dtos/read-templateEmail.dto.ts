@@ -1,83 +1,92 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiParamDecorator } from '@/core/decorators/api-param.decorator';
 
-/**
- * Data transfer object for reading an email template.
- */
 export class ReadEmailTemplateDto {
-  @ApiProperty({
-    example: 'b4b4a770-45a3-4e2e-9fcb-1a2e78d8a8b1',
+  @ApiParamDecorator({
+    type: String,
+    isUuid: true,
     description: 'Unique identifier of the email template (UUID)',
+    example: 'b4b4a770-45a3-4e2e-9fcb-1a2e78d8a8b1',
   })
   id: string;
 
-  @ApiProperty({
-    example: 'Welcome Email',
+  @ApiParamDecorator({
+    type: String,
     description: 'Unique name of the email template (used as an identifier)',
+    example: 'Welcome Email',
   })
   name: string;
 
-  @ApiProperty({
-    example: 'Welcome to our platform!',
+  @ApiParamDecorator({
+    type: String,
     description: 'Subject line of the email',
+    example: 'Welcome to our platform!',
   })
   subject: string;
 
-  @ApiProperty({
-    example: '<h1>Hello {{name}}</h1><p>Thanks for joining us!</p>',
+  @ApiParamDecorator({
+    type: String,
     description: 'HTML body of the email template',
+    example: '<h1>Hello {{name}}</h1><p>Thanks for joining us!</p>',
   })
   bodyHtml: string;
 
-  @ApiProperty({
-    example: 'Hello {{name}}, thanks for joining us!',
-    description: 'Plain text version of the email body (optional)',
+  @ApiParamDecorator({
+    type: String,
     required: false,
+    description: 'Plain text version of the email body (optional)',
+    example: 'Hello {{name}}, thanks for joining us!',
   })
   bodyText?: string;
 
-  @ApiProperty({
-    example: ['name', 'link'],
+  @ApiParamDecorator({
+    type: Array,
     description:
-      'List of dynamic variables used in the template (e.g., placeholders in {{variable}} format)',
-    type: [String],
+      'List of dynamic variables used in the template (e.g., placeholders like {{variable}})',
+    example: ['name', 'link'],
   })
   variables: string[];
 
-  @ApiProperty({
-    example: 'User Engagement',
-    description: 'Category or classification of the email template',
+  @ApiParamDecorator({
+    type: String,
     required: false,
+    description: 'Category or classification of the email template',
+    example: 'User Engagement',
   })
   category?: string;
 
-  @ApiProperty({
-    example: 'Template sent to users upon registration',
-    description: 'Detailed description of what this template is used for',
+  @ApiParamDecorator({
+    type: String,
     required: false,
+    description: 'Detailed description of what this template is used for',
+    example: 'Template sent to users upon registration',
   })
   description?: string;
 
-  @ApiProperty({
-    example: true,
+  @ApiParamDecorator({
+    type: Boolean,
     description: 'Indicates whether this template is active or not',
+    example: true,
   })
   isActive: boolean;
 
-  @ApiProperty({
-    example: 1,
+  @ApiParamDecorator({
+    type: Number,
     description: 'Version number of the template',
+    example: 1,
   })
   version: number;
 
-  @ApiProperty({
-    example: '2025-11-10T15:45:00.000Z',
+  @ApiParamDecorator({
+    type: Date,
     description: 'Date and time when the template was created',
+    example: '2025-11-10T15:45:00.000Z',
   })
   createdAt: Date;
 
-  @ApiProperty({
-    example: '2025-11-10T16:00:00.000Z',
+  @ApiParamDecorator({
+    type: Date,
     description: 'Date and time when the template was last updated',
+    example: '2025-11-10T16:00:00.000Z',
   })
   updatedAt: Date;
 }

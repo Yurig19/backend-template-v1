@@ -1,100 +1,72 @@
-import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsArray,
-  IsBoolean,
-  IsInt,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  MaxLength,
-} from 'class-validator';
+import { ApiParamDecorator } from '@/core/decorators/api-param.decorator';
 
-/**
- * Data transfer object for creating an email template.
- */
 export class CreateEmailTemplateDto {
-  @ApiProperty({
-    example: 'Welcome Email',
+  @ApiParamDecorator({
+    type: String,
     description: 'Unique name of the email template (used as an identifier)',
+    example: 'Welcome Email',
   })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(100)
   name: string;
 
-  @ApiProperty({
-    example: 'Welcome to our platform!',
+  @ApiParamDecorator({
+    type: String,
     description: 'Subject line of the email',
+    example: 'Welcome to our platform!',
   })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(200)
   subject: string;
 
-  @ApiProperty({
-    example: '<h1>Hello {{name}}</h1><p>Thanks for joining us!</p>',
+  @ApiParamDecorator({
+    type: String,
     description: 'HTML body of the email template',
+    example: '<h1>Hello {{name}}</h1><p>Thanks for joining us!</p>',
   })
-  @IsString()
-  @IsNotEmpty()
   bodyHtml: string;
 
-  @ApiProperty({
-    example: 'Hello {{name}}, thanks for joining us!',
-    description: 'Plain text version of the email body (optional)',
+  @ApiParamDecorator({
+    type: String,
     required: false,
+    description: 'Plain text version of the email body (optional)',
+    example: 'Hello {{name}}, thanks for joining us!',
   })
-  @IsOptional()
-  @IsString()
   bodyText?: string;
 
-  @ApiProperty({
-    example: ['name', 'link'],
+  @ApiParamDecorator({
+    type: Array,
     description:
       'List of dynamic variables used in the template (e.g., placeholders in {{variable}} format)',
-    type: [String],
+    example: ['name', 'link'],
   })
-  @IsArray()
-  @IsNotEmpty()
   variables: string[];
 
-  @ApiProperty({
-    example: 'User Engagement',
-    description: 'Category or classification of the email template',
+  @ApiParamDecorator({
+    type: String,
     required: false,
+    description: 'Category or classification of the email template',
+    example: 'User Engagement',
   })
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
   category?: string;
 
-  @ApiProperty({
-    example: 'Template sent to users upon registration',
-    description: 'Detailed description of what this template is used for',
+  @ApiParamDecorator({
+    type: String,
     required: false,
+    description: 'Detailed description of what this template is used for',
+    example: 'Template sent to users upon registration',
   })
-  @IsOptional()
-  @IsString()
-  @MaxLength(255)
   description?: string;
 
-  @ApiProperty({
-    example: true,
-    description: 'Defines whether this template is active or not',
+  @ApiParamDecorator({
+    type: Boolean,
     required: false,
-    default: true,
+    description: 'Defines whether this template is active or not',
+    example: true,
   })
-  @IsOptional()
-  @IsBoolean()
   isActive?: boolean;
 
-  @ApiProperty({
-    example: 1,
-    description: 'Version number of the template (defaults to 1)',
+  @ApiParamDecorator({
+    type: Number,
     required: false,
-    default: 1,
+    description: 'Version number of the template (defaults to 1)',
+    example: 1,
   })
-  @IsOptional()
-  @IsInt()
   version?: number;
 }
