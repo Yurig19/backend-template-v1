@@ -39,6 +39,8 @@ CREATE TABLE "users" (
     "password" TEXT,
     "email" TEXT,
     "roleUuid" TEXT,
+    "code" VARCHAR(10),
+    "codeExpiresAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "deletedAt" TIMESTAMP(3),
@@ -74,7 +76,7 @@ CREATE TABLE "errorLogs" (
 );
 
 -- CreateTable
-CREATE TABLE "file" (
+CREATE TABLE "files" (
     "uuid" TEXT NOT NULL,
     "filename" TEXT,
     "mimetype" TEXT,
@@ -88,7 +90,31 @@ CREATE TABLE "file" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "deletedAt" TIMESTAMP(3),
 
-    CONSTRAINT "file_pkey" PRIMARY KEY ("uuid")
+    CONSTRAINT "files_pkey" PRIMARY KEY ("uuid")
+);
+
+-- CreateTable
+CREATE TABLE "permissions" (
+    "uuid" TEXT NOT NULL,
+    "name" VARCHAR(150) NOT NULL,
+    "description" TEXT,
+    "action" VARCHAR(150) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "permissions_pkey" PRIMARY KEY ("uuid")
+);
+
+-- CreateTable
+CREATE TABLE "rolePermissions" (
+    "uuid" TEXT NOT NULL,
+    "roleUuid" TEXT NOT NULL,
+    "permissionUuid" TEXT NOT NULL,
+    "assignedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "rolePermissions_pkey" PRIMARY KEY ("uuid")
 );
 
 -- CreateIndex
@@ -118,6 +144,9 @@ CREATE UNIQUE INDEX "roles_type_key" ON "roles"("type");
 -- CreateIndex
 CREATE UNIQUE INDEX "errorLogs_uuid_key" ON "errorLogs"("uuid");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "permissions_name_key" ON "permissions"("name");
+
 -- AddForeignKey
 ALTER TABLE "audits" ADD CONSTRAINT "audits_userUuid_fkey" FOREIGN KEY ("userUuid") REFERENCES "users"("uuid") ON DELETE SET NULL ON UPDATE CASCADE;
 
@@ -125,4 +154,10 @@ ALTER TABLE "audits" ADD CONSTRAINT "audits_userUuid_fkey" FOREIGN KEY ("userUui
 ALTER TABLE "users" ADD CONSTRAINT "users_roleUuid_fkey" FOREIGN KEY ("roleUuid") REFERENCES "roles"("uuid") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "file" ADD CONSTRAINT "file_userUuid_fkey" FOREIGN KEY ("userUuid") REFERENCES "users"("uuid") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "files" ADD CONSTRAINT "files_userUuid_fkey" FOREIGN KEY ("userUuid") REFERENCES "users"("uuid") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "rolePermissions" ADD CONSTRAINT "rolePermissions_roleUuid_fkey" FOREIGN KEY ("roleUuid") REFERENCES "roles"("uuid") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "rolePermissions" ADD CONSTRAINT "rolePermissions_permissionUuid_fkey" FOREIGN KEY ("permissionUuid") REFERENCES "permissions"("uuid") ON DELETE RESTRICT ON UPDATE CASCADE;
