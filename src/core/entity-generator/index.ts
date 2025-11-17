@@ -94,6 +94,39 @@ function extractModel(schema: string, modelName: string) {
   return fields;
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+function extractEnumsForEntity(schema: string, fields: any[]) {
+  const schemaEnums: Record<string, string[]> = {};
+
+  // 1) Buscar todos enums do schema
+  const enumRegex = /enum\s+(\w+)\s+{([^}]+)}/g;
+  // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
+  let match;
+
+  // biome-ignore lint/suspicious/noAssignInExpressions: <explanation>
+  while ((match = enumRegex.exec(schema)) !== null) {
+    const enumName = match[1];
+    const enumValues = match[2]
+      .split('\n')
+      .map((v) => v.trim())
+      .filter((v) => v && !v.startsWith('//'))
+      .map((v) => v.replace(/,/, ''));
+
+    schemaEnums[enumName] = enumValues;
+  }
+
+  // 2) Filtrar somente os enums usados pelos campos da entidade
+  const usedEnums: Record<string, string[]> = {};
+
+  for (const f of fields) {
+    if (schemaEnums[f.type]) {
+      usedEnums[f.type] = schemaEnums[f.type];
+    }
+  }
+
+  return usedEnums;
+}
+
 function pascalCase(str: string) {
   if (!str) return str;
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -120,8 +153,13 @@ function writeFile(p: string, content: string) {
 /* ===========================================================
    TYPE MAP
 =========================================================== */
-function mapTsType(prismaType: string) {
+function mapTsType(prismaType: string, enums: Record<string, string[]>) {
+  if (enums[prismaType]) {
+    return prismaType; // enum real
+  }
+
   const base = prismaType.replace('?', '');
+
   switch (base) {
     case 'String':
       return 'string';
@@ -137,7 +175,6 @@ function mapTsType(prismaType: string) {
     case 'Decimal':
       return 'number';
     default:
-      // relation or unknown -> use model type (Prisma type will be used in service)
       return base;
   }
 }
@@ -151,8 +188,12 @@ function mapTsType(prismaType: string) {
  * - Adds ApiProperty with example and description
  * - Relations default to string (uuid)
  */
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-function generateDtoCreate(entity: string, fields: any[]) {
+function generateDtoCreate(
+  entity: string,
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  fields: any[],
+  enums: Record<string, string[]>
+) {
   const lower = camelCase(entity);
 
   const lines = fields
@@ -161,9 +202,13 @@ function generateDtoCreate(entity: string, fields: any[]) {
         !['uuid', 'id', 'createdAt', 'updatedAt', 'deletedAt'].includes(f.name)
     )
     .map((f) => {
-      const tsType = mapTsType(f.type);
-      const jsType =
-        tsType === 'string'
+      const isEnum = enums[f.type] !== undefined;
+
+      const tsType = isEnum ? f.type : mapTsType(f.type, enums);
+
+      const jsType = isEnum
+        ? f.type
+        : tsType === 'string'
           ? 'String'
           : tsType === 'number'
             ? 'Number'
@@ -179,23 +224,30 @@ function generateDtoCreate(entity: string, fields: any[]) {
       type: ${jsType},
       required: ${f.optional ? 'false' : 'true'},
       description: '${f.name} field of the ${entity} model',
-      example: ${generateExample(tsType)},
+      example: ${isEnum ? `${f.type}.${enums[f.type][0]}` : generateExample(tsType)},
+      ${isEnum ? `enumName: "${f.type}",` : ''}
       isUuid: ${isUuid},
     })
     ${f.name}${f.optional ? '?:' : ':'} ${tsType};`;
     })
     .join('\n\n');
 
+  // se houver enums usados, importe do arquivo ../enums/<lower>.enums
+  const enumImports = Object.keys(enums).length
+    ? `import { ${Object.keys(enums).join(', ')} } from '../enums/${lower}.enums';`
+    : '';
+
   return `import { ApiParamDecorator } from '@/core/decorators/api-param.decorator';
-  
-  /**
-   * Create DTO for ${entity}.
-   * Used for POST operations.
-   */
-  export class Create${entity}Dto {
-  ${lines.length ? lines : '  // no writable fields detected'}
-  }
-  `;
+${enumImports}
+
+/**
+ * Create DTO for ${entity}.
+ * Used for POST operations.
+ */
+export class Create${entity}Dto {
+${lines.length ? lines : '  // no writable fields detected'}
+}
+`;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -228,16 +280,23 @@ function generateDtoUpdate(entity: string) {
  * Generates the Read DTO containing all model fields.
  * Includes examples and descriptions.
  */
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-function generateDtoRead(entity: string, fields: any[]) {
+function generateDtoRead(
+  entity: string,
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  fields: any[],
+  enums: Record<string, string[]>
+) {
   const lower = camelCase(entity);
 
   const lines = fields
     .map((f) => {
-      const tsType = mapTsType(f.type);
-      const jsType =
-        tsType === 'string'
+      const isEnum = enums[f.type] !== undefined;
+
+      const tsType = isEnum ? 'string' : mapTsType(f.type, enums);
+
+      const jsType = isEnum
+        ? f.type
+        : tsType === 'string'
           ? 'String'
           : tsType === 'number'
             ? 'Number'
@@ -253,23 +312,31 @@ function generateDtoRead(entity: string, fields: any[]) {
       type: ${jsType},
       required: true,
       description: '${f.name} field of the ${entity} model',
-      example: ${generateExample(tsType)},
+      example: ${
+        isEnum ? `${f.type}.${enums[f.type][0]}` : generateExample(tsType)
+      },
+      ${isEnum ? `enumName: "${f.type}",` : ''}
       isUuid: ${isUuid},
     })
     ${f.name}: ${tsType};`;
     })
     .join('\n\n');
 
+  const enumImports = Object.keys(enums).length
+    ? `import { ${Object.keys(enums).join(', ')} } from '../enums/${lower}.enums';`
+    : '';
+
   return `import { ApiParamDecorator } from '@/core/decorators/api-param.decorator';
-  
-  /**
-   * Read DTO for ${entity}.
-   * Used when returning an entity from the API.
-   */
-  export class Read${entity}Dto {
-  ${lines}
-  }
-  `;
+${enumImports}
+
+/**
+ * Read DTO for ${entity}.
+ * Used when returning an entity from the API.
+ */
+export class Read${entity}Dto {
+${lines}
+}
+`;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -330,11 +397,33 @@ function generateDtoList(entity: string) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*                          Generate Delete DTO                                */
+/*                          Generate enum files                                */
 /* -------------------------------------------------------------------------- */
-/**
- * Shared Delete response DTO.
+function generateEnumFile(entity: string, enums: Record<string, string[]>) {
+  const enumNames = Object.keys(enums);
+
+  if (enumNames.length === 0) {
+    return ''; // entidade não usa enums
+  }
+
+  let output = `/**
+ * Enums for ${entity} model (autogenerated)
  */
+`;
+
+  for (const enumName of enumNames) {
+    const values = enums[enumName];
+
+    output += `
+export enum ${enumName} {
+${values.map((v) => `  ${v} = "${v}",`).join('\n')}
+}
+`;
+  }
+
+  // biome-ignore lint/style/useTemplate: <explanation>
+  return output.trim() + '\n';
+}
 
 /* -------------------------------------------------------------------------- */
 /*                         Helper: Generate Example                             */
@@ -967,6 +1056,7 @@ if (!entity) {
 
 const schema = readSchema();
 const fields = extractModel(schema, entity);
+const enums = extractEnumsForEntity(schema, fields);
 const lower = camelCase(entity);
 const base = path.join(process.cwd(), 'src', 'modules', lower);
 
@@ -975,13 +1065,14 @@ ensureDir(base);
 ensureDir(path.join(base, 'controller'));
 ensureDir(path.join(base, 'services'));
 ensureDir(path.join(base, 'dtos'));
+ensureDir(path.join(base, 'enums'));
 ensureDir(path.join(base, 'use-cases', 'commands'));
 ensureDir(path.join(base, 'use-cases', 'queries'));
 
 /* DTOs */
 writeFile(
   path.join(base, 'dtos', `create-${lower}.dto.ts`),
-  generateDtoCreate(entity, fields)
+  generateDtoCreate(entity, fields, enums)
 );
 writeFile(
   path.join(base, 'dtos', `update-${lower}.dto.ts`),
@@ -989,12 +1080,19 @@ writeFile(
 );
 writeFile(
   path.join(base, 'dtos', `read-${lower}.dto.ts`),
-  generateDtoRead(entity, fields)
+  generateDtoRead(entity, fields, enums)
 );
 writeFile(
   path.join(base, 'dtos', `list-${lower}.dto.ts`),
   generateDtoList(entity)
 );
+
+if (Object.keys(enums).length > 0) {
+  writeFile(
+    path.join(base, 'enums', `${lower}.enums.ts`),
+    generateEnumFile(entity, enums)
+  );
+}
 
 /* Service */
 writeFile(
