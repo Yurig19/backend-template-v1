@@ -223,8 +223,8 @@ function generateDtoCreate(
       return `  @ApiParamDecorator({
       type: ${jsType},
       required: ${f.optional ? 'false' : 'true'},
-      description: '${f.name} field of the ${entity} model',
-      example: ${isEnum ? `${f.type}.${enums[f.type][0]}` : generateExample(tsType)},
+      description: ${generateDescription(f.name, entity)},
+      example: ${isEnum ? `${f.type}.${enums[f.type][0]}` : generateExample(tsType, f.name)},
       ${isEnum ? `enumName: "${f.type}",` : ''}
       isUuid: ${isUuid},
     })
@@ -313,7 +313,9 @@ function generateDtoRead(
       required: true,
       description: '${f.name} field of the ${entity} model',
       example: ${
-        isEnum ? `${f.type}.${enums[f.type][0]}` : generateExample(tsType)
+        isEnum
+          ? `${f.type}.${enums[f.type][0]}`
+          : generateExample(tsType, f.name)
       },
       ${isEnum ? `enumName: "${f.type}",` : ''}
       isUuid: ${isUuid},
@@ -431,7 +433,40 @@ ${values.map((v) => `  ${v} = "${v}",`).join('\n')}
 /**
  * Generates smart example values based on the type.
  */
-function generateExample(type: string) {
+function generateExample(type: string, fieldName?: string) {
+  const name = fieldName?.toLowerCase() || '';
+
+  if (name.includes('uuid') || name === 'id')
+    return `'550e8400-e29b-41d4-a716-446655440000'`;
+
+  if (name.includes('name')) return `'John Doe'`;
+  if (name.includes('fullname')) return `'John Doe'`;
+
+  if (name === 'email' || name.includes('mail')) return `'email@example.com'`;
+
+  if (name.includes('code') || name.includes('codigo')) return `'ABC123'`;
+
+  if (
+    name.includes('phone') ||
+    name.includes('telefone') ||
+    name.includes('tel')
+  )
+    return `'11999998888'`;
+
+  if (name.includes('status')) return `'ACTIVE'`;
+
+  if (name.includes('description') || name.includes('desc'))
+    return `'Descrição de exemplo'`;
+
+  if (name.includes('address')) return `'Rua Exemplo, 123'`;
+
+  if (name.includes('city')) return `'São Paulo'`;
+
+  if (name.includes('country')) return `'Brasil'`;
+
+  if (name.includes('zipcode') || name.includes('cep')) return `'01001-000'`;
+
+  // fallback por tipo
   switch (type) {
     case 'string':
       return `'example-value'`;
@@ -444,6 +479,84 @@ function generateExample(type: string) {
     default:
       return `'example'`;
   }
+}
+
+function generateDescription(fieldName: string, entity: string) {
+  const name = fieldName.toLowerCase();
+
+  // --- Common fields ---
+  if (name === 'name' || name.includes('name')) return 'Name of the record';
+
+  if (name === 'fullname' || name.includes('fullname')) return 'Full name';
+
+  if (name === 'email' || name.includes('mail')) return 'Email address';
+
+  if (
+    name.includes('phone') ||
+    name.includes('telefone') ||
+    name.includes('tel')
+  )
+    return 'Phone number';
+
+  if (name.includes('cpf')) return 'CPF identification number';
+
+  if (name.includes('cnpj')) return 'CNPJ identification number';
+
+  if (
+    name === 'document' ||
+    name.includes('document') ||
+    name.includes('doc') ||
+    name.includes('documentnumber') ||
+    name.includes('document_no') ||
+    name.includes('documentid')
+  ) {
+    return 'Document identification number';
+  }
+
+  if (name.includes('code') || name.includes('codigo'))
+    return 'Unique code identifier';
+
+  if (name.includes('status')) return 'Current status of the record';
+
+  if (name.includes('description') || name.includes('desc'))
+    return 'Detailed description';
+
+  if (
+    name.includes('price') ||
+    name.includes('valor') ||
+    name.includes('amount')
+  )
+    return 'Numeric value';
+
+  if (name.includes('quantity') || name.includes('qty'))
+    return 'Quantity amount';
+
+  if (name.includes('address')) return 'Full address';
+
+  if (name.includes('city')) return 'City name';
+
+  if (name.includes('state')) return 'State name';
+
+  if (name.includes('country')) return 'Country name';
+
+  if (name.includes('zipcode') || name.includes('cep'))
+    return 'Zip or postal code';
+
+  if (name.includes('uuid') || name === 'id') return 'Unique identifier (UUID)';
+
+  if (name.includes('date')) return 'Date related to the record';
+
+  if (name === 'assignedat' || name.includes('assigned'))
+    return 'Date and time when the record was assigned';
+
+  if (name === 'createdat' || name.includes('created'))
+    return 'Date and time when the record was created';
+
+  if (name === 'updatedat' || name.includes('updated'))
+    return 'Date and time of the last update to the record';
+
+  // --- fallback ---
+  return `${fieldName} field of the ${entity} model`;
 }
 
 /* ===========================================================
