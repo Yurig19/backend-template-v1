@@ -1,5 +1,9 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiProperty, ApiPropertyOptions } from '@nestjs/swagger';
+import {
+  ApiProperty,
+  ApiPropertyOptional,
+  ApiPropertyOptions,
+} from '@nestjs/swagger';
 import {
   IsArray,
   IsBoolean,
@@ -10,6 +14,8 @@ import {
   IsOptional,
   IsString,
   IsUUID,
+  MaxLength,
+  MinLength,
 } from 'class-validator';
 
 type AllowedTypes =
@@ -34,16 +40,20 @@ interface ParamOptions {
   example?: any;
   enumName?: string;
   isUuid?: boolean;
+  minLength?: number;
+  maxLength?: number;
 }
 
 export function ApiParamDecorator(opts: ParamOptions) {
   const {
     type,
-    required = true,
+    required = false,
     description,
     example,
     isUuid,
     enumName,
+    maxLength,
+    minLength,
   } = opts;
   const isEnumType = isEnum(type);
 
@@ -66,7 +76,11 @@ export function ApiParamDecorator(opts: ParamOptions) {
           }),
   };
 
-  const decorators = [ApiProperty(apiPropertyOptions)];
+  const apiDecorator = required
+    ? ApiProperty(apiPropertyOptions)
+    : ApiPropertyOptional(apiPropertyOptions);
+
+  const decorators = [apiDecorator];
   if (type === Date) {
     apiPropertyOptions.format = 'date-time';
   }
@@ -74,17 +88,39 @@ export function ApiParamDecorator(opts: ParamOptions) {
   if (!required) {
     decorators.push(IsOptional());
   } else {
-    decorators.push(IsNotEmpty());
+    decorators.push(IsNotEmpty({ message: 'This field cannot be empty.' }));
   }
 
   if (isEnumType && typeof type === 'object') {
-    decorators.push(IsEnum(type));
+    const enumValues = Object.values(type).join(', ');
+    decorators.push(
+      IsEnum(type, {
+        message: `Value must be one of the following: ${enumValues}.`,
+      })
+    );
   } else if (isUuid) {
-    decorators.push(IsUUID());
+    decorators.push(IsUUID('4', { message: 'Value must be a valid UUIDv4.' }));
   } else {
     const validationDecorator = getValidationDecorator(type as AllowedTypes);
     if (validationDecorator) {
       decorators.push(validationDecorator);
+    }
+  }
+
+  if (type === String) {
+    if (minLength !== undefined) {
+      decorators.push(
+        MinLength(minLength, {
+          message: `Minimum length is ${minLength} characters.`,
+        })
+      );
+    }
+    if (maxLength !== undefined) {
+      decorators.push(
+        MaxLength(maxLength, {
+          message: `Maximum length is ${maxLength} characters.`,
+        })
+      );
     }
   }
 
@@ -106,15 +142,15 @@ function isEnum(value: any): value is EnumType {
 function getValidationDecorator(type: AllowedTypes) {
   switch (type) {
     case String:
-      return IsString();
+      return IsString({ message: 'Value must be a string.' });
     case Number:
-      return IsNumber();
+      return IsNumber({}, { message: 'Value must be a number.' });
     case Boolean:
-      return IsBoolean();
+      return IsBoolean({ message: 'Value must be a boolean.' });
     case Array:
-      return IsArray();
+      return IsArray({ message: 'Value must be an array.' });
     case Object:
-      return IsObject();
+      return IsObject({ message: 'Value must be an object.' });
     default:
       return null;
   }

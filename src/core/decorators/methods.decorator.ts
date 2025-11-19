@@ -194,7 +194,6 @@ export function ApiEndpoint(opts: ApiEndpointOptions) {
   if (isAuth) {
     if (roles && roles.length > 0) {
       decorators.push(UseGuards(JwtAuthGuard, RolesGuard));
-      console.log(roles);
       decorators.push(Roles(...opts.roles));
       decorators.push(
         ApiForbiddenResponse({

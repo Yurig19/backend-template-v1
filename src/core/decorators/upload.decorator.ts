@@ -2,10 +2,8 @@ import {
   FileTypeValidator,
   MaxFileSizeValidator,
   ParseFilePipe,
-  ParseFilePipeBuilder,
   UnsupportedMediaTypeException,
   UseInterceptors,
-  UsePipes,
   applyDecorators,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
