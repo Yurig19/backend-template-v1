@@ -71,15 +71,17 @@ export class UploadService {
         Key: fileKey,
         Body: file.buffer,
         ContentType: file.mimetype,
-        ...(isPublic ? { ACL: ObjectCannedACL.public_read } : {}),
+        // ...(isPublic ? { ACL: ObjectCannedACL.public_read } : {}),
       };
 
       await this.s3Client.send(new PutObjectCommand(uploadParams));
 
-      const cleanEndpoint = (this.awsEndpoint ?? '').replace(/\/+$/, '');
-      const filePublicUrl = this.awsEndpoint
-        ? `${cleanEndpoint}/${this.bucketName}/${fileKey}`
-        : `https://${this.bucketName}.s3.${this.region}.amazonaws.com/${fileKey}`;
+      // const cleanEndpoint = (this.awsEndpoint ?? '').replace(/\/+$/, '');
+      // const filePublicUrl = this.awsEndpoint
+      //   ? `${cleanEndpoint}/${this.bucketName}/${fileKey}`
+      //   : `https://${this.bucketName}.s3.${this.region}.amazonaws.com/${fileKey}`;
+
+      const filePublicUrl = `https://${this.bucketName}.s3.${this.region}.amazonaws.com/${fileKey}`;
 
       const fileSignedUrl = !isPublic
         ? await this.generateSignedUrl(fileKey)

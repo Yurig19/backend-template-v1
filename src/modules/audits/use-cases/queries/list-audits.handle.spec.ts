@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { PrismaService } from '@/core/database/prisma.service';
+import { prisma } from '@/core/lib/prisma';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ListAuditsDto } from '../../dtos/list-audits.dto';
 import { AuditsService } from '../../services/audits.service';
@@ -9,7 +9,6 @@ import { AuditsListHandler } from './list-audits.handle';
 describe('AuditsListHandler (integration)', () => {
   let handler: AuditsListHandler;
   let auditsService: AuditsService;
-  let prisma: PrismaService;
 
   const mockAudit = {
     uuid: randomUUID(),
@@ -29,12 +28,11 @@ describe('AuditsListHandler (integration)', () => {
     require('dotenv').config({ path: '.env.test' });
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AuditsListHandler, AuditsService, PrismaService],
+      providers: [AuditsListHandler, AuditsService],
     }).compile();
 
     handler = module.get<AuditsListHandler>(AuditsListHandler);
     auditsService = module.get<AuditsService>(AuditsService);
-    prisma = module.get<PrismaService>(PrismaService);
 
     await prisma.audit.deleteMany();
 

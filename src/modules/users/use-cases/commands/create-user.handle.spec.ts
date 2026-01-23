@@ -1,5 +1,5 @@
-import { PrismaService } from '@/core/database/prisma.service';
 import { RoleEnum } from '@/core/enums/role.enum';
+import { prisma } from '@/core/lib/prisma';
 import { RolesModule } from '@/modules/roles/roles.module';
 import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -12,7 +12,6 @@ import { CreateUserHandle } from './create-user.handle';
 describe('CreateUserHandle (integration)', () => {
   let handler: CreateUserHandle;
   let userService: UserService;
-  let prisma: PrismaService;
 
   const mockDto: CreateUserDto = {
     name: 'John Doe',
@@ -27,12 +26,11 @@ describe('CreateUserHandle (integration)', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       imports: [UserModule, RolesModule],
-      providers: [CreateUserHandle, UserService, PrismaService],
+      providers: [CreateUserHandle, UserService],
     }).compile();
 
     handler = module.get<CreateUserHandle>(CreateUserHandle);
     userService = module.get<UserService>(UserService);
-    prisma = module.get<PrismaService>(PrismaService);
 
     await prisma.user.deleteMany();
     await prisma.role.deleteMany();

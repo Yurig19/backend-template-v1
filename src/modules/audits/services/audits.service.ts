@@ -1,12 +1,10 @@
-import { PrismaService } from '@/core/database/prisma.service';
+import { prisma } from '@/core/lib/prisma';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { Audit, Prisma } from 'generated/prisma/client';
 
 @Injectable()
 export class AuditsService {
   private readonly logger = new Logger(AuditsService.name);
-
-  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Lists audit records with pagination and optional search filtering.
@@ -39,14 +37,14 @@ export class AuditsService {
         ];
       }
 
-      const [audits, total] = await this.prisma.$transaction([
-        this.prisma.audit.findMany({
+      const [audits, total] = await prisma.$transaction([
+        prisma.audit.findMany({
           where,
           skip,
           take,
           orderBy: { createdAt: 'desc' },
         }),
-        this.prisma.audit.count({ where }),
+        prisma.audit.count({ where }),
       ]);
 
       const totalPages = Math.max(Math.ceil(total / take), 1);

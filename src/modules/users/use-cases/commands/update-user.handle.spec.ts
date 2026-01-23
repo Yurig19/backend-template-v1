@@ -1,5 +1,5 @@
-import { PrismaService } from '@/core/database/prisma.service';
 import { RoleEnum } from '@/core/enums/role.enum';
+import { prisma } from '@/core/lib/prisma';
 import { RolesService } from '@/modules/roles/services/roles.service';
 import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -9,7 +9,6 @@ import { UpdateUserCommand } from './update-user.command';
 import { UpdateUserHandler } from './update-user.handle';
 
 describe('UpdateUserHandler (integration)', () => {
-  let prisma: PrismaService;
   let handler: UpdateUserHandler;
   let createdUserUuid: string;
 
@@ -18,10 +17,9 @@ describe('UpdateUserHandler (integration)', () => {
     require('dotenv').config({ path: '.env.test' });
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [PrismaService, UserService, RolesService, UpdateUserHandler],
+      providers: [UserService, RolesService, UpdateUserHandler],
     }).compile();
 
-    prisma = module.get<PrismaService>(PrismaService);
     handler = module.get<UpdateUserHandler>(UpdateUserHandler);
 
     await prisma.user.deleteMany();

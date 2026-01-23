@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_INTERCEPTOR, BaseExceptionFilter } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
-import { PrismaModule } from './core/database/prisma.module';
 import { AuditInterceptor } from './core/interceptors/audits.interceptor';
 import { validateEnv } from './core/validations/env.validation';
 import { AuthModule } from './modules/_auth/auth.module';
@@ -20,7 +19,6 @@ import { UserModule } from './modules/users/users.module';
       load: [() => validateEnv(process.env)],
     }),
     CqrsModule,
-    PrismaModule,
     InitModule,
 
     //

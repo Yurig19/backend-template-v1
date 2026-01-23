@@ -1,4 +1,4 @@
-import { PrismaService } from '@/core/database/prisma.service';
+import { prisma } from '@/core/lib/prisma';
 import {
   BadRequestException,
   Injectable,
@@ -14,8 +14,8 @@ export class SendEmailService {
   private readonly logger = new Logger(SendEmailService.name);
 
   constructor(
-    private readonly configService: ConfigService,
-    private readonly prisma: PrismaService
+    private readonly configService: ConfigService
+    // private readonly prisma: PrismaService
   ) {
     this.transporter = nodemailer.createTransport({
       host: this.configService.get<string>('SMTP_HOST'),
@@ -76,7 +76,7 @@ export class SendEmailService {
     variables: Record<string, string>
   ): Promise<void> {
     try {
-      const template = await this.prisma.emailTemplate.findUnique({
+      const template = await prisma.emailTemplate.findUnique({
         where: { name: templateName },
       });
 

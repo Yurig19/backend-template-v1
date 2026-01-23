@@ -2234,11 +2234,7 @@
             "description": "New user password",
             "example": "newStrongPassword123"
           }
-        },
-        "required": [
-          "code",
-          "newPassword"
-        ]
+        }
       },
       "ReadFileDto": {
         "type": "object",

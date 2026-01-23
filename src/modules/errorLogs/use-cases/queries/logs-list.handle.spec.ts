@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
+import { prisma } from '@/core/lib/prisma';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from 'prisma/prisma.service';
 import { ListLogsDto } from '../../dtos/list-logs.dto';
 import { LogsService } from '../../services/logs.service';
 import { LogsListHandler } from './logs-list.handle';
@@ -9,7 +9,6 @@ import { LogsListQuery } from './logs-list.query';
 describe('LogsListHandler (integration)', () => {
   let handler: LogsListHandler;
   let logsService: LogsService;
-  let prisma: PrismaService;
 
   const mockLog = {
     uuid: randomUUID(),
@@ -28,19 +27,18 @@ describe('LogsListHandler (integration)', () => {
     require('dotenv').config({ path: '.env.test' });
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [LogsListHandler, LogsService, PrismaService],
+      providers: [LogsListHandler, LogsService],
     }).compile();
 
     handler = module.get<LogsListHandler>(LogsListHandler);
     logsService = module.get<LogsService>(LogsService);
-    prisma = module.get<PrismaService>(PrismaService);
 
-    await prisma.logs.deleteMany();
-    await prisma.logs.create({ data: mockLog });
+    await prisma.errorLog.deleteMany();
+    await prisma.errorLog.create({ data: mockLog });
   });
 
   afterEach(async () => {
-    await prisma.logs.deleteMany();
+    await prisma.errorLog.deleteMany();
   });
 
   afterAll(async () => {

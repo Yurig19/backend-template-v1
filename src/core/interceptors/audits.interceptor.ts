@@ -7,12 +7,10 @@ import {
 import { Request, Response } from 'express';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { PrismaService } from '../database/prisma.service';
+import { prisma } from '../lib/prisma';
 
 @Injectable()
 export class AuditInterceptor implements NestInterceptor {
-  constructor(private readonly prisma: PrismaService) {}
-
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest<Request>();
@@ -30,7 +28,7 @@ export class AuditInterceptor implements NestInterceptor {
     const dataUuid = request.params.uuid || request.body.uuid;
 
     if (action === 'PUT' || action === 'DELETE') {
-      oldData = this.prisma[entity].findUnique({
+      oldData = prisma[entity].findUnique({
         where: { uuid: dataUuid },
       });
     }
@@ -41,7 +39,7 @@ export class AuditInterceptor implements NestInterceptor {
           action === 'PUT' || action === 'PATCH' || action === 'DELETE'
             ? responseData
             : null;
-        await this.prisma.audit.create({
+        await prisma.audit.create({
           data: {
             entity,
             method: action,

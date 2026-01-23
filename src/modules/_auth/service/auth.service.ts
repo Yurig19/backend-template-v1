@@ -1,5 +1,5 @@
 import { randomBytes } from 'crypto';
-import { PrismaService } from '@/core/database/prisma.service';
+import { prisma } from '@/core/lib/prisma';
 import {
   checkPassword,
   generateHashPassword,
@@ -21,8 +21,8 @@ export class AuthService {
   private issuer = 'login';
 
   constructor(
-    private readonly jwtService: JwtService,
-    private readonly prisma: PrismaService
+    private readonly jwtService: JwtService
+    // private readonly prisma: PrismaService
   ) {}
 
   /**
@@ -92,7 +92,7 @@ export class AuthService {
    * @returns JWT token if authentication is successful
    */
   async login(email: string, password: string): Promise<string> {
-    const user = await this.prisma.user.findUnique({
+    const user = await prisma.user.findUnique({
       where: { email },
       include: { roles: true },
     });
@@ -128,7 +128,7 @@ export class AuthService {
     name: string;
     email: string;
   }> {
-    const user = await this.prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
       throw new NotFoundException('User not found with this email.');
@@ -139,7 +139,7 @@ export class AuthService {
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 4);
 
-    await this.prisma.user.update({
+    await prisma.user.update({
       where: { uuid: user.uuid },
       data: { code, codeExpiresAt: expiresAt },
     });
@@ -158,7 +158,7 @@ export class AuthService {
     code: string,
     newPassword: string
   ): Promise<{ message: string }> {
-    const user = await this.prisma.user.findFirst({ where: { code } });
+    const user = await prisma.user.findFirst({ where: { code } });
 
     if (!user) {
       throw new NotFoundException('Invalid or expired reset code.');
@@ -170,7 +170,7 @@ export class AuthService {
 
     const encryptedPassword = generateHashPassword(newPassword);
 
-    await this.prisma.user.update({
+    await prisma.user.update({
       where: { uuid: user.uuid },
       data: {
         password: encryptedPassword,

@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
-import { PrismaService } from '@/core/database/prisma.service';
 import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
 import { RoleEnum } from '@/core/enums/role.enum';
+import { prisma } from '@/core/lib/prisma';
 import { RolesModule } from '@/modules/roles/roles.module';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -12,7 +12,6 @@ import { DeleteUserHandler } from './delete-user.handle';
 
 describe('DeleteUserHandler (integration)', () => {
   let handler: DeleteUserHandler;
-  let prisma: PrismaService;
   let userService: UserService;
 
   let existingUserUuid: string;
@@ -26,7 +25,6 @@ describe('DeleteUserHandler (integration)', () => {
     }).compile();
 
     handler = module.get(DeleteUserHandler);
-    prisma = module.get(PrismaService);
     userService = module.get(UserService);
 
     await prisma.audit.deleteMany();

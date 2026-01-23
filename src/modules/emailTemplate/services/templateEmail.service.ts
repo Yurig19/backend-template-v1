@@ -1,16 +1,14 @@
 import { existsSync, readFileSync } from 'fs';
 import * as path from 'path';
-import { PrismaService } from '@/core/database/prisma.service';
+import { prisma } from '@/core/lib/prisma';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { EmailTemplate } from 'generated/prisma/client';
 import { CreateEmailTemplateDto } from '../dtos/create-templateEmail.dto';
 
 @Injectable()
 export class EmailTemplateService {
-  constructor(private readonly prisma: PrismaService) {}
-
   private readonly logger = new Logger(EmailTemplateService.name);
-  private readonly templateEmail = this.prisma.emailTemplate;
+  private readonly templateEmail = prisma.emailTemplate;
 
   /**
    * Creates a new email template in the database.

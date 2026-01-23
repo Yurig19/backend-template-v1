@@ -1,5 +1,5 @@
-import { PrismaService } from '@/core/database/prisma.service';
 import { RoleEnum } from '@/core/enums/role.enum';
+import { prisma } from '@/core/lib/prisma';
 import { generateHashPassword } from '@/core/utils/generatePassword';
 import { RolesService } from '@/modules/roles/services/roles.service';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
@@ -14,12 +14,11 @@ export class UserService {
   private readonly logger = new Logger(UserService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
     private readonly rolesService: RolesService,
     private readonly configService: ConfigService
   ) {}
 
-  private users = this.prisma.user;
+  private users = prisma.user;
 
   /**
    * Initializes an admin user if no admin exists in the database.
@@ -85,7 +84,7 @@ export class UserService {
     try {
       const { password, role, ...data } = createUserDto;
 
-      const roleExists = await this.prisma.role.findFirst({
+      const roleExists = await prisma.role.findFirst({
         where: { type: role },
       });
 
@@ -269,8 +268,8 @@ export class UserService {
         };
       }
 
-      const [users, total] = await this.prisma.$transaction([
-        this.prisma.user.findMany({
+      const [users, total] = await prisma.$transaction([
+        prisma.user.findMany({
           where,
           skip,
           take,
@@ -282,7 +281,7 @@ export class UserService {
           orderBy: [{ createdAt: 'desc' }],
         }),
 
-        this.prisma.user.count({ where }),
+        prisma.user.count({ where }),
       ]);
 
       const totalPages = Math.max(Math.ceil(total / take), 1);

@@ -11,14 +11,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { PrismaService } from '../database/prisma.service';
 import { ErrorResponseDto } from '../enums/errors/dtos/error.dto';
+import { prisma } from '../lib/prisma';
 
 @Injectable()
 @Catch()
 export class BaseExceptionFilter implements ExceptionFilter {
-  constructor(private readonly prisma: PrismaService) {}
-
   async catch(exception: unknown, host: ArgumentsHost): Promise<void> {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -70,7 +68,7 @@ export class BaseExceptionFilter implements ExceptionFilter {
     }
 
     try {
-      await this.prisma.errorLog.create({
+      await prisma.errorLog.create({
         data: {
           error: errorResponse.message,
           statusCode: errorResponse.statusCode,

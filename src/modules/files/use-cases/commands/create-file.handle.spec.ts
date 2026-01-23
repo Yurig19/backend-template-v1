@@ -1,5 +1,5 @@
-import { PrismaService } from '@/core/database/prisma.service';
 import { RoleEnum } from '@/core/enums/role.enum';
+import { prisma } from '@/core/lib/prisma';
 import { FilesService } from '@/modules/files/services/files.service';
 import { UploadService } from '@/modules/files/services/upload.service';
 import { CreateFileCommand } from '@/modules/files/use-cases/commands/create-file.command';
@@ -10,7 +10,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 describe('CreateFileHandler (REAL INTEGRATION)', () => {
   let app: INestApplication;
-  let prisma: PrismaService;
+
   let handler: CreateFileHandler;
 
   const mockUser: ReadUserAuthDto = {
@@ -56,16 +56,11 @@ describe('CreateFileHandler (REAL INTEGRATION)', () => {
     require('dotenv').config({ path: '.env.test' });
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        PrismaService,
-        FilesService,
-        UploadService,
-        CreateFileHandler,
-      ],
+      providers: [FilesService, UploadService, CreateFileHandler],
     }).compile();
 
     app = module.createNestApplication();
-    prisma = module.get(PrismaService);
+
     handler = module.get(CreateFileHandler);
 
     await app.init();

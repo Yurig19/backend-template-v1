@@ -147,7 +147,7 @@ async function bootstrap() {
     process.exit(0);
   };
 
-  process.on('SIGINT', shutdown);
+  process.on('', shutdown);
   process.on('SIGTERM', shutdown);
 }
 

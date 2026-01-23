@@ -1,4 +1,3 @@
-import { PrismaService } from '@/core/database/prisma.service';
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { LogsController } from './controllers/logs.controller';

@@ -1,5 +1,5 @@
-import { PrismaService } from '@/core/database/prisma.service';
 import { RoleEnum } from '@/core/enums/role.enum';
+import { prisma } from '@/core/lib/prisma';
 import { generateHashPassword } from '@/core/utils/generatePassword';
 import { AuthModule } from '@/modules/_auth/auth.module';
 import { RolesModule } from '@/modules/roles/roles.module';
@@ -14,7 +14,6 @@ import { UserModule } from '../users.module';
 
 describe('UsersController (e2e)', () => {
   let app: INestApplication;
-  let prisma: PrismaService;
   let testUserUuid: string;
   let accessToken: string;
 
@@ -33,7 +32,6 @@ describe('UsersController (e2e)', () => {
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
     await app.init();
 
-    prisma = app.get<PrismaService>(PrismaService);
     await prisma.$connect();
 
     await prisma.audit.deleteMany();

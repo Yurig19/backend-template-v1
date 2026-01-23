@@ -1,12 +1,10 @@
-import { PrismaService } from '@/core/database/prisma.service';
+import { prisma } from '@/core/lib/prisma';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { ErrorLog, Prisma } from 'generated/prisma/client';
 
 @Injectable()
 export class LogsService {
   private readonly logger = new Logger(LogsService.name);
-
-  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Lists error logs with pagination and optional search filtering.
@@ -43,14 +41,14 @@ export class LogsService {
         ];
       }
 
-      const [logs, total] = await this.prisma.$transaction([
-        this.prisma.errorLog.findMany({
+      const [logs, total] = await prisma.$transaction([
+        prisma.errorLog.findMany({
           where,
           skip,
           take,
           orderBy: { createdAt: 'desc' },
         }),
-        this.prisma.errorLog.count({ where }),
+        prisma.errorLog.count({ where }),
       ]);
 
       const totalPages = Math.max(Math.ceil(total / take), 1);

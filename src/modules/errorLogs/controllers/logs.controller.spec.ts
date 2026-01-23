@@ -1,5 +1,5 @@
-import { PrismaService } from '@/core/database/prisma.service';
 import { RoleEnum } from '@/core/enums/role.enum';
+import { prisma } from '@/core/lib/prisma';
 import { generateHashPassword } from '@/core/utils/generatePassword';
 import { AuthModule } from '@/modules/_auth/auth.module';
 import { RolesModule } from '@/modules/roles/roles.module';
@@ -12,7 +12,6 @@ import { LogsModule } from '../logs.module';
 
 describe('LogsController (e2e)', () => {
   let app: INestApplication;
-  let prisma: PrismaService;
   let accessToken: string;
 
   const plainPassword = process.env.ADMIN_PASSWORD;
@@ -24,14 +23,12 @@ describe('LogsController (e2e)', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       imports: [CqrsModule, UserModule, RolesModule, AuthModule, LogsModule],
-      providers: [PrismaService],
+      providers: [],
     }).compile();
 
     app = module.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
     await app.init();
-
-    prisma = module.get<PrismaService>(PrismaService);
 
     await prisma.errorLog.deleteMany();
     await prisma.user.deleteMany();

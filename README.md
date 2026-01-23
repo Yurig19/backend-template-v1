@@ -38,7 +38,7 @@ Este projeto é um **template de back-end** desenvolvido em **NestJS** com integ
 │           │   ├── commands/    # Comandos (ações que modificam estado)
 │           │   └── queries/     # Consultas (ações que leem dados)
 │           ├── dtos/            # DTOs específicos da entidade
-│           └── entities/        # Modelos ou classes da entidade
+│           
 │
 ├── test/                        # Testes unitários e de integração (Jest)
 ├── docker-compose.yml           # Configuração Docker

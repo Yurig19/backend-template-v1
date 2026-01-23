@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import * as path from 'node:path';
-import { PrismaService } from '@/core/database/prisma.service';
 import { RoleEnum } from '@/core/enums/role.enum';
+import { prisma } from '@/core/lib/prisma';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { Role } from 'generated/prisma/client';
 import { CreateRoleDto } from '../dtos/create-role.dto';
@@ -10,7 +10,7 @@ import { CreateRoleDto } from '../dtos/create-role.dto';
 export class RolesService {
   private readonly logger = new Logger(RolesService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  // constructor(private readonly prisma: PrismaService) {}
 
   private nodeEnv = process.env.NODE_ENV;
 
@@ -34,7 +34,7 @@ export class RolesService {
 
         if (rolesData && Array.isArray(rolesData)) {
           for (const role of rolesData) {
-            const existingRole = await this.prisma.role.findUnique({
+            const existingRole = await prisma.role.findUnique({
               where: { type: role.type },
             });
 
@@ -66,7 +66,7 @@ export class RolesService {
    */
   async findByType(type: RoleEnum): Promise<{ uuid: string }> {
     try {
-      return await this.prisma.role.findUnique({
+      return await prisma.role.findUnique({
         where: { type },
         select: { uuid: true },
       });
@@ -83,7 +83,7 @@ export class RolesService {
    */
   async createRole(createRoleDto: CreateRoleDto): Promise<Role> {
     try {
-      return await this.prisma.role.create({
+      return await prisma.role.create({
         data: createRoleDto,
       });
     } catch (error) {

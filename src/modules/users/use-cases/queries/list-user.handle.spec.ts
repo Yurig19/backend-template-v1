@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { PrismaService } from '@/core/database/prisma.service';
 import { RoleEnum } from '@/core/enums/role.enum';
+import { prisma } from '@/core/lib/prisma';
 import { RolesService } from '@/modules/roles/services/roles.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ListUserDto } from '../../dtos/list-user.dto';
@@ -10,7 +10,6 @@ import { ListUsersQuery } from './list-user.query';
 
 describe('ListUserHandle (integration)', () => {
   let handler: ListUserHandle;
-  let prisma: PrismaService;
 
   const mockUser = {
     uuid: randomUUID(),
@@ -27,11 +26,10 @@ describe('ListUserHandle (integration)', () => {
     require('dotenv').config({ path: '.env.test' });
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ListUserHandle, UserService, RolesService, PrismaService],
+      providers: [ListUserHandle, UserService, RolesService],
     }).compile();
 
     handler = module.get<ListUserHandle>(ListUserHandle);
-    prisma = module.get<PrismaService>(PrismaService);
 
     await prisma.user.deleteMany();
     await prisma.role.deleteMany();

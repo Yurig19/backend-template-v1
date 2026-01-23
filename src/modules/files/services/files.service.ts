@@ -1,6 +1,6 @@
-import { PrismaService } from '@/core/database/prisma.service';
 import { DeleteDto } from '@/core/dtos/delete.dto';
 import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
+import { prisma } from '@/core/lib/prisma';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { File } from 'generated/prisma/client';
 import { CreateFileDto } from '../dtos/create-file.dto';
@@ -8,8 +8,6 @@ import { CreateFileDto } from '../dtos/create-file.dto';
 @Injectable()
 export class FilesService {
   private readonly logger = new Logger(FilesService.name);
-
-  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Creates a new file record in the database.
@@ -19,7 +17,7 @@ export class FilesService {
   async create(file: CreateFileDto): Promise<File> {
     try {
       const { userUuid, ...data } = file;
-      return await this.prisma.file.create({
+      return await prisma.file.create({
         data: {
           ...data,
           ...(userUuid
@@ -42,7 +40,7 @@ export class FilesService {
    */
   async getByUuid(uuid: string): Promise<File> {
     try {
-      return await this.prisma.file.findUnique({
+      return await prisma.file.findUnique({
         where: {
           uuid: uuid,
         },
@@ -60,7 +58,7 @@ export class FilesService {
    */
   async softDelete(uuid: string): Promise<File> {
     try {
-      return await this.prisma.file.update({
+      return await prisma.file.update({
         where: {
           uuid: uuid,
         },
@@ -81,7 +79,7 @@ export class FilesService {
    */
   async delete(uuid: string): Promise<DeleteDto> {
     try {
-      await this.prisma.file.delete({
+      await prisma.file.delete({
         where: { uuid },
       });
       return {
