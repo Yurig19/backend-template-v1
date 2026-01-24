@@ -110,14 +110,14 @@ export class UploadService {
    * @param isPublic Whether the files should be publicly accessible (default: true)
    * @returns Array of objects containing fileKey and fileUrl for each file
    */
-  async uploadFiles(files: Express.Multer.File[], isPublic = true) {
+  async uploadFiles(files: Express.Multer.File[], isPrivate = false) {
     try {
       if (!files || files.length === 0) {
         throw new BadRequestException('No files were uploaded.');
       }
 
       const uploadPromises = files.map((file) =>
-        this.uploadFile(file, isPublic)
+        this.uploadFile(file, isPrivate)
       );
       return await Promise.all(uploadPromises);
     } catch (error) {
