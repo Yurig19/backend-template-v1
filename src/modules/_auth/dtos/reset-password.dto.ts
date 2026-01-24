@@ -14,6 +14,8 @@ export class ResetPasswordDto {
     description: 'New user password',
     example: 'newStrongPassword123',
   })
-  @MinLength(6)
+  @MinLength(6, {
+    message: 'New password must be at least 6 characters long.',
+  })
   newPassword: string;
 }

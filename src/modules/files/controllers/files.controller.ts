@@ -22,6 +22,14 @@ export class FilesController {
     successDescription: 'File successfully created',
     isAuth: true,
     isFile: 'any',
+    queries: [
+      {
+        name: 'isPrivate',
+        type: Boolean,
+        required: false,
+        description: 'private file',
+      },
+    ],
   })
   async createFile(
     @GetUser() userData: ReadUserAuthDto,

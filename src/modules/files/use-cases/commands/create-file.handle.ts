@@ -44,6 +44,7 @@ export class CreateFileHandler implements ICommandHandler<CreateFileCommand> {
             path: fileUrl,
             size: file.size,
             key: fileKey,
+            userUuid: uuid,
             isPrivate,
             storage: 's3',
           };

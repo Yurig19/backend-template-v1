@@ -1,13 +1,12 @@
 import * as path from 'path';
 import { AppModule } from '@/app.module';
-import { PrismaService } from '@/core/database/prisma.service';
+import { prisma } from '@/core/lib/prisma';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import * as request from 'supertest';
 
 describe('FilesController (E2E) - Real Login', () => {
   let app: INestApplication;
-  let prisma: PrismaService;
 
   let jwtToken: string;
 
@@ -26,8 +25,6 @@ describe('FilesController (E2E) - Real Login', () => {
         transform: true,
       })
     );
-
-    prisma = app.get(PrismaService);
 
     await app.init();
 

@@ -21,6 +21,8 @@ import { UserModule } from './modules/users/users.module';
     CqrsModule,
     InitModule,
 
+    EmailTemplateModule,
+
     //
     UserModule,
     AuthModule,

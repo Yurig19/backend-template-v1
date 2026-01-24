@@ -1,5 +1,5 @@
 import { ApiParamDecorator } from '@/core/decorators/api-param.decorator';
-import { IsEmail, IsString, IsStrongPassword } from 'class-validator';
+import { IsEmail, IsStrongPassword } from 'class-validator';
 
 /**
  * Data transfer object for user login authentication.
@@ -11,7 +11,7 @@ export class AuthLoginDto {
     description: 'User email address',
     example: 'admin@admin.com',
   })
-  @IsEmail()
+  @IsEmail({}, { message: 'Email must be a valid email address.' })
   email: string;
 
   @ApiParamDecorator({
@@ -21,12 +21,18 @@ export class AuthLoginDto {
       'User password (must contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character)',
     example: 'Teste@123',
   })
-  @IsStrongPassword({
-    minLength: 8,
-    minLowercase: 1,
-    minUppercase: 1,
-    minNumbers: 1,
-    minSymbols: 1,
-  })
+  @IsStrongPassword(
+    {
+      minLength: 8,
+      minLowercase: 1,
+      minUppercase: 1,
+      minNumbers: 1,
+      minSymbols: 1,
+    },
+    {
+      message:
+        'Password must contain at least 8 characters, including 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character.',
+    },
+  )
   password: string;
 }

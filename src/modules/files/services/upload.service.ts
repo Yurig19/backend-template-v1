@@ -57,14 +57,16 @@ export class UploadService {
    * @param isPublic Whether the file should be publicly accessible (default: true)
    * @returns Object containing fileKey and fileUrl
    */
-  async uploadFile(file: Express.Multer.File, isPublic = true) {
+  async uploadFile(file: Express.Multer.File, isPrivate = false) {
     try {
       if (!file) {
         throw new BadRequestException('No file was uploaded.');
       }
 
       const sanitizedFileName = this.sanitizeFileName(file.originalname);
-      const fileKey = `${Date.now()}-${sanitizedFileName}`;
+      const fileKey = isPrivate
+        ? `private/${Date.now()}-${sanitizedFileName}`
+        : `public/${Date.now()}-${sanitizedFileName}`;
 
       const uploadParams = {
         Bucket: this.bucketName,
@@ -83,13 +85,13 @@ export class UploadService {
 
       const filePublicUrl = `https://${this.bucketName}.s3.${this.region}.amazonaws.com/${fileKey}`;
 
-      const fileSignedUrl = !isPublic
+      const fileSignedUrl = isPrivate
         ? await this.generateSignedUrl(fileKey)
         : null;
 
       return {
         fileKey,
-        fileUrl: isPublic ? filePublicUrl : fileSignedUrl,
+        fileUrl: isPrivate ? fileSignedUrl : filePublicUrl,
       };
     } catch (error) {
       this.logger.error(`Error uploading file: ${error.message}`, error.stack);
@@ -138,7 +140,7 @@ export class UploadService {
         Bucket: this.bucketName,
         Key: fileKey,
       });
-      return await getSignedUrl(this.s3Client, command, { expiresIn: 3600 });
+      return await getSignedUrl(this.s3Client, command, { expiresIn: 3600 }); /// 1h
     } catch (error) {
       this.logger.error(
         `Error generating signed URL: ${error.message}`,

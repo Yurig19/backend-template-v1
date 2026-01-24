@@ -13,59 +13,61 @@ config();
 
 class EnvVariables {
   //
-  @IsEnum(EnvironmentEnum)
-  @IsNotEmpty()
+  @IsEnum(EnvironmentEnum, {
+    message: 'NODE_ENV must be one of: development, production, test.',
+  })
+  @IsNotEmpty({ message: 'NODE_ENV is required.' })
   NODE_ENV: EnvironmentEnum;
 
-  @IsString()
+  @IsString({ message: 'PORT must be a string.' })
   @IsOptional()
   PORT?: string;
 
   //
-  @IsString()
-  @IsNotEmpty()
+  @IsString({ message: 'DB_HOST must be a string.' })
+  @IsNotEmpty({ message: 'DB_HOST is required.' })
   DB_HOST: string;
 
-  @IsString()
+  @IsString({ message: 'DB_PORT must be a string.' })
   @IsOptional()
   DB_PORT?: string;
 
-  @IsString()
-  @IsNotEmpty()
+  @IsString({ message: 'DB_USER must be a string.' })
+  @IsNotEmpty({ message: 'DB_USER is required.' })
   DB_USER: string;
 
-  @IsString()
+  @IsString({ message: 'DB_PASSWORD must be a string.' })
   @IsOptional()
   DB_PASSWORD?: string;
 
-  @IsString()
-  @IsNotEmpty()
+  @IsString({ message: 'DB_NAME must be a string.' })
+  @IsNotEmpty({ message: 'DB_NAME is required.' })
   DB_NAME: string;
 
-  @IsString()
-  @IsNotEmpty()
+  @IsString({ message: 'DATABASE_URL must be a string.' })
+  @IsNotEmpty({ message: 'DATABASE_URL is required.' })
   DATABASE_URL: string;
 
   //
-  @IsString()
-  @IsNotEmpty()
+  @IsString({ message: 'JWT_SECRET must be a string.' })
+  @IsNotEmpty({ message: 'JWT_SECRET is required.' })
   JWT_SECRET: string;
 
-  @IsString()
-  @IsNotEmpty()
+  @IsString({ message: 'CRYPTO_SECRET_KEY must be a string.' })
+  @IsNotEmpty({ message: 'CRYPTO_SECRET_KEY is required.' })
   CRYPTO_SECRET_KEY: string;
 
   //
-  @IsString()
-  @IsNotEmpty()
+  @IsString({ message: 'ADMIN_NAME must be a string.' })
+  @IsNotEmpty({ message: 'ADMIN_NAME is required.' })
   ADMIN_NAME: string;
 
-  @IsString()
-  @IsNotEmpty()
+  @IsString({ message: 'ADMIN_EMAIL must be a string.' })
+  @IsNotEmpty({ message: 'ADMIN_EMAIL is required.' })
   ADMIN_EMAIL: string;
 
-  @IsString()
-  @IsNotEmpty()
+  @IsString({ message: 'ADMIN_PASSWORD must be a string.' })
+  @IsNotEmpty({ message: 'ADMIN_PASSWORD is required.' })
   ADMIN_PASSWORD: string;
 }
 

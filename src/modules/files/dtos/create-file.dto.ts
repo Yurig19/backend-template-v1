@@ -1,5 +1,5 @@
 import { ApiParamDecorator } from '@/core/decorators/api-param.decorator';
-import { IsBoolean, IsInt, MaxLength } from 'class-validator';
+import { IsInt, MaxLength } from 'class-validator';
 
 /**
  * Data transfer object for creating a file record.
@@ -27,7 +27,9 @@ export class CreateFileDto {
     description: 'Storage key used to identify the file (e.g., S3 key)',
     example: 'uploads/2025/11/document_abc123.pdf',
   })
-  @MaxLength(255)
+  @MaxLength(255, {
+    message: 'Key must be at most 255 characters long.',
+  })
   key?: string;
 
   @ApiParamDecorator({
@@ -45,7 +47,7 @@ export class CreateFileDto {
     example: 204800,
   })
 
-  @IsInt()
+  @IsInt({ message: 'Size must be an integer.' })
   size?: number;
 
   @ApiParamDecorator({
@@ -62,7 +64,9 @@ export class CreateFileDto {
     description: 'Storage type (e.g., local, s3, gcs)',
     example: 'local',
   })
-  @MaxLength(50)
+  @MaxLength(50, {
+    message: 'Storage must be at most 50 characters long.',
+  })
   storage?: string;
 
   @ApiParamDecorator({

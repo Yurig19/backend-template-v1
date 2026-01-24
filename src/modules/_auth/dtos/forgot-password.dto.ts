@@ -8,6 +8,6 @@ export class ForgotPasswordDto {
     description: 'User email address',
     example: 'user@example.com',
   })
-  @IsEmail()
+  @IsEmail({}, { message: 'Email must be a valid email address.' })
   email: string;
 }

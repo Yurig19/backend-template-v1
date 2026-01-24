@@ -831,8 +831,9 @@
         "parameters": [
           {
             "name": "isPrivate",
-            "required": true,
+            "required": false,
             "in": "query",
+            "description": "private file",
             "schema": {
               "type": "boolean"
             }
