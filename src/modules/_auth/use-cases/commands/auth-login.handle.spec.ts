@@ -1,115 +1,120 @@
 import { RoleEnum } from '@/core/enums/role.enum';
+import { prisma } from '@/core/lib/prisma';
 import { UserService } from '@/modules/users/services/user.service';
 import { UnauthorizedException } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import * as bcrypt from 'bcrypt';
 import { AuthService } from '../../service/auth.service';
 import { CreateUserCommand } from './auth-login.command';
 import { AuthLoginHandler } from './auth-login.handle';
 
-describe('AuthLoginHandler', () => {
+describe('AuthLoginHandler (integration)', () => {
   let handler: AuthLoginHandler;
-  let authService: jest.Mocked<AuthService>;
-  let userService: jest.Mocked<UserService>;
 
-  const mockDate = new Date();
+  const password = 'password123';
 
   const mockUser = {
-    uuid: 'uuid-123',
     name: 'John Doe',
     email: 'john@example.com',
-    password: 'secret123',
-    createdAt: mockDate,
-    updatedAt: mockDate,
-    deletedAt: null,
-    roles: {
-      name: RoleEnum.admin,
-    },
+    password,
+    role: RoleEnum.admin,
   };
 
-  beforeEach(() => {
-    authService = {
-      login: jest.fn(),
-    } as unknown as jest.Mocked<AuthService>;
+  beforeAll(async () => {
+    process.env.NODE_ENV = 'test';
+    require('dotenv').config({ path: '.env.test' });
 
-    userService = {
-      findByEmail: jest.fn(),
-    } as unknown as jest.Mocked<UserService>;
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [AuthLoginHandler, AuthService, UserService],
+    }).compile();
 
-    handler = new AuthLoginHandler(authService, userService);
+    handler = module.get(AuthLoginHandler);
+
+    await prisma.user.deleteMany();
   });
 
-  it('should return accessToken and user on successful login', async () => {
-    authService.login.mockResolvedValue('mock-token');
-    userService.findByEmail.mockResolvedValue(mockUser);
+  afterEach(async () => {
+    await prisma.user.deleteMany();
+  });
+
+  afterAll(async () => {
+    await prisma.$disconnect();
+  });
+
+  it('should login user and return accessToken and user data', async () => {
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await prisma.user.create({
+      data: {
+        name: mockUser.name,
+        email: mockUser.email,
+        password: hashedPassword,
+        roles: {
+          create: {
+            name: mockUser.role,
+          },
+        },
+      },
+      include: { roles: true },
+    });
 
     const command = new CreateUserCommand({
       email: mockUser.email,
-      password: mockUser.password,
+      password,
     });
 
     const result = await handler.execute(command);
 
-    expect(result).toEqual({
-      accessToken: 'mock-token',
-      user: {
-        uuid: mockUser.uuid,
+    expect(result.accessToken).toBeDefined();
+    expect(typeof result.accessToken).toBe('string');
+
+    expect(result.user).toMatchObject({
+      name: mockUser.name,
+      email: mockUser.email,
+      role: mockUser.role,
+    });
+
+    expect(result.user.uuid).toBeDefined();
+    expect(result.user.createdAt).toBeInstanceOf(Date);
+  });
+
+  it('should throw UnauthorizedException for invalid password', async () => {
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await prisma.user.create({
+      data: {
         name: mockUser.name,
         email: mockUser.email,
-        password: mockUser.password,
-        role: RoleEnum.admin,
-        createdAt: mockUser.createdAt,
-        updatedAt: mockUser.updatedAt,
-        deletedAt: null,
+        password: hashedPassword,
       },
     });
 
-    expect(authService.login).toHaveBeenCalledWith(
-      mockUser.email,
-      mockUser.password
-    );
-    expect(userService.findByEmail).toHaveBeenCalledWith(mockUser.email);
-  });
-
-  it('should throw UnauthorizedException if login fails', async () => {
-    authService.login.mockResolvedValue(null);
-
     const command = new CreateUserCommand({
       email: mockUser.email,
-      password: mockUser.password,
+      password: 'wrong-password',
     });
 
     await expect(handler.execute(command)).rejects.toThrow(
       UnauthorizedException
     );
+
     await expect(handler.execute(command)).rejects.toThrow(
       'Invalid email or password'
     );
-
-    expect(authService.login).toHaveBeenCalledWith(
-      mockUser.email,
-      mockUser.password
-    );
   });
 
-  it('should throw UnauthorizedException if user is not found after login', async () => {
-    authService.login.mockResolvedValue('mock-token');
-    userService.findByEmail.mockResolvedValue(null);
-
+  it('should throw UnauthorizedException for non-existing email', async () => {
     const command = new CreateUserCommand({
-      email: mockUser.email,
-      password: mockUser.password,
+      email: 'notfound@test.com',
+      password,
     });
 
     await expect(handler.execute(command)).rejects.toThrow(
       UnauthorizedException
     );
+
     await expect(handler.execute(command)).rejects.toThrow(
       'Invalid email or password'
     );
-
-    expect(authService.login).toHaveBeenCalledWith(
-      mockUser.email,
-      mockUser.password
-    );
-    expect(userService.findByEmail).toHaveBeenCalledWith(mockUser.email);
   });
 });

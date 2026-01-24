@@ -3,6 +3,7 @@ import * as path from 'node:path';
 import { RoleEnum } from '@/core/enums/role.enum';
 import { prisma } from '@/core/lib/prisma';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Role } from 'generated/prisma/client';
 import { CreateRoleDto } from '../dtos/create-role.dto';
 
@@ -10,9 +11,11 @@ import { CreateRoleDto } from '../dtos/create-role.dto';
 export class RolesService {
   private readonly logger = new Logger(RolesService.name);
 
-  // constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly configService: ConfigService) {}
 
-  private nodeEnv = process.env.NODE_ENV;
+  private get nodeEnv(): string {
+    return this.configService.get<string>('NODE_ENV') ?? '';
+  }
 
   /**
    * Initializes roles from a JSON file if they don't already exist.

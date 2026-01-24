@@ -1,10 +1,11 @@
 import { RoleEnum } from '@/core/enums/role.enum';
 import { prisma } from '@/core/lib/prisma';
-import { generateHashPassword } from '@/core/utils/generatePassword';
+import { generateHashPassword } from '@/core/security/helpers/password.helper';
 import { AuthModule } from '@/modules/_auth/auth.module';
 import { RolesModule } from '@/modules/roles/roles.module';
 import { UserModule } from '@/modules/users/users.module';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
@@ -12,12 +13,8 @@ import { AuditsModule } from '../audits.module';
 
 describe('AuditsController (e2e)', () => {
   let app: INestApplication;
-  // let prisma: PrismaService;
   let testUserUuid: string;
   let accessToken: string;
-
-  const userPassword = process.env.ADMIN_PASSWORD;
-  const userPasswordHashed = generateHashPassword(userPassword);
 
   beforeAll(async () => {
     process.env.NODE_ENV = 'test';
@@ -32,7 +29,9 @@ describe('AuditsController (e2e)', () => {
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
     await app.init();
 
-    // prisma = module.get<PrismaService>(PrismaService);
+    const configService = app.get(ConfigService);
+    const userPassword = configService.get<string>('ADMIN_PASSWORD') ?? '';
+    const userPasswordHashed = await generateHashPassword(userPassword);
 
     await prisma.audit.deleteMany();
     await prisma.user.deleteMany();

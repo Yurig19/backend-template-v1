@@ -28,28 +28,28 @@ export class AuthRegisterHandler
   async execute(command: AuthRegisterCommand): Promise<AuthLoginResponseDto> {
     const { authRegisterDto } = command;
 
-    const checkEmail = await this.userService.checkEmail(authRegisterDto.email);
+    const emailAlreadyExists = await this.userService.checkEmail(
+      authRegisterDto.email
+    );
 
-    if (checkEmail) {
-      throw new BadRequestException('Email already registered!');
+    if (emailAlreadyExists) {
+      throw new BadRequestException('Email already in use');
     }
 
     const userData = await this.userService.create(authRegisterDto);
 
     if (!userData) {
-      throw new UnauthorizedException('User not found!');
+      throw new BadRequestException('Failed to create user');
     }
 
-    const newRegister = await this.authService.register(userData);
+    const accessToken = await this.authService.register(userData);
 
-    if (!newRegister) {
-      throw new UnauthorizedException(
-        'Not authorized. Check your credentials!'
-      );
+    if (!accessToken) {
+      throw new UnauthorizedException('Failed to generate access token');
     }
 
     return {
-      accessToken: newRegister,
+      accessToken,
       user: {
         uuid: userData.uuid,
         name: userData.name,
@@ -58,6 +58,6 @@ export class AuthRegisterHandler
         createdAt: userData.createdAt,
         updatedAt: userData.updatedAt,
       } as ReadUserDto,
-    } as AuthLoginResponseDto;
+    };
   }
 }

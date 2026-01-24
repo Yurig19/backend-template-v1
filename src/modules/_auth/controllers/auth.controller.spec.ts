@@ -19,7 +19,7 @@ describe('AuthController (e2e)', () => {
     await prisma.role.create({
       data: {
         name: 'admin',
-        type: 'ADMIN',
+        type: RoleEnum.admin,
       },
     });
 

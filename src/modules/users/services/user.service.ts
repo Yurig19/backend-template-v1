@@ -1,6 +1,6 @@
 import { RoleEnum } from '@/core/enums/role.enum';
 import { prisma } from '@/core/lib/prisma';
-import { generateHashPassword } from '@/core/utils/generatePassword';
+import { generateHashPassword } from '@/core/security/helpers/password.helper';
 import { RolesService } from '@/modules/roles/services/roles.service';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -92,7 +92,7 @@ export class UserService {
         throw new BadRequestException('role not found in the database');
       }
 
-      const hashedPassword = generateHashPassword(password);
+      const hashedPassword = await generateHashPassword(password);
 
       return await this.users.create({
         data: {

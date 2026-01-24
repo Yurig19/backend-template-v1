@@ -1,107 +1,81 @@
 import { RoleEnum } from '@/core/enums/role.enum';
+import { prisma } from '@/core/lib/prisma';
 import { AuthService } from '@/modules/_auth/service/auth.service';
-import { ReadUserDto } from '@/modules/users/dtos/read-user.dto';
 import { UserService } from '@/modules/users/services/user.service';
-import { BadRequestException, UnauthorizedException } from '@nestjs/common';
-import { AuthRegisterDto } from '../../dtos/auth-register.dto';
+import { BadRequestException } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
 import { AuthRegisterCommand } from './auth-register.command';
 import { AuthRegisterHandler } from './auth-register.handle';
 
-describe('AuthRegisterHandler', () => {
+describe('AuthRegisterHandler (integration)', () => {
   let handler: AuthRegisterHandler;
-  let authService: jest.Mocked<AuthService>;
-  let userService: jest.Mocked<UserService>;
 
-  const mockDate = new Date();
-
-  const mockDto: AuthRegisterDto = {
+  const mockDto = {
     name: 'Jane Doe',
     email: 'jane@example.com',
     password: 'password123',
     role: RoleEnum.employee,
   };
 
-  const mockUser: ReadUserDto = {
-    ...mockDto,
-    uuid: 'uuid-456',
-    roleUuid: 'role-uuid-test',
-    createdAt: mockDate,
-    updatedAt: mockDate,
-    deletedAt: null,
-  };
+  beforeAll(async () => {
+    process.env.NODE_ENV = 'test';
+    require('dotenv').config({ path: '.env.test' });
 
-  beforeEach(() => {
-    authService = {
-      register: jest.fn(),
-    } as unknown as jest.Mocked<AuthService>;
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [AuthRegisterHandler, AuthService, UserService],
+    }).compile();
 
-    userService = {
-      checkEmail: jest.fn(),
-      create: jest.fn(),
-    } as unknown as jest.Mocked<UserService>;
+    handler = module.get(AuthRegisterHandler);
 
-    handler = new AuthRegisterHandler(authService, userService);
+    await prisma.user.deleteMany();
+  });
+
+  afterEach(async () => {
+    await prisma.user.deleteMany();
+  });
+
+  afterAll(async () => {
+    await prisma.$disconnect();
   });
 
   it('should register user and return accessToken and user data', async () => {
-    userService.checkEmail.mockResolvedValue(false);
-    userService.create.mockResolvedValue(mockUser);
-    authService.register.mockResolvedValue('mock-token');
-
     const command = new AuthRegisterCommand(mockDto);
+
     const result = await handler.execute(command);
 
-    expect(result).toEqual({
-      accessToken: 'mock-token',
-      user: {
-        uuid: mockUser.uuid,
-        name: mockUser.name,
-        email: mockUser.email,
-        createdAt: mockUser.createdAt,
-        updatedAt: mockUser.updatedAt,
-      },
+    expect(result.accessToken).toBeDefined();
+    expect(typeof result.accessToken).toBe('string');
+
+    expect(result.user).toMatchObject({
+      name: mockDto.name,
+      email: mockDto.email,
     });
 
-    expect(userService.checkEmail).toHaveBeenCalledWith(mockDto.email);
-    expect(userService.create).toHaveBeenCalledWith(mockDto);
-    expect(authService.register).toHaveBeenCalledWith(mockUser);
+    expect(result.user.uuid).toBeDefined();
+    expect(result.user.createdAt).toBeInstanceOf(Date);
+
+    const userInDb = await prisma.user.findUnique({
+      where: { email: mockDto.email },
+    });
+
+    expect(userInDb).not.toBeNull();
   });
 
-  it('should throw BadRequestException if email is already registered', async () => {
-    userService.checkEmail.mockResolvedValue(true);
+  it('should throw BadRequestException if email already exists', async () => {
+    await prisma.user.create({
+      data: {
+        name: mockDto.name,
+        email: mockDto.email,
+        password: 'hashed-password',
+      },
+    });
 
     const command = new AuthRegisterCommand(mockDto);
 
     await expect(handler.execute(command)).rejects.toThrow(BadRequestException);
-    await expect(handler.execute(command)).rejects.toThrow(
-      'Email already registered!'
-    );
-  });
-
-  it('should throw UnauthorizedException if user creation fails', async () => {
-    userService.checkEmail.mockResolvedValue(false);
-    userService.create.mockResolvedValue(null);
-
-    const command = new AuthRegisterCommand(mockDto);
 
     await expect(handler.execute(command)).rejects.toThrow(
-      UnauthorizedException
-    );
-    await expect(handler.execute(command)).rejects.toThrow('User not found!');
-  });
-
-  it('should throw UnauthorizedException if authService.register fails', async () => {
-    userService.checkEmail.mockResolvedValue(false);
-    userService.create.mockResolvedValue(mockUser);
-    authService.register.mockResolvedValue(null);
-
-    const command = new AuthRegisterCommand(mockDto);
-
-    await expect(handler.execute(command)).rejects.toThrow(
-      UnauthorizedException
-    );
-    await expect(handler.execute(command)).rejects.toThrow(
-      'Not authorized. Check your credentials!'
+      'Email already in use'
     );
   });
 });

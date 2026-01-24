@@ -1,9 +1,13 @@
-import { randomBytes } from 'crypto';
 import { prisma } from '@/core/lib/prisma';
+import {
+  generateCode,
+  hashCode,
+  verifyCode,
+} from '@/core/security/helpers/code.helper';
 import {
   checkPassword,
   generateHashPassword,
-} from '@/core/utils/generatePassword';
+} from '@/core/security/helpers/password.helper';
 import {
   Injectable,
   Logger,
@@ -20,10 +24,7 @@ export class AuthService {
   private audience = 'users';
   private issuer = 'login';
 
-  constructor(
-    private readonly jwtService: JwtService
-    // private readonly prisma: PrismaService
-  ) {}
+  constructor(private readonly jwtService: JwtService) {}
 
   /**
    * Generates a JWT token for a user with role information.
@@ -128,24 +129,27 @@ export class AuthService {
     name: string;
     email: string;
   }> {
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
 
     if (!user) {
       throw new NotFoundException('User not found with this email.');
     }
 
-    const code = randomBytes(3).toString('hex').toUpperCase();
+    const code = generateCode(6);
+    const codeHash = hashCode(code);
 
-    const expiresAt = new Date();
-    expiresAt.setHours(expiresAt.getHours() + 4);
-
-    await prisma.user.update({
-      where: { uuid: user.uuid },
-      data: { code, codeExpiresAt: expiresAt },
+    await prisma.passwordReset.create({
+      data: {
+        userUuid: user.uuid,
+        codeHash,
+        expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+      },
     });
 
     return {
-      code,
+      code, // ⚠️ só vai por email
       name: user.name || 'User',
       email: user.email,
     };
@@ -158,25 +162,49 @@ export class AuthService {
     code: string,
     newPassword: string
   ): Promise<{ message: string }> {
-    const user = await prisma.user.findFirst({ where: { code } });
+    const resets = await prisma.passwordReset.findMany({
+      where: {
+        usedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+      include: { user: true },
+    });
 
-    if (!user) {
+    const reset = resets.find((r) => verifyCode(code, r.codeHash));
+
+    if (!reset) {
       throw new NotFoundException('Invalid or expired reset code.');
     }
 
-    if (!user.codeExpiresAt || new Date() > user.codeExpiresAt) {
-      throw new NotFoundException('This reset code has expired.');
+    if (reset.attempts >= 5) {
+      await prisma.passwordReset.update({
+        where: { uuid: reset.uuid },
+        data: {
+          usedAt: new Date(),
+        },
+      });
+
+      throw new UnauthorizedException(
+        'Maximum attempts reached. Please request a new reset code.'
+      );
     }
 
-    const encryptedPassword = generateHashPassword(newPassword);
+    const encryptedPassword = await generateHashPassword(newPassword);
 
-    await prisma.user.update({
-      where: { uuid: user.uuid },
-      data: {
-        password: encryptedPassword,
-        code: null,
-      },
-    });
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { uuid: reset.userUuid },
+        data: {
+          password: encryptedPassword,
+        },
+      }),
+      prisma.passwordReset.update({
+        where: { uuid: reset.uuid },
+        data: {
+          usedAt: new Date(),
+        },
+      }),
+    ]);
 
     return { message: 'Password successfully reset.' };
   }

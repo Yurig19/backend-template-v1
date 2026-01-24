@@ -1,9 +1,10 @@
 import { RoleEnum } from '@/core/enums/role.enum';
 import { prisma } from '@/core/lib/prisma';
-import { generateHashPassword } from '@/core/utils/generatePassword';
+import { generateHashPassword } from '@/core/security/helpers/password.helper';
 import { AuthModule } from '@/modules/_auth/auth.module';
 import { RolesModule } from '@/modules/roles/roles.module';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
@@ -17,9 +18,6 @@ describe('UsersController (e2e)', () => {
   let testUserUuid: string;
   let accessToken: string;
 
-  const userPassword: string = process.env.ADMIN_PASSWORD;
-  const hashedPassword = generateHashPassword(process.env.ADMIN_PASSWORD);
-
   beforeAll(async () => {
     process.env.NODE_ENV = 'test';
     require('dotenv').config({ path: '.env.test' });
@@ -31,6 +29,10 @@ describe('UsersController (e2e)', () => {
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
     await app.init();
+
+    const configService = app.get(ConfigService);
+    const userPassword = configService.get<string>('ADMIN_PASSWORD') ?? '';
+    const hashedPassword = await generateHashPassword(userPassword);
 
     await prisma.$connect();
 
