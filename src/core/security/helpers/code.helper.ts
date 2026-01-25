@@ -3,10 +3,6 @@ import { createHmac, randomInt, timingSafeEqual } from 'crypto';
 const CODE_LENGTH = 6;
 const CODE_SECRET = process.env.CODE_SECRET as string;
 
-if (!CODE_SECRET) {
-  throw new Error('CODE_SECRET is not defined');
-}
-
 /**
  * Gera um código numérico aleatório
  */

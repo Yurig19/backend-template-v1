@@ -20,8 +20,6 @@ export class UploadService {
   private readonly s3Client: S3Client;
 
   private awsEndpoint = this.configService.get<string>('AWS_ENDPOINT');
-  private forcePathStyle =
-    this.configService.get<string>('AWS_S3_FORCE_PATH_STYLE') === 'true';
   private accessKeyId = this.configService.get<string>('AWS_ACCESS_KEY_ID');
   private secretAccessKey = this.configService.get<string>(
     'AWS_SECRET_ACCESS_KEY'
@@ -37,7 +35,6 @@ export class UploadService {
         accessKeyId: this.accessKeyId,
         secretAccessKey: this.secretAccessKey,
       },
-      forcePathStyle: this.forcePathStyle,
     });
   }
 
