@@ -1,30 +1,15 @@
-import { AppModule } from '@/app.module';
-
 import { RoleEnum } from '@/core/enums/role.enum';
 import { prisma } from '@/core/lib/prisma';
+import { createRole } from '@/test/e2e/factories/role';
+import { resetDatabase } from '@/test/e2e/setup/database';
+import { createE2EApp } from '@/test/e2e/setup/e2e.app';
+import { setupTestEnv } from '@/test/e2e/setup/e2e.setup';
 import { INestApplication } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
-
-  beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-
-    await prisma.role.create({
-      data: {
-        name: 'admin',
-        type: RoleEnum.admin,
-      },
-    });
-
-    await app.init();
-  });
+  let accessToken: string;
 
   const userRegister = {
     name: 'Jane Doe',
@@ -33,7 +18,19 @@ describe('AuthController (e2e)', () => {
     role: RoleEnum.admin,
   };
 
-  let accessToken: string;
+  beforeAll(async () => {
+    setupTestEnv();
+    app = await createE2EApp();
+
+    await resetDatabase();
+    await createRole(RoleEnum.admin);
+  });
+
+  afterAll(async () => {
+    await resetDatabase();
+    await prisma.$disconnect();
+    await app.close();
+  });
 
   it('/auth/register (POST) → should register user', async () => {
     const response = await request(app.getHttpServer())
@@ -70,12 +67,5 @@ describe('AuthController (e2e)', () => {
       .expect(200);
 
     expect(response.body.email).toBe(userRegister.email);
-  });
-
-  afterAll(async () => {
-    await prisma.audit.deleteMany();
-    await prisma.user.deleteMany();
-    await prisma.$disconnect();
-    await app.close();
   });
 });

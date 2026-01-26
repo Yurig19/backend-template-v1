@@ -1,65 +1,34 @@
 import { RoleEnum } from '@/core/enums/role.enum';
 import { prisma } from '@/core/lib/prisma';
-import { generateHashPassword } from '@/core/security/helpers/password.helper';
-import { AuthModule } from '@/modules/_auth/auth.module';
-import { RolesModule } from '@/modules/roles/roles.module';
-import { UserModule } from '@/modules/users/users.module';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { CqrsModule } from '@nestjs/cqrs';
-import { Test, TestingModule } from '@nestjs/testing';
+import { createRole } from '@/test/e2e/factories/role';
+import { createUser } from '@/test/e2e/factories/user';
+import { loginAndGetToken } from '@/test/e2e/setup/auth';
+import { resetDatabase } from '@/test/e2e/setup/database';
+import { createE2EApp } from '@/test/e2e/setup/e2e.app';
+import { setupTestEnv } from '@/test/e2e/setup/e2e.setup';
+import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AuditsModule } from '../audits.module';
 
 describe('AuditsController (e2e)', () => {
   let app: INestApplication;
-  let testUserUuid: string;
   let accessToken: string;
+  let testUserUuid: string;
 
   beforeAll(async () => {
-    process.env.NODE_ENV = 'test';
-    require('dotenv').config({ path: '.env.test' });
+    setupTestEnv();
+    app = await createE2EApp();
 
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [CqrsModule, UserModule, RolesModule, AuthModule, AuditsModule],
-      providers: [],
-    }).compile();
+    await resetDatabase();
+    await createRole(RoleEnum.employee);
 
-    app = module.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ transform: true }));
-    await app.init();
-
-    const configService = app.get(ConfigService);
-    const userPassword = configService.get<string>('ADMIN_PASSWORD') ?? '';
-    const userPasswordHashed = await generateHashPassword(userPassword);
-
-    await prisma.audit.deleteMany();
-    await prisma.user.deleteMany();
-    await prisma.role.deleteMany();
-
-    const role = await prisma.role.create({
-      data: {
-        name: 'employee',
-        type: RoleEnum.employee,
-      },
+    const user = await createUser(RoleEnum.employee, {
+      email: 'audituser@test.com',
+      password: 'Test@123456',
     });
 
-    const user = await prisma.user.create({
-      data: {
-        name: 'Test User',
-        email: 'testuser@example.com',
-        password: userPasswordHashed,
-        roleUuid: role.uuid,
-      },
-    });
     testUserUuid = user.uuid;
 
-    const loginResponse = await request(app.getHttpServer())
-      .post('/auth/login')
-      .send({ email: user.email, password: userPassword })
-      .expect(201);
-
-    accessToken = loginResponse.body.accessToken;
+    accessToken = await loginAndGetToken(app, user.email, 'Test@123456');
 
     await prisma.audit.createMany({
       data: [
@@ -88,9 +57,7 @@ describe('AuditsController (e2e)', () => {
   });
 
   afterAll(async () => {
-    await prisma.audit.deleteMany();
-    await prisma.user.deleteMany();
-    await prisma.role.deleteMany();
+    await resetDatabase();
     await prisma.$disconnect();
     await app.close();
   });
@@ -104,8 +71,11 @@ describe('AuditsController (e2e)', () => {
 
     expect(response.body).toBeDefined();
     expect(response.body.data).toHaveLength(2);
-    expect(response.body.data[0]).toHaveProperty('entity', 'User');
-    expect(response.body.data[0]).toHaveProperty('method');
+
+    const audit = response.body.data[0];
+
+    expect(audit).toHaveProperty('entity', 'User');
+    expect(audit).toHaveProperty('method');
   });
 
   it('should filter audits by search term', async () => {

@@ -1,80 +1,46 @@
 import { RoleEnum } from '@/core/enums/role.enum';
 import { prisma } from '@/core/lib/prisma';
-import { generateHashPassword } from '@/core/security/helpers/password.helper';
-import { AuthModule } from '@/modules/_auth/auth.module';
-import { RolesModule } from '@/modules/roles/roles.module';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { CqrsModule } from '@nestjs/cqrs';
-import { Test, TestingModule } from '@nestjs/testing';
+import { createRole } from '@/test/e2e/factories/role';
+import { createUser } from '@/test/e2e/factories/user';
+import { loginAndGetToken } from '@/test/e2e/setup/auth';
+import { resetDatabase } from '@/test/e2e/setup/database';
+import { createE2EApp } from '@/test/e2e/setup/e2e.app';
+import { setupTestEnv } from '@/test/e2e/setup/e2e.setup';
+import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { ReadUserListDto } from '../dtos/list-user.dto';
 import { UpdateUserDto } from '../dtos/update-user.dto';
-import { UserModule } from '../users.module';
 
 describe('UsersController (e2e)', () => {
   let app: INestApplication;
-  let testUserUuid: string;
   let accessToken: string;
+  let testUserUuid: string;
 
   beforeAll(async () => {
-    process.env.NODE_ENV = 'test';
-    require('dotenv').config({ path: '.env.test' });
+    setupTestEnv();
+    app = await createE2EApp();
 
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [CqrsModule, UserModule, RolesModule, AuthModule],
-    }).compile();
+    await resetDatabase();
+    await createRole(RoleEnum.employee);
 
-    app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ transform: true }));
-    await app.init();
-
-    const configService = app.get(ConfigService);
-    const userPassword = configService.get<string>('ADMIN_PASSWORD') ?? '';
-    const hashedPassword = await generateHashPassword(userPassword);
-
-    await prisma.$connect();
-
-    await prisma.audit.deleteMany();
-    await prisma.user.deleteMany();
-    await prisma.role.deleteMany();
-
-    const role = await prisma.role.create({
-      data: {
-        name: 'employee',
-        type: RoleEnum.employee,
-      },
-    });
-
-    const user = await prisma.user.create({
-      data: {
-        name: 'Test User',
-        email: 'testuser@example.com',
-        password: hashedPassword,
-        roleUuid: role.uuid,
-      },
+    const user = await createUser(RoleEnum.employee, {
+      email: 'testuser@example.com',
+      password: 'Test@123456',
     });
 
     testUserUuid = user.uuid;
-
-    const loginResponse = await request(app.getHttpServer())
-      .post('/auth/login')
-      .send({ email: user.email, password: userPassword });
-
-    accessToken = loginResponse.body.accessToken;
+    accessToken = await loginAndGetToken(app, user.email, 'Test@123456');
   });
 
   afterAll(async () => {
-    await prisma.audit.deleteMany();
-    await prisma.user.deleteMany();
-    await prisma.role.deleteMany();
+    await resetDatabase();
     await prisma.$disconnect();
     await app.close();
   });
 
   it('should create a new user', async () => {
-    const createUserDto: CreateUserDto = {
+    const dto: CreateUserDto = {
       name: 'New User',
       email: 'newuser@example.com',
       password: 'new@Password123',
@@ -84,12 +50,15 @@ describe('UsersController (e2e)', () => {
     const response = await request(app.getHttpServer())
       .post('/users/create')
       .set('Authorization', `Bearer ${accessToken}`)
-      .send(createUserDto)
+      .send(dto)
       .expect(201);
 
+    expect(response.body).toMatchObject({
+      name: dto.name,
+      email: dto.email,
+    });
+
     expect(response.body).toHaveProperty('uuid');
-    expect(response.body.name).toBe(createUserDto.name);
-    expect(response.body.email).toBe(createUserDto.email);
   });
 
   it('should get user by uuid', async () => {
@@ -99,8 +68,10 @@ describe('UsersController (e2e)', () => {
       .query({ uuid: testUserUuid })
       .expect(200);
 
-    expect(response.body).toHaveProperty('uuid', testUserUuid);
-    expect(response.body).toHaveProperty('name', 'Test User');
+    expect(response.body).toMatchObject({
+      uuid: testUserUuid,
+      name: 'Test User',
+    });
   });
 
   it('should list users with pagination', async () => {
@@ -111,7 +82,6 @@ describe('UsersController (e2e)', () => {
       .expect(200);
 
     expect(response.body).toHaveProperty('data');
-    expect(Array.isArray(response.body.data)).toBe(true);
     expect(response.body).toHaveProperty('total');
     expect(response.body).toHaveProperty('actualPage');
     expect(response.body).toHaveProperty('totalPages');
@@ -127,11 +97,13 @@ describe('UsersController (e2e)', () => {
     const response = await request(app.getHttpServer())
       .get('/users/list')
       .set('Authorization', `Bearer ${accessToken}`)
-      .query({ page: 1, dataPerPage: 10, search: 'Test User' })
+      .query({
+        page: 1,
+        dataPerPage: 10,
+        search: 'Test User',
+      })
       .expect(200);
 
-    expect(response.body).toHaveProperty('data');
-    expect(Array.isArray(response.body.data)).toBe(true);
     expect(
       response.body.data.some(
         (user: ReadUserListDto) => user.name === 'Test User'
@@ -140,7 +112,7 @@ describe('UsersController (e2e)', () => {
   });
 
   it('should update a user', async () => {
-    const updateUserDto: UpdateUserDto = {
+    const dto: UpdateUserDto = {
       name: 'Updated User',
       email: 'updateduser@example.com',
       password: 'updated@Password123',
@@ -151,12 +123,14 @@ describe('UsersController (e2e)', () => {
       .put('/users/update')
       .set('Authorization', `Bearer ${accessToken}`)
       .query({ uuid: testUserUuid })
-      .send(updateUserDto)
+      .send(dto)
       .expect(200);
 
-    expect(response.body).toHaveProperty('uuid', testUserUuid);
-    expect(response.body.name).toBe(updateUserDto.name);
-    expect(response.body.email).toBe(updateUserDto.email);
+    expect(response.body).toMatchObject({
+      uuid: testUserUuid,
+      name: dto.name,
+      email: dto.email,
+    });
   });
 
   it('should delete a user', async () => {
@@ -166,16 +140,16 @@ describe('UsersController (e2e)', () => {
       .query({ uuid: testUserUuid })
       .expect(200);
 
-    expect(response.body).toHaveProperty('success', true);
-    expect(response.body).toHaveProperty('statusCode', 200);
-    expect(response.body).toHaveProperty(
-      'message',
-      'User deleted successfully!'
-    );
+    expect(response.body).toEqual({
+      success: true,
+      statusCode: 200,
+      message: 'User deleted successfully!',
+    });
 
     const user = await prisma.user.findUnique({
       where: { uuid: testUserUuid },
     });
+
     expect(user).toBeNull();
   });
 });

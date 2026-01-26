@@ -1,77 +1,50 @@
 import * as path from 'path';
-import { AppModule } from '@/app.module';
-import { prisma } from '@/core/lib/prisma';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
+import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 
-describe('FilesController (E2E) - Real Login', () => {
-  let app: INestApplication;
+import { RoleEnum } from '@/core/enums/role.enum';
+import { prisma } from '@/core/lib/prisma';
+import { createRole } from '@/test/e2e/factories/role';
+import { createUser } from '@/test/e2e/factories/user';
+import { loginAndGetToken } from '@/test/e2e/setup/auth';
+import { resetDatabase } from '@/test/e2e/setup/database';
+import { createE2EApp } from '@/test/e2e/setup/e2e.app';
+import { setupTestEnv } from '@/test/e2e/setup/e2e.setup';
 
-  let jwtToken: string;
+describe('FilesController (e2e)', () => {
+  let app: INestApplication;
+  let accessToken: string;
 
   beforeAll(async () => {
-    process.env.NODE_ENV = 'test';
-    require('dotenv').config({ path: '.env.test' });
+    setupTestEnv();
+    app = await createE2EApp();
 
-    const moduleRef = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
+    await resetDatabase();
+    await createRole(RoleEnum.employee);
 
-    app = moduleRef.createNestApplication();
-
-    app.useGlobalPipes(
-      new ValidationPipe({
-        transform: true,
-      })
-    );
-
-    await app.init();
-
-    const tables = await prisma.$queryRaw<
-      Array<{ tablename: string }>
-    >`SELECT tablename FROM pg_tables WHERE schemaname='public'`;
-
-    for (const t of tables) {
-      await prisma.$executeRawUnsafe(
-        `TRUNCATE TABLE "public"."${t.tablename}" RESTART IDENTITY CASCADE;`
-      );
-    }
-
-    const login = await request(app.getHttpServer()).post('/auth/login').send({
-      email: 'admin@example.com',
-      password: 'admin123',
+    const user = await createUser(RoleEnum.employee, {
+      email: 'fileuser@test.com',
+      password: 'Test@123456',
     });
 
-    expect(login.status).toBe(201);
-    expect(login.body.accessToken).toBeDefined();
-
-    jwtToken = login.body.accessToken;
+    accessToken = await loginAndGetToken(app, user.email, 'Test@123456');
   });
 
   afterAll(async () => {
-    const tables = await prisma.$queryRaw<
-      Array<{ tablename: string }>
-    >`SELECT tablename FROM pg_tables WHERE schemaname='public'`;
-
-    for (const t of tables) {
-      await prisma.$executeRawUnsafe(
-        `TRUNCATE TABLE "public"."${t.tablename}" RESTART IDENTITY CASCADE;`
-      );
-    }
-
+    await resetDatabase();
+    await prisma.$disconnect();
     await app.close();
   });
 
-  it('POST /files/create → should create a real file', async () => {
+  it('POST /files/create → should create a file', async () => {
     const filePath = path.join(__dirname, 'mock.txt');
 
     const res = await request(app.getHttpServer())
       .post('/files/create?isPrivate=false')
-      .set('Authorization', `Bearer ${jwtToken}`)
-      .attach('file', filePath);
+      .set('Authorization', `Bearer ${accessToken}`)
+      .attach('file', filePath)
+      .expect(201);
 
-    expect(res.status).toBe(201);
     expect(res.body).toHaveProperty('uuid');
     expect(res.body.filename).toBe('mock.txt');
 
@@ -85,10 +58,9 @@ describe('FilesController (E2E) - Real Login', () => {
   });
 
   it('POST /files/create → should return error if file is missing', async () => {
-    const res = await request(app.getHttpServer())
+    await request(app.getHttpServer())
       .post('/files/create')
-      .set('Authorization', `Bearer ${jwtToken}`);
-
-    expect(res.status).toBe(400);
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(400);
   });
 });
