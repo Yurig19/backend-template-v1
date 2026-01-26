@@ -32,7 +32,7 @@ export class UsersController {
     successDescription: 'User successfully created',
     isAuth: true,
   })
-  async create(@Body() createUserDto: CreateUserDto) {
+  async create(@Body() createUserDto: CreateUserDto): Promise<ReadUserDto> {
     return this.commandBus.execute(new CreateUserCommand(createUserDto));
   }
 
@@ -92,7 +92,7 @@ export class UsersController {
     @Query('page', ParseIntPipe) page: number,
     @Query('dataPerPage', ParseIntPipe) dataPerPage: number,
     @Query('search') search?: string
-  ) {
+  ): Promise<ListUserDto> {
     return this.queryBus.execute<ListUsersQuery, ListUserDto>(
       new ListUsersQuery(page, dataPerPage, search)
     );
