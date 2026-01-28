@@ -1,6 +1,3 @@
-import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-
 import { RoleEnum } from '@/core/enums/role.enum';
 import { prisma } from '@/core/lib/prisma';
 import { createRole } from '@/test/e2e/factories/role';
@@ -9,6 +6,8 @@ import { loginAndGetToken } from '@/test/e2e/setup/auth';
 import { resetDatabase } from '@/test/e2e/setup/database';
 import { createE2EApp } from '@/test/e2e/setup/e2e.app';
 import { setupTestEnv } from '@/test/e2e/setup/e2e.setup';
+import { INestApplication } from '@nestjs/common';
+import * as request from 'supertest';
 
 describe('LogsController (e2e)', () => {
   let app: INestApplication;
