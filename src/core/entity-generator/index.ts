@@ -570,7 +570,7 @@ function generateService(entity: string, fields: any[]) {
   const entityImport = prismaType;
 
   return `import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-    import { PrismaService } from '@/core/database/prisma.service';
+    import { prisma } from '@/core/lib/prisma';
     import { Prisma, ${entityImport} } from 'generated/prisma/client';
     import { Create${entity}Dto } from '../dtos/create-${lower}.dto';
     import { Update${entity}Dto } from '../dtos/update-${lower}.dto';
@@ -581,10 +581,8 @@ function generateService(entity: string, fields: any[]) {
     @Injectable()
     export class ${entity}Service {
       private readonly logger = new Logger(${entity}Service.name);
-    
-      constructor(private readonly prisma: PrismaService) {}
-    
-      private ${lower}s = this.prisma.${lower};
+  
+      private ${lower}s = prisma.${lower};
   
       /**
        * Checks whether a ${lower} with the provided UUID exists.
@@ -694,7 +692,7 @@ function generateService(entity: string, fields: any[]) {
               : "if (search) { where['uuid'] = { contains: search, mode: 'insensitive' }; }"
           }
     
-          const [data, total] = await this.prisma.$transaction([
+          const [data, total] = await prisma.$transaction([
             this.${lower}s.findMany({ where, skip, take, orderBy: [{ createdAt: 'desc' }] }),
             this.${lower}s.count({ where }),
           ]);
