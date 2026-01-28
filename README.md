@@ -139,6 +139,3 @@ pnpm prisma migrate dev
 ```
 
 ---
-
-## 📄 Licença
-Este projeto é um template livre para uso e modificação.
