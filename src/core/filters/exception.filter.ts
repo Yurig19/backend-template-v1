@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { ErrorResponseDto } from '../enums/errors/dtos/error.dto';
+import { handlePrismaError } from '../errors/helpers/prisma-error.helper';
 import { prisma } from '../lib/prisma';
 
 @Injectable()
@@ -80,7 +81,9 @@ export class BaseExceptionFilter implements ExceptionFilter {
         },
       });
     } catch (logError) {
-      console.error('Failed to log error:', logError);
+      try {
+        handlePrismaError(logError);
+      } catch {}
     }
 
     response.status(errorResponse.statusCode).json(errorResponse);

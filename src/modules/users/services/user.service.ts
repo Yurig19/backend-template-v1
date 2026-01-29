@@ -1,4 +1,5 @@
 import { RoleEnum } from '@/core/enums/role.enum';
+import { handlePrismaError } from '@/core/errors/helpers/prisma-error.helper';
 import { prisma } from '@/core/lib/prisma';
 import { generateHashPassword } from '@/core/security/helpers/password.helper';
 import { RolesService } from '@/modules/roles/services/roles.service';
@@ -105,10 +106,7 @@ export class UserService {
         include: { roles: true },
       });
     } catch (error) {
-      this.logger.error('Failed to create user', error);
-      throw new BadRequestException(
-        'Failed to create user. Please verify the provided data.'
-      );
+      handlePrismaError(error);
     }
   }
 
@@ -148,8 +146,7 @@ export class UserService {
         },
       });
     } catch (error) {
-      this.logger.error(`Failed to find user by uuid: ${uuid}`, error);
-      throw new BadRequestException('Failed to retrieve user information.');
+      handlePrismaError(error);
     }
   }
 
@@ -184,13 +181,21 @@ export class UserService {
           roles: {
             select: {
               type: true,
+              rolePermissions: {
+                select: {
+                  permission: {
+                    select: {
+                      action: true,
+                    },
+                  },
+                },
+              },
             },
           },
         },
       });
     } catch (error) {
-      this.logger.error(`Failed to find user by uuid for auth: ${uuid}`, error);
-      throw new BadRequestException('Failed to retrieve user information.');
+      handlePrismaError(error);
     }
   }
 
@@ -230,8 +235,7 @@ export class UserService {
         },
       });
     } catch (error) {
-      this.logger.error(`Failed to find user by email: ${email}`, error);
-      throw new BadRequestException('Failed to retrieve user information.');
+      handlePrismaError(error);
     }
   }
 
@@ -293,8 +297,7 @@ export class UserService {
         currentPage: page,
       };
     } catch (error) {
-      this.logger.error('Failed to list users with pagination', error);
-      throw new BadRequestException('Failed to retrieve users list.');
+      handlePrismaError(error);
     }
   }
 
@@ -329,8 +332,7 @@ export class UserService {
         data,
       });
     } catch (error) {
-      this.logger.error(`Failed to patch user: ${uuid}`, error);
-      throw new BadRequestException('Failed to update user.');
+      handlePrismaError(error);
     }
   }
 
@@ -376,8 +378,7 @@ export class UserService {
         },
       });
     } catch (error) {
-      this.logger.error(`Failed to update user: ${uuid}`, error);
-      throw new BadRequestException('Failed to update user.');
+      handlePrismaError(error);
     }
   }
 
@@ -391,8 +392,7 @@ export class UserService {
         where: { uuid },
       });
     } catch (error) {
-      this.logger.error(`Failed to delete user: ${uuid}`, error);
-      throw new BadRequestException('Failed to delete user.');
+      handlePrismaError(error);
     }
   }
 
@@ -407,8 +407,7 @@ export class UserService {
         data: { deletedAt: new Date() },
       });
     } catch (error) {
-      this.logger.error(`Failed to soft delete user: ${uuid}`, error);
-      throw new BadRequestException('Failed to soft delete user.');
+      handlePrismaError(error);
     }
   }
 }

@@ -149,7 +149,7 @@ export class AuthService {
     });
 
     return {
-      code, // ⚠️ só vai por email
+      code,
       name: user.name || 'User',
       email: user.email,
     };

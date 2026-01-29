@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from 'fs';
 import * as path from 'path';
+import { handlePrismaError } from '@/core/errors/helpers/prisma-error.helper';
 import { prisma } from '@/core/lib/prisma';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { EmailTemplate } from 'generated/prisma/client';
@@ -19,8 +20,7 @@ export class EmailTemplateService {
     try {
       return await this.templateEmail.create({ data });
     } catch (error) {
-      this.logger.error('Failed to create email template', error);
-      throw new BadRequestException('Failed to create email template.');
+      handlePrismaError(error);
     }
   }
 
@@ -76,8 +76,10 @@ export class EmailTemplateService {
         );
       }
     } catch (error) {
-      this.logger.error('❌ Failed to initialize email templates', error);
-      throw new BadRequestException('Failed to initialize email templates.');
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      handlePrismaError(error);
     }
   }
 }

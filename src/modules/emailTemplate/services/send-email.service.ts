@@ -1,3 +1,4 @@
+import { handlePrismaError } from '@/core/errors/helpers/prisma-error.helper';
 import { prisma } from '@/core/lib/prisma';
 import {
   BadRequestException,
@@ -97,11 +98,13 @@ export class SendEmailService {
 
       await this.sendEmail(to, template.subject, htmlContent, textContent);
     } catch (error) {
-      this.logger.error(
-        `❌ Failed to send template email: ${templateName}`,
-        error
-      );
-      throw new BadRequestException('Failed to send template-based email.');
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+      handlePrismaError(error);
     }
   }
 }

@@ -1,7 +1,8 @@
 import { DeleteDto } from '@/core/dtos/delete.dto';
 import { HttpStatusCodeEnum } from '@/core/enums/errors/statusCodeErrors.enum';
+import { handlePrismaError } from '@/core/errors/helpers/prisma-error.helper';
 import { prisma } from '@/core/lib/prisma';
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { File } from 'generated/prisma/client';
 import { CreateFileDto } from '../dtos/create-file.dto';
 
@@ -28,8 +29,7 @@ export class FilesService {
         },
       });
     } catch (error) {
-      this.logger.error('Failed to create file', error);
-      throw new BadRequestException('Failed to create file.');
+      handlePrismaError(error);
     }
   }
 
@@ -46,8 +46,7 @@ export class FilesService {
         },
       });
     } catch (error) {
-      this.logger.error(`Failed to get file by uuid: ${uuid}`, error);
-      throw new BadRequestException('Failed to retrieve file.');
+      handlePrismaError(error);
     }
   }
 
@@ -67,8 +66,7 @@ export class FilesService {
         },
       });
     } catch (error) {
-      this.logger.error(`Failed to soft delete file: ${uuid}`, error);
-      throw new BadRequestException('Failed to soft delete file.');
+      handlePrismaError(error);
     }
   }
 
@@ -88,8 +86,7 @@ export class FilesService {
         message: 'File deleted successfully',
       };
     } catch (error) {
-      this.logger.error(`Failed to delete file: ${uuid}`, error);
-      throw new BadRequestException('Failed to delete file.');
+      handlePrismaError(error);
     }
   }
 }

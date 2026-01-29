@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import * as path from 'node:path';
 import { RoleEnum } from '@/core/enums/role.enum';
+import { handlePrismaError } from '@/core/errors/helpers/prisma-error.helper';
 import { prisma } from '@/core/lib/prisma';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -57,8 +58,10 @@ export class RolesService {
         }
       }
     } catch (error) {
-      this.logger.error('Failed to initialize roles', error);
-      throw new BadRequestException('Failed to initialize roles.');
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      handlePrismaError(error);
     }
   }
 
@@ -74,8 +77,7 @@ export class RolesService {
         select: { uuid: true },
       });
     } catch (error) {
-      this.logger.error(`Failed to find role by type: ${type}`, error);
-      throw new BadRequestException('Failed to find role.');
+      handlePrismaError(error);
     }
   }
 
@@ -90,8 +92,7 @@ export class RolesService {
         data: createRoleDto,
       });
     } catch (error) {
-      this.logger.error('Failed to create role', error);
-      throw new BadRequestException('Failed to create role.');
+      handlePrismaError(error);
     }
   }
 }

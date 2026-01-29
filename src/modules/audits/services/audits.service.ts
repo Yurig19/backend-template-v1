@@ -1,3 +1,4 @@
+import { handlePrismaError } from '@/core/errors/helpers/prisma-error.helper';
 import { prisma } from '@/core/lib/prisma';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { Audit, Prisma } from 'generated/prisma/client';
@@ -56,8 +57,7 @@ export class AuditsService {
         currentPage: page,
       };
     } catch (error) {
-      this.logger.error('Failed to list audits with pagination', error);
-      throw new BadRequestException('Failed to retrieve audits list.');
+      handlePrismaError(error);
     }
   }
 }

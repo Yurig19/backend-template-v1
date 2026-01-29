@@ -1,5 +1,6 @@
+import { handlePrismaError } from '@/core/errors/helpers/prisma-error.helper';
 import { prisma } from '@/core/lib/prisma';
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ErrorLog, Prisma } from 'generated/prisma/client';
 
 @Injectable()
@@ -60,8 +61,7 @@ export class LogsService {
         currentPage: page,
       };
     } catch (error) {
-      this.logger.error('Failed to list logs with pagination', error);
-      throw new BadRequestException('Failed to retrieve logs list.');
+      handlePrismaError(error);
     }
   }
 }

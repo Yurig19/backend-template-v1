@@ -7,6 +7,7 @@ import {
 import { Request, Response } from 'express';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { handlePrismaError } from '../errors/helpers/prisma-error.helper';
 import { prisma } from '../lib/prisma';
 
 @Injectable()
@@ -35,22 +36,26 @@ export class AuditInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       tap(async (responseData) => {
-        const newData =
-          action === 'PUT' || action === 'PATCH' || action === 'DELETE'
-            ? responseData
-            : null;
-        await prisma.audit.create({
-          data: {
-            entity,
-            method: action,
-            url,
-            userUuid: user?.uuid || null,
-            ip: userIp,
-            userAgent,
-            oldData: oldData ? oldData : null,
-            newData: newData,
-          },
-        });
+        try {
+          const newData =
+            action === 'PUT' || action === 'PATCH' || action === 'DELETE'
+              ? responseData
+              : null;
+          await prisma.audit.create({
+            data: {
+              entity,
+              method: action,
+              url,
+              userUuid: user?.uuid || null,
+              ip: userIp,
+              userAgent,
+              oldData: oldData ? oldData : null,
+              newData: newData,
+            },
+          });
+        } catch (error) {
+          handlePrismaError(error);
+        }
       })
     );
   }
