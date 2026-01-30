@@ -1,11 +1,11 @@
 import { RoleEnum } from '@/core/enums/role.enum';
-import { handlePrismaError } from '@/core/errors/helpers/prisma-error.helper';
 import { prisma } from '@/core/lib/prisma';
 import { generateHashPassword } from '@/core/security/helpers/password.helper';
 import { RolesService } from '@/modules/roles/services/roles.service';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Prisma, Role, User } from 'generated/prisma/client';
+import { search } from 'redoc/typings/services/SearchWorker.worker';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { PatchUserDto } from '../dtos/patch-user.dto';
 import { UpdateUserDto } from '../dtos/update-user.dto';
@@ -82,32 +82,28 @@ export class UserService {
    * @returns Created user with role information
    */
   async create(createUserDto: CreateUserDto): Promise<User & { roles: Role }> {
-    try {
-      const { password, role, ...data } = createUserDto;
+    const { password, role, ...data } = createUserDto;
 
-      const roleExists = await prisma.role.findFirst({
-        where: { type: role },
-      });
+    const roleExists = await prisma.role.findFirst({
+      where: { type: role },
+    });
 
-      if (!roleExists) {
-        throw new BadRequestException('role not found in the database');
-      }
-
-      const hashedPassword = await generateHashPassword(password);
-
-      return await this.users.create({
-        data: {
-          ...data,
-          roles: {
-            connect: { uuid: roleExists.uuid },
-          },
-          password: hashedPassword,
-        },
-        include: { roles: true },
-      });
-    } catch (error) {
-      handlePrismaError(error);
+    if (!roleExists) {
+      throw new BadRequestException('role not found in the database');
     }
+
+    const hashedPassword = await generateHashPassword(password);
+
+    return await this.users.create({
+      data: {
+        ...data,
+        roles: {
+          connect: { uuid: roleExists.uuid },
+        },
+        password: hashedPassword,
+      },
+      include: { roles: true },
+    });
   }
 
   /**
@@ -127,27 +123,23 @@ export class UserService {
       name: string;
     };
   }> {
-    try {
-      return await this.users.findUnique({
-        where: { uuid },
-        select: {
-          uuid: true,
-          name: true,
-          email: true,
-          password: true,
-          createdAt: true,
-          updatedAt: true,
-          deletedAt: true,
-          roles: {
-            select: {
-              name: true,
-            },
+    return await this.users.findUnique({
+      where: { uuid },
+      select: {
+        uuid: true,
+        name: true,
+        email: true,
+        password: true,
+        createdAt: true,
+        updatedAt: true,
+        deletedAt: true,
+        roles: {
+          select: {
+            name: true,
           },
         },
-      });
-    } catch (error) {
-      handlePrismaError(error);
-    }
+      },
+    });
   }
 
   /**
@@ -167,36 +159,32 @@ export class UserService {
       type: string;
     };
   }> {
-    try {
-      return await this.users.findUnique({
-        where: { uuid },
-        select: {
-          uuid: true,
-          name: true,
-          email: true,
-          password: true,
-          createdAt: true,
-          updatedAt: true,
-          deletedAt: true,
-          roles: {
-            select: {
-              type: true,
-              rolePermissions: {
-                select: {
-                  permission: {
-                    select: {
-                      action: true,
-                    },
+    return await this.users.findUnique({
+      where: { uuid },
+      select: {
+        uuid: true,
+        name: true,
+        email: true,
+        password: true,
+        createdAt: true,
+        updatedAt: true,
+        deletedAt: true,
+        roles: {
+          select: {
+            type: true,
+            rolePermissions: {
+              select: {
+                permission: {
+                  select: {
+                    action: true,
                   },
                 },
               },
             },
           },
         },
-      });
-    } catch (error) {
-      handlePrismaError(error);
-    }
+      },
+    });
   }
 
   /**
@@ -216,27 +204,23 @@ export class UserService {
       name: string;
     };
   }> {
-    try {
-      return await this.users.findUnique({
-        where: { email },
-        select: {
-          uuid: true,
-          name: true,
-          email: true,
-          password: true,
-          createdAt: true,
-          updatedAt: true,
-          deletedAt: true,
-          roles: {
-            select: {
-              name: true,
-            },
+    return await this.users.findUnique({
+      where: { email },
+      select: {
+        uuid: true,
+        name: true,
+        email: true,
+        password: true,
+        createdAt: true,
+        updatedAt: true,
+        deletedAt: true,
+        roles: {
+          select: {
+            name: true,
           },
         },
-      });
-    } catch (error) {
-      handlePrismaError(error);
-    }
+      },
+    });
   }
 
   /**
@@ -258,47 +242,45 @@ export class UserService {
     totalPages: number;
     currentPage: number;
   }> {
-    try {
-      const page = actualPage;
-      const take = dataPerPage;
-      const skip = (page - 1) * take;
+    const page = actualPage;
+    const take = dataPerPage;
+    const skip = (page - 1) * take;
 
-      const where: Prisma.UserWhereInput = {};
+    const where: Prisma.UserWhereInput = {
+      deletedAt: null,
+    };
 
-      if (search) {
-        where.name = {
-          contains: search,
-          mode: 'insensitive',
-        };
-      }
-
-      const [users, total] = await prisma.$transaction([
-        prisma.user.findMany({
-          where,
-          skip,
-          take,
-          include: {
-            roles: {
-              select: { name: true },
-            },
-          },
-          orderBy: [{ createdAt: 'desc' }],
-        }),
-
-        prisma.user.count({ where }),
-      ]);
-
-      const totalPages = Math.max(Math.ceil(total / take), 1);
-
-      return {
-        users,
-        total,
-        totalPages,
-        currentPage: page,
+    if (search) {
+      where.name = {
+        contains: search,
+        mode: 'insensitive',
       };
-    } catch (error) {
-      handlePrismaError(error);
     }
+
+    const [users, total] = await prisma.$transaction([
+      prisma.user.findMany({
+        where,
+        skip,
+        take,
+        include: {
+          roles: {
+            select: { name: true },
+          },
+        },
+        orderBy: [{ createdAt: 'desc' }],
+      }),
+
+      prisma.user.count({ where }),
+    ]);
+
+    const totalPages = Math.max(Math.ceil(total / take), 1);
+
+    return {
+      users,
+      total,
+      totalPages,
+      currentPage: page,
+    };
   }
 
   /**
@@ -317,23 +299,19 @@ export class UserService {
       };
     }
   > {
-    try {
-      return await this.users.update({
-        where: {
-          uuid,
-        },
-        include: {
-          roles: {
-            select: {
-              name: true,
-            },
+    return await this.users.update({
+      where: {
+        uuid,
+      },
+      include: {
+        roles: {
+          select: {
+            name: true,
           },
         },
-        data,
-      });
-    } catch (error) {
-      handlePrismaError(error);
-    }
+      },
+      data,
+    });
   }
 
   /**
@@ -352,34 +330,30 @@ export class UserService {
       };
     }
   > {
-    try {
-      const { role, ...rest } = data;
-      const roleData = await this.rolesService.findByType(role);
+    const { role, ...rest } = data;
+    const roleData = await this.rolesService.findByType(role);
 
-      if (!roleData) {
-        throw new BadRequestException('role not found');
-      }
-      return await this.users.update({
-        where: { uuid },
-        data: {
-          ...rest,
-          roles: {
-            connect: {
-              uuid: roleData.uuid,
-            },
-          },
-        },
-        include: {
-          roles: {
-            select: {
-              type: true,
-            },
-          },
-        },
-      });
-    } catch (error) {
-      handlePrismaError(error);
+    if (!roleData) {
+      throw new BadRequestException('role not found');
     }
+    return await this.users.update({
+      where: { uuid },
+      data: {
+        ...rest,
+        roles: {
+          connect: {
+            uuid: roleData.uuid,
+          },
+        },
+      },
+      include: {
+        roles: {
+          select: {
+            type: true,
+          },
+        },
+      },
+    });
   }
 
   /**
@@ -387,13 +361,9 @@ export class UserService {
    * @param uuid User UUID to delete
    */
   async delete(uuid: string): Promise<void> {
-    try {
-      await this.users.delete({
-        where: { uuid },
-      });
-    } catch (error) {
-      handlePrismaError(error);
-    }
+    await this.users.delete({
+      where: { uuid },
+    });
   }
 
   /**
@@ -401,13 +371,9 @@ export class UserService {
    * @param uuid User UUID to soft delete
    */
   async softDelete(uuid: string): Promise<void> {
-    try {
-      await this.users.update({
-        where: { uuid },
-        data: { deletedAt: new Date() },
-      });
-    } catch (error) {
-      handlePrismaError(error);
-    }
+    await this.users.update({
+      where: { uuid },
+      data: { deletedAt: new Date() },
+    });
   }
 }

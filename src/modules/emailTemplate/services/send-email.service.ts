@@ -1,4 +1,3 @@
-import { handlePrismaError } from '@/core/errors/helpers/prisma-error.helper';
 import { prisma } from '@/core/lib/prisma';
 import {
   BadRequestException,
@@ -14,10 +13,7 @@ export class SendEmailService {
   private transporter: nodemailer.Transporter;
   private readonly logger = new Logger(SendEmailService.name);
 
-  constructor(
-    private readonly configService: ConfigService
-    // private readonly prisma: PrismaService
-  ) {
+  constructor(private readonly configService: ConfigService) {
     this.transporter = nodemailer.createTransport({
       host: this.configService.get<string>('SMTP_HOST'),
       port: this.configService.get<number>('SMTP_PORT'),
@@ -76,35 +72,25 @@ export class SendEmailService {
     templateName: string,
     variables: Record<string, string>
   ): Promise<void> {
-    try {
-      const template = await prisma.emailTemplate.findUnique({
-        where: { name: templateName },
-      });
+    const template = await prisma.emailTemplate.findUnique({
+      where: { name: templateName },
+    });
 
-      if (!template) {
-        throw new NotFoundException(
-          `Email template "${templateName}" not found.`
-        );
-      }
-
-      let htmlContent = template.bodyHtml;
-      let textContent = template.bodyText || '';
-
-      for (const [key, value] of Object.entries(variables)) {
-        const regex = new RegExp(`{{\\s*${key}\\s*}}`, 'g');
-        htmlContent = htmlContent.replace(regex, value);
-        textContent = textContent.replace(regex, value);
-      }
-
-      await this.sendEmail(to, template.subject, htmlContent, textContent);
-    } catch (error) {
-      if (
-        error instanceof NotFoundException ||
-        error instanceof BadRequestException
-      ) {
-        throw error;
-      }
-      handlePrismaError(error);
+    if (!template) {
+      throw new NotFoundException(
+        `Email template "${templateName}" not found.`
+      );
     }
+
+    let htmlContent = template.bodyHtml;
+    let textContent = template.bodyText || '';
+
+    for (const [key, value] of Object.entries(variables)) {
+      const regex = new RegExp(`{{\\s*${key}\\s*}}`, 'g');
+      htmlContent = htmlContent.replace(regex, value);
+      textContent = textContent.replace(regex, value);
+    }
+
+    await this.sendEmail(to, template.subject, htmlContent, textContent);
   }
 }

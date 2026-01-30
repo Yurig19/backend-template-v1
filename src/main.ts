@@ -14,7 +14,6 @@ async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const configService = app.get(ConfigService);
 
-  // 🔧 Configurações gerais
   const apiVersion = configService.get<string>('API_VERSION', 'v1');
   const frontendUrl = configService.get<string>(
     'FRONTEND_URL',
@@ -25,7 +24,6 @@ async function bootstrap() {
   const ngrokToken = configService.get<string>('NGROK_AUTHTOKEN');
   const port = configService.get<number>('PORT', enableHttps ? 8443 : 8080);
 
-  // 🔒 HTTPS
   const keyPath = configService.get<string>('HTTPS_KEY_PATH');
   const certPath = configService.get<string>('HTTPS_CERT_PATH');
   const httpsOptions = {};
@@ -59,7 +57,6 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // 🧭 Swagger
   const config = new DocumentBuilder()
     .setTitle('Template API')
     .setDescription('The Template API description')
@@ -108,7 +105,6 @@ async function bootstrap() {
     `📘 Swagger Docs available at ${baseUrl.replace('/api', '')}/api/${apiVersion}/docs`
   );
 
-  // 🌐 NGROK
   let listener: Awaited<ReturnType<typeof ngrok.connect>> | null = null;
 
   if (enableNgrok) {

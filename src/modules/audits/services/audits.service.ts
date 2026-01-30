@@ -1,6 +1,5 @@
-import { handlePrismaError } from '@/core/errors/helpers/prisma-error.helper';
 import { prisma } from '@/core/lib/prisma';
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Audit, Prisma } from 'generated/prisma/client';
 
 @Injectable()
@@ -24,40 +23,36 @@ export class AuditsService {
     totalPages: number;
     currentPage: number;
   }> {
-    try {
-      const page = actualPage;
-      const take = dataPerPage;
-      const skip = (page - 1) * take;
+    const page = actualPage;
+    const take = dataPerPage;
+    const skip = (page - 1) * take;
 
-      const where: Prisma.AuditWhereInput = {};
+    const where: Prisma.AuditWhereInput = {};
 
-      if (search) {
-        where.OR = [
-          { entity: { contains: search, mode: 'insensitive' } },
-          { method: { contains: search, mode: 'insensitive' } },
-        ];
-      }
-
-      const [audits, total] = await prisma.$transaction([
-        prisma.audit.findMany({
-          where,
-          skip,
-          take,
-          orderBy: { createdAt: 'desc' },
-        }),
-        prisma.audit.count({ where }),
-      ]);
-
-      const totalPages = Math.max(Math.ceil(total / take), 1);
-
-      return {
-        audits,
-        total,
-        totalPages,
-        currentPage: page,
-      };
-    } catch (error) {
-      handlePrismaError(error);
+    if (search) {
+      where.OR = [
+        { entity: { contains: search, mode: 'insensitive' } },
+        { method: { contains: search, mode: 'insensitive' } },
+      ];
     }
+
+    const [audits, total] = await prisma.$transaction([
+      prisma.audit.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.audit.count({ where }),
+    ]);
+
+    const totalPages = Math.max(Math.ceil(total / take), 1);
+
+    return {
+      audits,
+      total,
+      totalPages,
+      currentPage: page,
+    };
   }
 }

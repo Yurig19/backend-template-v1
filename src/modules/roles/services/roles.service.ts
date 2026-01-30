@@ -1,7 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import * as path from 'node:path';
 import { RoleEnum } from '@/core/enums/role.enum';
-import { handlePrismaError } from '@/core/errors/helpers/prisma-error.helper';
 import { prisma } from '@/core/lib/prisma';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -10,8 +9,6 @@ import { CreateRoleDto } from '../dtos/create-role.dto';
 
 @Injectable()
 export class RolesService {
-  private readonly logger = new Logger(RolesService.name);
-
   constructor(private readonly configService: ConfigService) {}
 
   private get nodeEnv(): string {
@@ -23,45 +20,38 @@ export class RolesService {
    * Only runs in non-test environments.
    */
   async init() {
-    try {
-      if (this.nodeEnv !== 'test') {
-        const filePath = path.resolve(
-          process.cwd(),
-          'src/modules/roles/services/init.json'
-        );
+    if (this.nodeEnv !== 'test') {
+      const filePath = path.resolve(
+        process.cwd(),
+        'src/modules/roles/services/init.json'
+      );
 
-        if (!existsSync(filePath)) {
-          throw new BadRequestException(`File not found: ${filePath}`);
-        }
+      if (!existsSync(filePath)) {
+        throw new BadRequestException(`File not found: ${filePath}`);
+      }
 
-        const rolesData = JSON.parse(readFileSync(filePath, 'utf-8'));
+      const rolesData = JSON.parse(readFileSync(filePath, 'utf-8'));
 
-        if (rolesData && Array.isArray(rolesData)) {
-          for (const role of rolesData) {
-            const existingRole = await prisma.role.findUnique({
-              where: { type: role.type },
-            });
+      if (rolesData && Array.isArray(rolesData)) {
+        for (const role of rolesData) {
+          const existingRole = await prisma.role.findUnique({
+            where: { type: role.type },
+          });
 
-            const roleData: CreateRoleDto = {
-              name: role.name,
-              type: role.type,
-            };
+          const roleData: CreateRoleDto = {
+            name: role.name,
+            type: role.type,
+          };
 
-            if (!existingRole) {
-              await this.createRole(roleData);
-            }
+          if (!existingRole) {
+            await this.createRole(roleData);
           }
-        } else {
-          throw new BadRequestException(
-            'The roles.json file does not contain valid data.'
-          );
         }
+      } else {
+        throw new BadRequestException(
+          'The roles.json file does not contain valid data.'
+        );
       }
-    } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw error;
-      }
-      handlePrismaError(error);
     }
   }
 
@@ -71,14 +61,10 @@ export class RolesService {
    * @returns Role UUID if found
    */
   async findByType(type: RoleEnum): Promise<{ uuid: string }> {
-    try {
-      return await prisma.role.findUnique({
-        where: { type },
-        select: { uuid: true },
-      });
-    } catch (error) {
-      handlePrismaError(error);
-    }
+    return await prisma.role.findUnique({
+      where: { type },
+      select: { uuid: true },
+    });
   }
 
   /**
@@ -87,12 +73,8 @@ export class RolesService {
    * @returns Created role
    */
   async createRole(createRoleDto: CreateRoleDto): Promise<Role> {
-    try {
-      return await prisma.role.create({
-        data: createRoleDto,
-      });
-    } catch (error) {
-      handlePrismaError(error);
-    }
+    return await prisma.role.create({
+      data: createRoleDto,
+    });
   }
 }

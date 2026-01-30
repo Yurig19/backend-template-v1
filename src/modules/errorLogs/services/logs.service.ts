@@ -1,4 +1,3 @@
-import { handlePrismaError } from '@/core/errors/helpers/prisma-error.helper';
 import { prisma } from '@/core/lib/prisma';
 import { Injectable, Logger } from '@nestjs/common';
 import { ErrorLog, Prisma } from 'generated/prisma/client';
@@ -24,44 +23,40 @@ export class LogsService {
     totalPages: number;
     currentPage: number;
   }> {
-    try {
-      const page = actualPage;
-      const take = dataPerPage;
-      const skip = (page - 1) * take;
+    const page = actualPage;
+    const take = dataPerPage;
+    const skip = (page - 1) * take;
 
-      const where: Prisma.ErrorLogWhereInput = {};
+    const where: Prisma.ErrorLogWhereInput = {};
 
-      if (search) {
-        where.OR = [
-          {
-            error: {
-              contains: search,
-              mode: 'insensitive',
-            },
+    if (search) {
+      where.OR = [
+        {
+          error: {
+            contains: search,
+            mode: 'insensitive',
           },
-        ];
-      }
-
-      const [logs, total] = await prisma.$transaction([
-        prisma.errorLog.findMany({
-          where,
-          skip,
-          take,
-          orderBy: { createdAt: 'desc' },
-        }),
-        prisma.errorLog.count({ where }),
-      ]);
-
-      const totalPages = Math.max(Math.ceil(total / take), 1);
-
-      return {
-        logs,
-        total,
-        totalPages,
-        currentPage: page,
-      };
-    } catch (error) {
-      handlePrismaError(error);
+        },
+      ];
     }
+
+    const [logs, total] = await prisma.$transaction([
+      prisma.errorLog.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.errorLog.count({ where }),
+    ]);
+
+    const totalPages = Math.max(Math.ceil(total / take), 1);
+
+    return {
+      logs,
+      total,
+      totalPages,
+      currentPage: page,
+    };
   }
 }

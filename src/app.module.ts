@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
-import { APP_FILTER, APP_INTERCEPTOR, BaseExceptionFilter } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AppConfigModule } from './core/config/env';
+import { BaseExceptionFilter } from './core/filters/exception.filter';
 import { AuditInterceptor } from './core/interceptors/audits.interceptor';
 import { AuthModule } from './modules/_auth/auth.module';
 import { InitModule } from './modules/_init/init.module';
@@ -15,8 +17,26 @@ import { UserModule } from './modules/users/users.module';
   imports: [
     AppConfigModule,
     CqrsModule,
-    InitModule,
 
+    ThrottlerModule.forRoot([
+      {
+        name: 'short',
+        ttl: 1000,
+        limit: 3,
+      },
+      {
+        name: 'medium',
+        ttl: 10000,
+        limit: 20,
+      },
+      {
+        name: 'long',
+        ttl: 60000,
+        limit: 100,
+      },
+    ]),
+
+    InitModule,
     EmailTemplateModule,
 
     //
@@ -40,6 +60,10 @@ import { UserModule } from './modules/users/users.module';
     {
       provide: APP_INTERCEPTOR,
       useClass: AuditInterceptor,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
   exports: [CqrsModule],

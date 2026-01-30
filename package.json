@@ -37,6 +37,7 @@
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^10.4.15",
     "@nestjs/swagger": "^8.1.0",
+    "@nestjs/throttler": "^6.5.0",
     "@ngrok/ngrok": "^1.5.2",
     "@prisma/adapter-pg": "^6.19.0",
     "@prisma/client": "^7.3.0",
